@@ -23,6 +23,12 @@ struct HomeView: View {
                         weatherManager: weatherManager
                     )
                     stateMessage
+                    if viewModel.canMarkRestDay {
+                        restDayButton
+                    }
+                    if viewModel.shouldShowFreezePrompt {
+                        freezePromptCard
+                    }
                     exerciseCards
                     goalSuggestionsSection
                 }
@@ -82,8 +88,11 @@ struct HomeView: View {
     }
 
     private var messageContent: (String, Color) {
+        if viewModel.isRestDay {
+            return ("Rest day. See you tomorrow.", Color(UIColor.secondaryLabel))
+        }
         if viewModel.streakAtRisk {
-            return ("Don't break the chain.", AppTheme.Colors.streakDanger)
+            return ("Your streak is at risk. Still time.", AppTheme.Colors.streakDanger)
         }
         switch viewModel.dayState {
         case .fresh:
@@ -148,6 +157,47 @@ struct HomeView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Rest day button
+
+    private var restDayButton: some View {
+        Button {
+            viewModel.markRestDay(context: modelContext)
+        } label: {
+            Text("Rest day")
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(Color(UIColor.secondaryLabel))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Freeze prompt
+
+    private var freezePromptCard: some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            Text("🧊")
+                .font(.title2)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Use a freeze?")
+                    .font(AppTheme.Font.headline())
+                Text("Life happens. Streak protected.")
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button("Use") {
+                viewModel.useFreeze(context: modelContext)
+            }
+            .font(AppTheme.Font.caption().weight(.semibold))
+            .foregroundStyle(AppTheme.Colors.coolBlue)
+            .padding(.horizontal, AppTheme.Spacing.sm)
+            .padding(.vertical, AppTheme.Spacing.xs)
+            .background(AppTheme.Colors.coolBlue.opacity(0.12), in: Capsule())
+        }
+        .padding(AppTheme.Spacing.md)
+        .background(Color(UIColor.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
     }
 
     // MARK: - Completion banner

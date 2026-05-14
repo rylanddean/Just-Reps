@@ -105,11 +105,25 @@ struct StreakEngine {
     static func heatmapData(entries: [WorkoutEntry], days: Int = 365) -> [DateComponents: Int] {
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now)!
         var map: [DateComponents: Int] = [:]
-        for entry in entries where entry.timestamp >= cutoff {
+        for entry in entries where entry.timestamp >= cutoff && entry.kind == .workout {
             let key = logicalDay(for: entry.timestamp)
             map[key, default: 0] += entry.reps
         }
         return map
+    }
+
+    static func restDays(entries: [WorkoutEntry], days: Int = 365) -> Set<DateComponents> {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now)!
+        return Set(entries
+            .filter { $0.kind == .rest && $0.timestamp >= cutoff }
+            .map { logicalDay(for: $0.timestamp) })
+    }
+
+    static func freezeDays(entries: [WorkoutEntry], days: Int = 365) -> Set<DateComponents> {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now)!
+        return Set(entries
+            .filter { $0.kind == .freeze && $0.timestamp >= cutoff }
+            .map { logicalDay(for: $0.timestamp) })
     }
 
     // MARK: - Logical day (internal so ViewModels can use it for goals streak)

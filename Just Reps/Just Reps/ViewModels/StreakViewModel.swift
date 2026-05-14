@@ -66,6 +66,14 @@ final class StreakViewModel {
         StreakEngine.heatmapData(entries: allEntries)
     }
 
+    var restDays: Set<DateComponents> {
+        StreakEngine.restDays(entries: allEntries)
+    }
+
+    var freezeDays: Set<DateComponents> {
+        StreakEngine.freezeDays(entries: allEntries)
+    }
+
     var weeklyAverageBuckets: [StreakAnalytics.Bucket] {
         StreakAnalytics.averageBuckets(entries: allEntries, period: .weekly)
     }
@@ -89,10 +97,15 @@ final class StreakViewModel {
     // MARK: - Goal streak
 
     var goalStreak: Int {
-        StreakEngine.calculateStreak(from: goalCompletedDays()).current
+        let saved = Self.sharedDefaults.stringArray(forKey: Self.completedGoalDaysKey) ?? []
+        let days = saved.compactMap { key -> DateComponents? in
+            let parts = key.split(separator: "-").compactMap { Int($0) }
+            guard parts.count == 3 else { return nil }
+            return DateComponents(year: parts[0], month: parts[1], day: parts[2])
+        }
+        return StreakEngine.calculateStreak(from: Set(days)).current
     }
 
-    // Active exercises read from the shared AppGroup UserDefaults (same source as HomeViewModel).
     var activeExercises: [ExerciseType] {
         let raw = Self.sharedDefaults.stringArray(forKey: Self.exercisesKey) ?? []
         return raw.isEmpty ? ExerciseType.defaults : raw.map { ExerciseType(rawString: $0) }
@@ -100,36 +113,10 @@ final class StreakViewModel {
 
     private static let appGroupID = "group.com.rylanddean.justreps"
     private static let exercisesKey = "activeExercises"
-    private static let goalsKey = "dailyGoals"
+    private static let completedGoalDaysKey = "completedGoalDays"
 
     private static var sharedDefaults: UserDefaults {
         UserDefaults(suiteName: appGroupID) ?? .standard
-    }
-
-    private func goalCompletedDays() -> Set<DateComponents> {
-        let exercises = activeExercises
-        let goals = (Self.sharedDefaults.dictionary(forKey: Self.goalsKey) as? [String: Int]) ?? [:]
-
-        var dayMap: [DateComponents: [WorkoutEntry]] = [:]
-        for entry in allEntries {
-            let day = StreakEngine.logicalDay(for: entry.timestamp)
-            dayMap[day, default: []].append(entry)
-        }
-
-        var completed = Set<DateComponents>()
-        for (day, entries) in dayMap {
-            let allMet = exercises.allSatisfy { exercise in
-                let reps = entries.filter { $0.exercise == exercise }.reduce(0) { $0 + $1.reps }
-                let goal = goals[exercise.rawString] ?? defaultGoalForStreak(exercise)
-                return reps >= goal
-            }
-            if allMet { completed.insert(day) }
-        }
-        return completed
-    }
-
-    private func defaultGoalForStreak(_ exercise: ExerciseType) -> Int {
-        exercise == .squats ? 50 : 25
     }
 
     // MARK: - Milestones
