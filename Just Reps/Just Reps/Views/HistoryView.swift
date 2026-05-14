@@ -123,7 +123,11 @@ struct HistoryView: View {
         .contentShape(Rectangle())
         .contextMenu {
             Button(role: .destructive) {
+                let timestamp = entry.timestamp
                 modelContext.delete(entry)
+                if UserDefaults.standard.bool(forKey: "healthKitEnabled") {
+                    Task { await HealthKitManager.shared.deleteWorkout(near: timestamp) }
+                }
             } label: {
                 Label("Delete entry", systemImage: "trash")
             }

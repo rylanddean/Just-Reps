@@ -8,12 +8,14 @@ final class WorkoutEntry {
     var exerciseRaw: String
     var reps: Int
     var timestamp: Date
+    var effortRPE: Double?
 
-    init(exercise: ExerciseType, reps: Int, timestamp: Date = .now) {
+    init(exercise: ExerciseType, reps: Int, timestamp: Date = .now, effortRPE: Double? = nil) {
         self.id = UUID()
         self.exerciseRaw = exercise.rawString
         self.reps = reps
         self.timestamp = timestamp
+        self.effortRPE = effortRPE
     }
 
     var exercise: ExerciseType {

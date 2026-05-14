@@ -5,6 +5,10 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var viewModel: HomeViewModel
     @State private var showSettings = false
+    @State private var dismissedRecs: Set<String> = []
+
+    private let hkManager = HealthKitManager.shared
+    private let weatherManager = WeatherManager.shared
 
     @Query(sort: \WorkoutEntry.timestamp, order: .reverse)
     private var allEntries: [WorkoutEntry]
@@ -12,14 +16,26 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: AppTheme.Spacing.xl) {
-                    headerSection
+                VStack(spacing: AppTheme.Spacing.lg) {
+                    HeaderCardView(
+                        viewModel: viewModel,
+                        hkManager: hkManager,
+                        weatherManager: weatherManager
+                    )
                     stateMessage
                     exerciseCards
+                    goalSuggestionsSection
                 }
                 .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.top, AppTheme.Spacing.lg)
+                .padding(.top, AppTheme.Spacing.md)
                 .padding(.bottom, AppTheme.Spacing.xxl)
+            }
+            .sheet(isPresented: $viewModel.showEffortPicker, onDismiss: {
+                viewModel.confirmEffort(nil, context: modelContext)
+            }) {
+                EffortPickerSheet { effort in
+                    viewModel.confirmEffort(effort, context: modelContext)
+                }
             }
             .background(Color(UIColor.systemBackground))
             .navigationBarTitleDisplayMode(.inline)
@@ -43,63 +59,15 @@ struct HomeView: View {
             }
             .onChange(of: allEntries) { viewModel.refresh(with: allEntries) }
             .onAppear { viewModel.refresh(with: allEntries) }
-        }
-    }
-
-    // MARK: - Header
-
-    private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            Text(Date.now.formatted(date: .complete, time: .omitted).uppercased())
-                .font(AppTheme.Font.caption())
-                .kerning(1.5)
-                .foregroundStyle(.secondary)
-        HStack(spacing: 0) {
-                streakCell(
-                    value: viewModel.loggedStreak,
-                    label: "REP STREAK",
-                    isAtRisk: viewModel.streakAtRisk,
-                    activeColor: AppTheme.Colors.successGreen
-                )
-
-                Rectangle()
-                    .fill(Color(UIColor.separator))
-                    .frame(width: 0.5, height: 44)
-
-                streakCell(
-                    value: viewModel.goalsStreak,
-                    label: "GOAL STREAK",
-                    isAtRisk: viewModel.goalsStreakAtRisk,
-                    activeColor: AppTheme.Colors.coolBlue
-                )
+            .task {
+                weatherManager.requestWeather()
+                await hkManager.fetchTrainingLoad()
             }
-            .padding(.vertical, AppTheme.Spacing.md)
-            .background(Color(UIColor.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
         }
-        .frame(maxWidth: .infinity)
-    }
-
-    private func streakCell(value: Int, label: String, isAtRisk: Bool, activeColor: Color) -> some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
-            Text("\(value)")
-                .font(.system(size: 44, weight: .heavy, design: .rounded))
-                .foregroundStyle(
-                    isAtRisk           ? AppTheme.Colors.streakDanger :
-                    value > 0          ? activeColor :
-                    Color(UIColor.tertiaryLabel)
-                )
-                .contentTransition(.numericText())
-                .animation(.spring(duration: 0.3), value: value)
-            Text(label)
-                .font(AppTheme.Font.caption())
-                .kerning(1)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
     }
 
     // MARK: - State message
+
     @ViewBuilder
     private var stateMessage: some View {
         let (text, color) = messageContent
@@ -116,7 +84,7 @@ struct HomeView: View {
     private var messageContent: (String, Color) {
         if viewModel.streakAtRisk {
             return ("Don't break the chain.", AppTheme.Colors.streakDanger)
-        }    
+        }
         switch viewModel.dayState {
         case .fresh:
             return ("Show up. Even 5 reps counts.", Color(UIColor.secondaryLabel))
@@ -128,6 +96,7 @@ struct HomeView: View {
     }
 
     // MARK: - Exercise cards
+
     private var exerciseCards: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             ForEach(viewModel.activeExercises) { exercise in
@@ -139,6 +108,44 @@ struct HomeView: View {
                         viewModel.logReps(amount, for: exercise, context: modelContext)
                     }
                 )
+            }
+        }
+    }
+
+    // MARK: - Goal suggestions
+
+    private var activeGoalRecs: [GoalRecommendation] {
+        GoalAdvisorService.recommendations(
+            for: viewModel.activeExercises,
+            goals: viewModel.dailyGoals,
+            entries: allEntries,
+            trainingLoad: hkManager.trainingLoad
+        ).filter { !dismissedRecs.contains($0.exercise.rawString) }
+    }
+
+    @ViewBuilder
+    private var goalSuggestionsSection: some View {
+        if !activeGoalRecs.isEmpty {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                Text("Suggested Goals".uppercased())
+                    .font(AppTheme.Font.caption())
+                    .kerning(1)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, AppTheme.Spacing.xs)
+
+                ForEach(activeGoalRecs, id: \.exercise.rawString) { rec in
+                    GoalSuggestionCard(
+                        recommendation: rec,
+                        onApply: {
+                            viewModel.setGoal(rec.suggestedGoal, for: rec.exercise)
+                            withAnimation { _ = dismissedRecs.insert(rec.exercise.rawString) }
+                        },
+                        onDismiss: {
+                            withAnimation { _ = dismissedRecs.insert(rec.exercise.rawString) }
+                        }
+                    )
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                }
             }
         }
     }

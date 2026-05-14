@@ -11,7 +11,6 @@ struct SettingsView: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled = false
     @AppStorage("notificationHour")     private var notificationHour = 18
     @AppStorage("notificationMinute")   private var notificationMinute = 0
-    @AppStorage("darkModeOverride")     private var darkModeOverride = false
     @AppStorage("healthKitEnabled")     private var healthKitEnabled = false
     @AppStorage("repsPerMinute")        private var repsPerMinute = 20
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
@@ -30,7 +29,7 @@ struct SettingsView: View {
         lastBackupTimestamp > 0 ? Date(timeIntervalSinceReferenceDate: lastBackupTimestamp) : nil
     }
 
-    private let builtInExercises: [ExerciseType] = [.pushups, .squats, .pullups, .situps, .plank]
+    private let builtInExercises: [ExerciseType] = [.pushups, .squats, .pullups, .situps, .plank, .stretching]
 
     var body: some View {
         NavigationStack {
@@ -39,7 +38,6 @@ struct SettingsView: View {
                 goalsSection
                 notificationsSection
                 healthSection
-                appearanceSection
                 backupSection
             }
             .navigationTitle("Settings")
@@ -167,7 +165,7 @@ struct SettingsView: View {
                     Stepper("", value: Binding(
                         get: { viewModel.goal(for: exercise) },
                         set: { viewModel.setGoal($0, for: exercise) }
-                    ), in: 1...999, step: 5)
+                    ), in: 1...999, step: exercise == .stretching ? 1 : 5)
                     .labelsHidden()
                 }
             }
@@ -231,15 +229,6 @@ struct SettingsView: View {
                         .labelsHidden()
                 }
             }
-        }
-    }
-
-    // MARK: - Appearance
-
-    private var appearanceSection: some View {
-        Section("Appearance") {
-            Toggle("Dark mode", isOn: $darkModeOverride)
-                .tint(AppTheme.Colors.successGreen)
         }
     }
 

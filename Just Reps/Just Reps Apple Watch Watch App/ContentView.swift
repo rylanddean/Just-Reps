@@ -14,6 +14,12 @@ struct ContentView: View {
                 .tag(1)
             WatchActivityView(vm: vm)
                 .tag(2)
+            WatchTrainingLoadView(vm: vm)
+                .tag(3)
+            WatchGoalSuggestionsView(vm: vm)
+                .tag(4)
+            WatchMilestonesView(vm: vm)
+                .tag(5)
         }
         .tabViewStyle(.page)
         .onAppear { vm.refresh(with: entries) }

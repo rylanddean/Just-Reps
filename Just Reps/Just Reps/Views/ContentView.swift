@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @AppStorage("darkModeOverride") private var darkModeOverride = false
     @State private var homeViewModel = HomeViewModel()
 
     var body: some View {
@@ -15,7 +14,6 @@ struct ContentView: View {
                 }
             }
         }
-        .preferredColorScheme(darkModeOverride ? .dark : nil)
     }
 
     private var mainApp: some View {

@@ -9,6 +9,7 @@ struct WorkoutEntryRecord: Codable {
     var exerciseRaw: String
     var reps: Int
     var timestamp: Date
+    var effortRPE: Double?
 }
 
 struct PreferencesRecord: Codable {
@@ -91,7 +92,8 @@ enum BackupManager {
                 id: $0.id,
                 exerciseRaw: $0.exerciseRaw,
                 reps: $0.reps,
-                timestamp: $0.timestamp
+                timestamp: $0.timestamp,
+                effortRPE: $0.effortRPE
             )
         }
         let prefs = PreferencesRecord(
@@ -135,7 +137,8 @@ enum BackupManager {
             let entry = WorkoutEntry(
                 exercise: ExerciseType(rawString: record.exerciseRaw),
                 reps: record.reps,
-                timestamp: record.timestamp
+                timestamp: record.timestamp,
+                effortRPE: record.effortRPE
             )
             entry.id = record.id
             context.insert(entry)
