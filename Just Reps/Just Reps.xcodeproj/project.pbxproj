@@ -1,0 +1,1016 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A97E522A2FB60C0E001AAFDD /* Just Reps Apple Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A97E520A2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A97E52172FB60C0E001AAFDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9CF92AB2FAF548D0005D5DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A97E52092FB60C0C001AAFDD;
+			remoteInfo = "Just Reps Apple Watch Watch App";
+		};
+		A97E52212FB60C0E001AAFDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9CF92AB2FAF548D0005D5DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A97E52092FB60C0C001AAFDD;
+			remoteInfo = "Just Reps Apple Watch Watch App";
+		};
+		A97E52282FB60C0E001AAFDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9CF92AB2FAF548D0005D5DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A97E52092FB60C0C001AAFDD;
+			remoteInfo = "Just Reps Apple Watch Watch App";
+		};
+		A9CF92C52FAF548F0005D5DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9CF92AB2FAF548D0005D5DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A9CF92B22FAF548D0005D5DC;
+			remoteInfo = "Just Reps";
+		};
+		A9CF92CF2FAF548F0005D5DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9CF92AB2FAF548D0005D5DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A9CF92B22FAF548D0005D5DC;
+			remoteInfo = "Just Reps";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A97E522E2FB60C0E001AAFDD /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				A97E522A2FB60C0E001AAFDD /* Just Reps Apple Watch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A97E520A2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Just Reps Apple Watch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A97E52162FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Just Reps Apple Watch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A97E52202FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Just Reps Apple Watch Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9CF92B32FAF548D0005D5DC /* Just Reps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Just Reps.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9CF92C42FAF548F0005D5DC /* Just RepsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Just RepsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9CF92CE2FAF548F0005D5DC /* Just RepsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Just RepsUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A9CF92D62FAF548F0005D5DC /* Exceptions for "Just Reps" folder in "Just Reps" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A9CF92B22FAF548D0005D5DC /* Just Reps */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A97E520B2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Just Reps Apple Watch Watch App";
+			sourceTree = "<group>";
+		};
+		A97E52192FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Just Reps Apple Watch Watch AppTests";
+			sourceTree = "<group>";
+		};
+		A97E52232FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Just Reps Apple Watch Watch AppUITests";
+			sourceTree = "<group>";
+		};
+		A9CF92B52FAF548D0005D5DC /* Just Reps */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A9CF92D62FAF548F0005D5DC /* Exceptions for "Just Reps" folder in "Just Reps" target */,
+			);
+			path = "Just Reps";
+			sourceTree = "<group>";
+		};
+		A9CF92C72FAF548F0005D5DC /* Just RepsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Just RepsTests";
+			sourceTree = "<group>";
+		};
+		A9CF92D12FAF548F0005D5DC /* Just RepsUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Just RepsUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A97E52072FB60C0C001AAFDD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A97E52132FB60C0E001AAFDD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A97E521D2FB60C0E001AAFDD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92B02FAF548D0005D5DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92C12FAF548F0005D5DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92CB2FAF548F0005D5DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A9CF92AA2FAF548D0005D5DC = {
+			isa = PBXGroup;
+			children = (
+				A9CF92B52FAF548D0005D5DC /* Just Reps */,
+				A9CF92C72FAF548F0005D5DC /* Just RepsTests */,
+				A9CF92D12FAF548F0005D5DC /* Just RepsUITests */,
+				A97E520B2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */,
+				A97E52192FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */,
+				A97E52232FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */,
+				A9CF92B42FAF548D0005D5DC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A9CF92B42FAF548D0005D5DC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A9CF92B32FAF548D0005D5DC /* Just Reps.app */,
+				A9CF92C42FAF548F0005D5DC /* Just RepsTests.xctest */,
+				A9CF92CE2FAF548F0005D5DC /* Just RepsUITests.xctest */,
+				A97E520A2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App.app */,
+				A97E52162FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests.xctest */,
+				A97E52202FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A97E52092FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A97E522B2FB60C0E001AAFDD /* Build configuration list for PBXNativeTarget "Just Reps Apple Watch Watch App" */;
+			buildPhases = (
+				A97E52062FB60C0C001AAFDD /* Sources */,
+				A97E52072FB60C0C001AAFDD /* Frameworks */,
+				A97E52082FB60C0C001AAFDD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A97E520B2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */,
+			);
+			name = "Just Reps Apple Watch Watch App";
+			packageProductDependencies = (
+			);
+			productName = "Just Reps Apple Watch Watch App";
+			productReference = A97E520A2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A97E52152FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A97E522F2FB60C0E001AAFDD /* Build configuration list for PBXNativeTarget "Just Reps Apple Watch Watch AppTests" */;
+			buildPhases = (
+				A97E52122FB60C0E001AAFDD /* Sources */,
+				A97E52132FB60C0E001AAFDD /* Frameworks */,
+				A97E52142FB60C0E001AAFDD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A97E52182FB60C0E001AAFDD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A97E52192FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */,
+			);
+			name = "Just Reps Apple Watch Watch AppTests";
+			packageProductDependencies = (
+			);
+			productName = "Just Reps Apple Watch Watch AppTests";
+			productReference = A97E52162FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A97E521F2FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A97E52322FB60C0E001AAFDD /* Build configuration list for PBXNativeTarget "Just Reps Apple Watch Watch AppUITests" */;
+			buildPhases = (
+				A97E521C2FB60C0E001AAFDD /* Sources */,
+				A97E521D2FB60C0E001AAFDD /* Frameworks */,
+				A97E521E2FB60C0E001AAFDD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A97E52222FB60C0E001AAFDD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A97E52232FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */,
+			);
+			name = "Just Reps Apple Watch Watch AppUITests";
+			packageProductDependencies = (
+			);
+			productName = "Just Reps Apple Watch Watch AppUITests";
+			productReference = A97E52202FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		A9CF92B22FAF548D0005D5DC /* Just Reps */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9CF92D72FAF548F0005D5DC /* Build configuration list for PBXNativeTarget "Just Reps" */;
+			buildPhases = (
+				A9CF92AF2FAF548D0005D5DC /* Sources */,
+				A9CF92B02FAF548D0005D5DC /* Frameworks */,
+				A9CF92B12FAF548D0005D5DC /* Resources */,
+				A97E522E2FB60C0E001AAFDD /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A97E52292FB60C0E001AAFDD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A9CF92B52FAF548D0005D5DC /* Just Reps */,
+			);
+			name = "Just Reps";
+			packageProductDependencies = (
+			);
+			productName = "Just Reps";
+			productReference = A9CF92B32FAF548D0005D5DC /* Just Reps.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A9CF92C32FAF548F0005D5DC /* Just RepsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9CF92DC2FAF548F0005D5DC /* Build configuration list for PBXNativeTarget "Just RepsTests" */;
+			buildPhases = (
+				A9CF92C02FAF548F0005D5DC /* Sources */,
+				A9CF92C12FAF548F0005D5DC /* Frameworks */,
+				A9CF92C22FAF548F0005D5DC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A9CF92C62FAF548F0005D5DC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A9CF92C72FAF548F0005D5DC /* Just RepsTests */,
+			);
+			name = "Just RepsTests";
+			packageProductDependencies = (
+			);
+			productName = "Just RepsTests";
+			productReference = A9CF92C42FAF548F0005D5DC /* Just RepsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A9CF92CD2FAF548F0005D5DC /* Just RepsUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9CF92DF2FAF548F0005D5DC /* Build configuration list for PBXNativeTarget "Just RepsUITests" */;
+			buildPhases = (
+				A9CF92CA2FAF548F0005D5DC /* Sources */,
+				A9CF92CB2FAF548F0005D5DC /* Frameworks */,
+				A9CF92CC2FAF548F0005D5DC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A9CF92D02FAF548F0005D5DC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A9CF92D12FAF548F0005D5DC /* Just RepsUITests */,
+			);
+			name = "Just RepsUITests";
+			packageProductDependencies = (
+			);
+			productName = "Just RepsUITests";
+			productReference = A9CF92CE2FAF548F0005D5DC /* Just RepsUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A9CF92AB2FAF548D0005D5DC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					A97E52092FB60C0C001AAFDD = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					A97E52152FB60C0E001AAFDD = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = A97E52092FB60C0C001AAFDD;
+					};
+					A97E521F2FB60C0E001AAFDD = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = A97E52092FB60C0C001AAFDD;
+					};
+					A9CF92B22FAF548D0005D5DC = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					A9CF92C32FAF548F0005D5DC = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = A9CF92B22FAF548D0005D5DC;
+					};
+					A9CF92CD2FAF548F0005D5DC = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = A9CF92B22FAF548D0005D5DC;
+					};
+				};
+			};
+			buildConfigurationList = A9CF92AE2FAF548D0005D5DC /* Build configuration list for PBXProject "Just Reps" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A9CF92AA2FAF548D0005D5DC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A9CF92B42FAF548D0005D5DC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A9CF92B22FAF548D0005D5DC /* Just Reps */,
+				A9CF92C32FAF548F0005D5DC /* Just RepsTests */,
+				A9CF92CD2FAF548F0005D5DC /* Just RepsUITests */,
+				A97E52092FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */,
+				A97E52152FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */,
+				A97E521F2FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A97E52082FB60C0C001AAFDD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A97E52142FB60C0E001AAFDD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A97E521E2FB60C0E001AAFDD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92B12FAF548D0005D5DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92C22FAF548F0005D5DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92CC2FAF548F0005D5DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A97E52062FB60C0C001AAFDD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A97E52122FB60C0E001AAFDD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A97E521C2FB60C0E001AAFDD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92AF2FAF548D0005D5DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92C02FAF548F0005D5DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9CF92CA2FAF548F0005D5DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A97E52182FB60C0E001AAFDD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A97E52092FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */;
+			targetProxy = A97E52172FB60C0E001AAFDD /* PBXContainerItemProxy */;
+		};
+		A97E52222FB60C0E001AAFDD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A97E52092FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */;
+			targetProxy = A97E52212FB60C0E001AAFDD /* PBXContainerItemProxy */;
+		};
+		A97E52292FB60C0E001AAFDD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A97E52092FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */;
+			targetProxy = A97E52282FB60C0E001AAFDD /* PBXContainerItemProxy */;
+		};
+		A9CF92C62FAF548F0005D5DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A9CF92B22FAF548D0005D5DC /* Just Reps */;
+			targetProxy = A9CF92C52FAF548F0005D5DC /* PBXContainerItemProxy */;
+		};
+		A9CF92D02FAF548F0005D5DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A9CF92B22FAF548D0005D5DC /* Just Reps */;
+			targetProxy = A9CF92CF2FAF548F0005D5DC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A97E522C2FB60C0E001AAFDD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Just Reps Apple Watch Watch App/Just_Reps_Apple_Watch.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Just Reps Apple Watch";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Reps you log are saved as workouts to credit your exercise ring.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "Ryland-Dean.Just-Reps";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Debug;
+		};
+		A97E522D2FB60C0E001AAFDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Just Reps Apple Watch Watch App/Just_Reps_Apple_Watch.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Just Reps Apple Watch";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Reps you log are saved as workouts to credit your exercise ring.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "Ryland-Dean.Just-Reps";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Release;
+		};
+		A97E52302FB60C0E001AAFDD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps-Apple-Watch-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Just Reps Apple Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Just Reps Apple Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		A97E52312FB60C0E001AAFDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps-Apple-Watch-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Just Reps Apple Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Just Reps Apple Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+		A97E52332FB60C0E001AAFDD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps-Apple-Watch-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "Just Reps Apple Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		A97E52342FB60C0E001AAFDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps-Apple-Watch-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "Just Reps Apple Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+		A9CF92D82FAF548F0005D5DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Just Reps/Just_Reps.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Just Reps/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A9CF92D92FAF548F0005D5DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Just Reps/Just_Reps.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Just Reps/Info.plist";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A9CF92DA2FAF548F0005D5DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A9CF92DB2FAF548F0005D5DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A9CF92DD2FAF548F0005D5DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-RepsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Just Reps.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Just Reps";
+			};
+			name = Debug;
+		};
+		A9CF92DE2FAF548F0005D5DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-RepsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Just Reps.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Just Reps";
+			};
+			name = Release;
+		};
+		A9CF92E02FAF548F0005D5DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-RepsUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Just Reps";
+			};
+			name = Debug;
+		};
+		A9CF92E12FAF548F0005D5DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-RepsUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Just Reps";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A97E522B2FB60C0E001AAFDD /* Build configuration list for PBXNativeTarget "Just Reps Apple Watch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A97E522C2FB60C0E001AAFDD /* Debug */,
+				A97E522D2FB60C0E001AAFDD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A97E522F2FB60C0E001AAFDD /* Build configuration list for PBXNativeTarget "Just Reps Apple Watch Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A97E52302FB60C0E001AAFDD /* Debug */,
+				A97E52312FB60C0E001AAFDD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A97E52322FB60C0E001AAFDD /* Build configuration list for PBXNativeTarget "Just Reps Apple Watch Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A97E52332FB60C0E001AAFDD /* Debug */,
+				A97E52342FB60C0E001AAFDD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9CF92AE2FAF548D0005D5DC /* Build configuration list for PBXProject "Just Reps" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9CF92DA2FAF548F0005D5DC /* Debug */,
+				A9CF92DB2FAF548F0005D5DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9CF92D72FAF548F0005D5DC /* Build configuration list for PBXNativeTarget "Just Reps" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9CF92D82FAF548F0005D5DC /* Debug */,
+				A9CF92D92FAF548F0005D5DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9CF92DC2FAF548F0005D5DC /* Build configuration list for PBXNativeTarget "Just RepsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9CF92DD2FAF548F0005D5DC /* Debug */,
+				A9CF92DE2FAF548F0005D5DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9CF92DF2FAF548F0005D5DC /* Build configuration list for PBXNativeTarget "Just RepsUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9CF92E02FAF548F0005D5DC /* Debug */,
+				A9CF92E12FAF548F0005D5DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A9CF92AB2FAF548D0005D5DC /* Project object */;
+}
