@@ -320,6 +320,82 @@ section {
   line-height: 1.65;
 }
 
+/* ─── Apple Watch section ─── */
+
+#watch { background: var(--black); }
+
+.watch-section {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 80px;
+}
+
+.watch-feature-list {
+  list-style: none;
+  margin: 32px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.watch-feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.wfl-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.watch-sync-note {
+  font-size: 13px;
+  color: rgba(247, 247, 245, 0.25);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.watch-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.watch-frame {
+  width: 200px;
+  border-radius: 44px;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: var(--dark-bg);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 40px 80px rgba(0,0,0,0.7),
+    0 0 60px rgba(107, 168, 255, 0.08);
+}
+
+.watch-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.watch-placeholder {
+  width: 100%;
+  aspect-ratio: 44 / 53;
+  background: var(--dark-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
 /* ─── Screenshots ─── */
 
 #screenshots { background: var(--black); padding-top: 0; }
@@ -367,6 +443,32 @@ section {
   color: var(--muted);
   text-align: center;
   letter-spacing: 0.2px;
+}
+
+.screenshot-watch {
+  width: 140px;
+  border-radius: 32px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: var(--dark-bg);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  align-self: flex-start;
+}
+
+.watch-placeholder-sm {
+  width: 100%;
+  aspect-ratio: 44 / 53;
+  background: var(--dark-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.watch-placeholder-sm .placeholder-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(247, 247, 245, 0.15);
 }
 
 /* ─── Streak band ─── */
@@ -619,6 +721,16 @@ footer {
   .feature-card {
     border-right: none;
   }
+
+  .watch-section {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    text-align: center;
+  }
+
+  .watch-feature-list { align-items: center; }
+  .watch-sync-note { max-width: 100%; margin: 0 auto; }
+  .watch-visual { justify-content: center; }
 
   .screenshots-row { padding: 0 24px 4px; margin-top: 48px; }
 

@@ -7,8 +7,10 @@
 		<string>remote-notification</string>
 	</array>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Just Reps does not read your health data.</string>
+	<string>Used to display your training load from active minutes in Health.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Reps you log are saved as workouts to credit your exercise ring.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used to show your local weather forecast.</string>
 </dict>
 </plist>

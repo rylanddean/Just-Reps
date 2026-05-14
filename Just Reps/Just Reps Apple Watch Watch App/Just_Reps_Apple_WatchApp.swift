@@ -14,7 +14,7 @@ struct Just_Reps_Apple_Watch_Watch_AppApp: App {
 // Same App Group container as the iOS app — shared SwiftData store.
 // Reads the same "JustReps.sqlite" so logging on the watch appears on the phone and vice versa.
 private let sharedWatchModelContainer: ModelContainer = {
-    let schema = Schema([WorkoutEntry.self])
+    let schema = Schema([WorkoutEntry.self, CustomMilestone.self])
     if let groupURL = FileManager.default
         .containerURL(forSecurityApplicationGroupIdentifier: "group.com.rylanddean.justreps"),
        let container = try? ModelContainer(for: schema, configurations: [

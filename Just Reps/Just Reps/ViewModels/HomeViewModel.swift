@@ -15,12 +15,14 @@ final class HomeViewModel {
     }
 
     var showCompletionBanner = false
+    var showEffortPicker = false
 
     // MARK: - Live entries (fed by @Query in the view)
 
     private(set) var todaysEntries: [WorkoutEntry] = []
     private var allEntries: [WorkoutEntry] = []
     private var bannerAlreadyShown = false
+    private var pendingLogEntry: (exercise: ExerciseType, amount: Int)?
 
     // MARK: - Init
 
@@ -136,8 +138,23 @@ final class HomeViewModel {
     // MARK: - Actions
 
     func logReps(_ reps: Int, for exercise: ExerciseType, context: ModelContext) {
-        let entry = WorkoutEntry(exercise: exercise, reps: reps)
-        context.insert(entry)
+        guard UserDefaults.standard.bool(forKey: "healthKitEnabled") else {
+            commitLog(reps, for: exercise, effort: nil, context: context)
+            return
+        }
+        pendingLogEntry = (exercise, reps)
+        showEffortPicker = true
+    }
+
+    func confirmEffort(_ effort: WorkoutEffort?, context: ModelContext) {
+        guard let pending = pendingLogEntry else { return }
+        pendingLogEntry = nil
+        showEffortPicker = false
+        commitLog(pending.amount, for: pending.exercise, effort: effort, context: context)
+    }
+
+    private func commitLog(_ reps: Int, for exercise: ExerciseType, effort: WorkoutEffort?, context: ModelContext) {
+        context.insert(WorkoutEntry(exercise: exercise, reps: reps, effortRPE: effort?.rpeValue))
 
         guard UserDefaults.standard.bool(forKey: "healthKitEnabled") else { return }
         let stored = UserDefaults.standard.integer(forKey: "repsPerMinute")
@@ -146,7 +163,8 @@ final class HomeViewModel {
             await HealthKitManager.shared.logWorkout(
                 exercise: exercise,
                 reps: reps,
-                repsPerMinute: repsPerMinute
+                repsPerMinute: repsPerMinute,
+                effort: effort
             )
         }
     }
@@ -188,8 +206,9 @@ final class HomeViewModel {
 
     private func defaultGoal(for exercise: ExerciseType) -> Int {
         switch exercise {
-        case .squats: return 50
-        default:      return 25
+        case .squats:     return 50
+        case .stretching: return 1
+        default:          return 25
         }
     }
 }

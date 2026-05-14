@@ -10,9 +10,7 @@ struct ExerciseCard: View {
 
     private var progress: Double { min(Double(current) / Double(goal), 1.0) }
     private var isComplete: Bool { current >= goal }
-    private var progressColor: Color {
-        isComplete ? AppTheme.Colors.successGreen : AppTheme.Colors.coolBlue
-    }
+    private var progressColor: Color { AppTheme.Colors.successGreen }
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
