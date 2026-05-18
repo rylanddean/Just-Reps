@@ -1,6 +1,10 @@
 import Foundation
 import SwiftData
 
+enum EntryKind: String {
+    case workout, rest, freeze
+}
+
 @Model
 final class WorkoutEntry {
     var id: UUID
@@ -9,17 +13,24 @@ final class WorkoutEntry {
     var reps: Int
     var timestamp: Date
     var effortRPE: Double?
+    // nil means .workout — backward-compatible with existing rows
+    var kindRaw: String?
 
-    init(exercise: ExerciseType, reps: Int, timestamp: Date = .now, effortRPE: Double? = nil) {
+    init(exercise: ExerciseType = .pushups, reps: Int = 0, timestamp: Date = .now, effortRPE: Double? = nil, kind: EntryKind = .workout) {
         self.id = UUID()
         self.exerciseRaw = exercise.rawString
         self.reps = reps
         self.timestamp = timestamp
         self.effortRPE = effortRPE
+        self.kindRaw = kind == .workout ? nil : kind.rawValue
     }
 
     var exercise: ExerciseType {
         ExerciseType(rawString: exerciseRaw)
+    }
+
+    var kind: EntryKind {
+        EntryKind(rawValue: kindRaw ?? "") ?? .workout
     }
 }
 
