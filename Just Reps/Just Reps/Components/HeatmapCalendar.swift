@@ -3,6 +3,10 @@ import SwiftUI
 struct HeatmapCalendar: View {
     let data: [DateComponents: Int]
     var weeks: Int = 20
+    var restDays: Set<DateComponents> = []
+    var freezeDays: Set<DateComponents> = []
+    var canMarkRestDay: Bool = false
+    var onMarkRestDay: (() -> Void)? = nil
 
     private let calendar = Calendar.current
     private let cellSize: CGFloat = 12
@@ -46,31 +50,6 @@ struct HeatmapCalendar: View {
         return AppTheme.Colors.successGreen.opacity(intensity)
     }
 
-    // MARK: - Month labels
-    //
-    // A label fires on the first column whose opening Sunday (first non-nil date)
-    // falls in a different month than the previous labelled column.
-    // This matches GitHub's contribution graph and guarantees the label sits
-    // directly above the first full week of that month.
-
-    private var monthLabels: [String?] {
-        var result: [String?] = Array(repeating: nil, count: weekColumns.count)
-        var lastMonth: Int? = nil
-        let fmt = DateFormatter()
-        fmt.dateFormat = "MMM"
-
-        for (col, column) in weekColumns.enumerated() {
-            // Use the first real (non-nil) date in the column — the opening Sunday
-            guard let firstDate = column.compactMap({ $0 }).first else { continue }
-            let month = calendar.component(.month, from: firstDate)
-            if month != lastMonth {
-                result[col] = fmt.string(from: firstDate)
-                lastMonth = month
-            }
-        }
-        return result
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -99,12 +78,9 @@ struct HeatmapCalendar: View {
         HStack(alignment: .top, spacing: gap) {
             ForEach(weekColumns.indices, id: \.self) { col in
                 VStack(alignment: .leading, spacing: gap) {
-                    // 7 rows per column; nil = future date = invisible placeholder
                     ForEach(0..<7, id: \.self) { row in
                         if let date = weekColumns[col][row] {
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(cellColor(for: date))
-                                .frame(width: cellSize, height: cellSize)
+                            cellView(for: date)
                         } else {
                             Color.clear
                                 .frame(width: cellSize, height: cellSize)
@@ -112,6 +88,52 @@ struct HeatmapCalendar: View {
                     }
                 }
             }
+        }
+    }
+
+    // MARK: - Cell rendering
+
+    @ViewBuilder
+    private func cellView(for date: Date) -> some View {
+        let key = calendar.dateComponents([.year, .month, .day], from: date)
+        let isToday = calendar.isDateInToday(date)
+
+        if isToday, let action = onMarkRestDay {
+            cellShape(for: date, key: key)
+                .contextMenu {
+                    if canMarkRestDay && !restDays.contains(key) {
+                        Button("Mark as Rest Day", action: action)
+                    } else if !restDays.contains(key) {
+                        Text("One rest day per week.")
+                    }
+                }
+        } else {
+            cellShape(for: date, key: key)
+        }
+    }
+
+    @ViewBuilder
+    private func cellShape(for date: Date, key: DateComponents) -> some View {
+        if restDays.contains(key) {
+            // Rest day: neutral fill with a dash mark
+            ZStack {
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Color(UIColor.systemFill))
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(Color(UIColor.separator))
+                    .frame(width: 7, height: 2)
+            }
+            .frame(width: cellSize, height: cellSize)
+        } else if freezeDays.contains(key) {
+            // Freeze day: outlined cell
+            RoundedRectangle(cornerRadius: 3)
+                .strokeBorder(AppTheme.Colors.coolBlue.opacity(0.5), lineWidth: 1.5)
+                .frame(width: cellSize, height: cellSize)
+        } else {
+            // Regular workout day (or empty)
+            RoundedRectangle(cornerRadius: 3)
+                .fill(cellColor(for: date))
+                .frame(width: cellSize, height: cellSize)
         }
     }
 }

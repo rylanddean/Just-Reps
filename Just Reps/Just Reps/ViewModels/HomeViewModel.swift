@@ -16,6 +16,7 @@ final class HomeViewModel {
 
     var showCompletionBanner = false
     var showEffortPicker = false
+    private(set) var freezeTokens: Int = 0
 
     // MARK: - Live entries (fed by @Query in the view)
 
@@ -23,12 +24,23 @@ final class HomeViewModel {
     private var allEntries: [WorkoutEntry] = []
     private var bannerAlreadyShown = false
     private var pendingLogEntry: (exercise: ExerciseType, amount: Int)?
+    private var completedGoalDays: Set<String> = []
+    private var needsGoalDayMigration = false
 
     // MARK: - Init
 
     init() {
         activeExercises = Self.loadExercises()
         dailyGoals = Self.loadGoals()
+        let saved = Self.sharedDefaults.stringArray(forKey: Self.completedGoalDaysKey)
+        if let saved {
+            completedGoalDays = Set(saved)
+            needsGoalDayMigration = false
+        } else {
+            completedGoalDays = []
+            needsGoalDayMigration = true
+        }
+        freezeTokens = Self.sharedDefaults.integer(forKey: Self.freezeTokensKey)
     }
 
     // MARK: - Refresh from @Query
@@ -37,6 +49,20 @@ final class HomeViewModel {
         allEntries = entries
         let today = StreakEngine.logicalDay(for: .now)
         todaysEntries = entries.filter { StreakEngine.logicalDay(for: $0.timestamp) == today }
+
+        if needsGoalDayMigration && !entries.isEmpty {
+            needsGoalDayMigration = false
+            completedGoalDays = Set(computeHistoricalGoalDays().map { dayKey($0) })
+            saveCompletedGoalDays()
+        }
+
+        let todayKey = dayKey(today)
+        if allGoalsMet && !completedGoalDays.contains(todayKey) {
+            completedGoalDays.insert(todayKey)
+            saveCompletedGoalDays()
+        }
+
+        awardFreezeTokenIfEarned()
 
         if allGoalsMet && !bannerAlreadyShown {
             bannerAlreadyShown = true
@@ -58,9 +84,20 @@ final class HomeViewModel {
         case complete // all goals met
     }
 
+    var isRestDay: Bool {
+        todaysEntries.contains { $0.kind == .rest }
+    }
+
+    var canMarkRestDay: Bool {
+        guard !isRestDay else { return false }
+        guard todaysEntries.filter({ $0.kind == .workout }).isEmpty else { return false }
+        let cutoff = Calendar.current.date(byAdding: .day, value: -6, to: .now)!
+        return allEntries.filter { $0.kind == .rest && $0.timestamp >= cutoff }.isEmpty
+    }
+
     var dayState: DayState {
         if allGoalsMet { return .complete }
-        if !todaysEntries.isEmpty { return .alive }
+        if !todaysEntries.filter({ $0.kind == .workout }).isEmpty { return .alive }
         return .fresh
     }
 
@@ -71,33 +108,41 @@ final class HomeViewModel {
 
     /// Consecutive days where ALL active exercise goals were fully met.
     var goalsStreak: Int {
-        StreakEngine.calculateStreak(from: goalCompletedDays()).current
+        let days = completedGoalDays.compactMap { dayComponents(from: $0) }
+        return StreakEngine.calculateStreak(from: Set(days)).current
     }
 
     /// Logged streak is at risk: has a streak, it's after 8 PM, nothing logged today.
     var streakAtRisk: Bool {
+        guard !isRestDay else { return false }
         let hour = Calendar.current.component(.hour, from: .now)
         return loggedStreak > 0 && hour >= 20 && todaysEntries.isEmpty
     }
 
     /// Goals streak is at risk: has a goals streak, it's after 8 PM, goals not yet met today.
     var goalsStreakAtRisk: Bool {
+        guard !isRestDay else { return false }
         let hour = Calendar.current.component(.hour, from: .now)
         return goalsStreak > 0 && hour >= 20 && !allGoalsMet
+    }
+
+    /// Whether yesterday was missed and a freeze token is available.
+    var shouldShowFreezePrompt: Bool {
+        guard freezeTokens > 0 else { return false }
+        let yesterday = StreakEngine.previousLogicalDay(before: StreakEngine.logicalDay(for: .now))
+        return !allEntries.contains { StreakEngine.logicalDay(for: $0.timestamp) == yesterday }
     }
 
     var completedToday: Bool { StreakEngine.completedToday(entries: todaysEntries) }
 
     // MARK: - Goals streak helpers
 
-    private func goalCompletedDays() -> Set<DateComponents> {
-        // Group all-time entries by logical day
+    private func computeHistoricalGoalDays() -> Set<DateComponents> {
         var dayMap: [DateComponents: [WorkoutEntry]] = [:]
         for entry in allEntries {
             let day = StreakEngine.logicalDay(for: entry.timestamp)
             dayMap[day, default: []].append(entry)
         }
-
         var completed = Set<DateComponents>()
         for (day, entries) in dayMap {
             let allMet = activeExercises.allSatisfy { exercise in
@@ -111,11 +156,26 @@ final class HomeViewModel {
         return completed
     }
 
+    private func dayKey(_ dc: DateComponents) -> String {
+        guard let y = dc.year, let m = dc.month, let d = dc.day else { return "" }
+        return String(format: "%04d-%02d-%02d", y, m, d)
+    }
+
+    private func dayComponents(from key: String) -> DateComponents? {
+        let parts = key.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3 else { return nil }
+        return DateComponents(year: parts[0], month: parts[1], day: parts[2])
+    }
+
+    private func saveCompletedGoalDays() {
+        Self.sharedDefaults.set(Array(completedGoalDays), forKey: Self.completedGoalDaysKey)
+    }
+
     // MARK: - Derived
 
     func totalReps(for exercise: ExerciseType) -> Int {
         todaysEntries
-            .filter { $0.exercise == exercise }
+            .filter { $0.kind == .workout && $0.exercise == exercise }
             .reduce(0) { $0 + $1.reps }
     }
 
@@ -173,11 +233,48 @@ final class HomeViewModel {
         dailyGoals[exercise.rawString] = goal
     }
 
+    func markRestDay(context: ModelContext) {
+        context.insert(WorkoutEntry(kind: .rest))
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+    }
+
+    func useFreeze(context: ModelContext) {
+        guard freezeTokens > 0 else { return }
+        let yesterday = StreakEngine.previousLogicalDay(before: StreakEngine.logicalDay(for: .now))
+        let yesterdayDate = Calendar.current.date(from: yesterday)!
+        let entryTime = Calendar.current.date(
+            bySettingHour: StreakEngine.rolloverHour + 1, minute: 0, second: 0, of: yesterdayDate
+        )!
+        context.insert(WorkoutEntry(timestamp: entryTime, kind: .freeze))
+        freezeTokens -= 1
+        saveFreezeState()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+
+    private func awardFreezeTokenIfEarned() {
+        let streak = loggedStreak
+        guard streak > 0 && streak % 7 == 0 else { return }
+        let todayKey = dayKey(StreakEngine.logicalDay(for: .now))
+        let lastAwardedDay = Self.sharedDefaults.string(forKey: Self.lastFreezeAwardDayKey) ?? ""
+        guard todayKey != lastAwardedDay else { return }
+        Self.sharedDefaults.set(todayKey, forKey: Self.lastFreezeAwardDayKey)
+        guard freezeTokens < 2 else { return }
+        freezeTokens += 1
+        saveFreezeState()
+    }
+
+    private func saveFreezeState() {
+        Self.sharedDefaults.set(freezeTokens, forKey: Self.freezeTokensKey)
+    }
+
     // MARK: - Persistence
 
     private static let appGroupID = "group.com.rylanddean.justreps"
     private static let exercisesKey = "activeExercises"
     private static let goalsKey = "dailyGoals"
+    private static let completedGoalDaysKey = "completedGoalDays"
+    private static let freezeTokensKey = "freezeTokens"
+    private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
 
     private static var sharedDefaults: UserDefaults {
         UserDefaults(suiteName: appGroupID) ?? .standard

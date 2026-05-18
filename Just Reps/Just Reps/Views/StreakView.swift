@@ -75,7 +75,14 @@ struct StreakView: View {
             Text("Activity")
                 .font(AppTheme.Font.headline())
 
-            HeatmapCalendar(data: viewModel.heatmapData, weeks: 20)
+            HeatmapCalendar(
+                data: viewModel.heatmapData,
+                weeks: 20,
+                restDays: viewModel.restDays,
+                freezeDays: viewModel.freezeDays,
+                canMarkRestDay: canMarkRestDay,
+                onMarkRestDay: markRestDay
+            )
 
             HStack(spacing: AppTheme.Spacing.xs) {
                 Text("Less")
@@ -248,6 +255,21 @@ struct StreakView: View {
                     .foregroundStyle(AppTheme.Colors.successGreen)
             }
         }
+    }
+
+    // MARK: - Rest day
+
+    private var canMarkRestDay: Bool {
+        let today = StreakEngine.logicalDay(for: .now)
+        guard !allEntries.contains(where: { $0.kind == .rest && StreakEngine.logicalDay(for: $0.timestamp) == today }) else { return false }
+        guard !allEntries.contains(where: { $0.kind == .workout && StreakEngine.logicalDay(for: $0.timestamp) == today }) else { return false }
+        let cutoff = Calendar.current.date(byAdding: .day, value: -6, to: .now)!
+        return allEntries.filter { $0.kind == .rest && $0.timestamp >= cutoff }.isEmpty
+    }
+
+    private func markRestDay() {
+        modelContext.insert(WorkoutEntry(kind: .rest))
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
     }
 
     private func milestoneCard(_ item: MilestoneItem) -> some View {
