@@ -5,22 +5,32 @@ struct ExerciseCard: View {
     let current: Int
     let goal: Int
     let onIncrement: (Int) -> Void
+    var recommendation: GoalRecommendation? = nil
+    var onApplyRecommendation: ((Int) -> Void)? = nil
+    var onGoalChange: ((Int) -> Void)? = nil
 
     @State private var showCustomEntry = false
+    @State private var showGoalEditor = false
+    @State private var recDismissed = false
+    @State private var isExpanded = true
 
     private var progress: Double { min(Double(current) / Double(goal), 1.0) }
     private var isComplete: Bool { current >= goal }
     private var progressColor: Color { AppTheme.Colors.successGreen }
+    private var activeRec: GoalRecommendation? { recDismissed ? nil : recommendation }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            headerRow
-            progressBar
-            incrementButtons
+        Group {
+            if isComplete && !isExpanded {
+                doneRow
+            } else {
+                fullCard
+            }
         }
         .padding(AppTheme.Spacing.md)
         .background(Color(UIColor.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: isComplete && !isExpanded)
         .sheet(isPresented: $showCustomEntry) {
             CardCustomRepEntry(exercise: exercise) { amount in
                 onIncrement(amount)
@@ -28,6 +38,64 @@ struct ExerciseCard: View {
             .presentationDetents([.height(260)])
             .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $showGoalEditor) {
+            InlineGoalEditorSheet(exercise: exercise, currentGoal: goal) { newGoal in
+                onGoalChange?(newGoal)
+            }
+            .presentationDetents([.height(260)])
+            .presentationDragIndicator(.visible)
+        }
+        .onChange(of: isComplete) { _, complete in
+            if complete {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                    isExpanded = false
+                }
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            }
+        }
+        .onChange(of: recommendation?.exercise.rawString) {
+            recDismissed = false
+        }
+    }
+
+    // MARK: - Done row
+
+    private var doneRow: some View {
+        Button { withAnimation { isExpanded = true } } label: {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Text(exercise.emoji)
+                    .font(.title3)
+                Text(exercise.displayName)
+                    .font(AppTheme.Font.headline())
+                    .foregroundStyle(Color(UIColor.label))
+                Spacer()
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.Colors.successGreen)
+                    Text("\(current) \(exercise.unit)")
+                        .font(.system(size: 16, weight: .heavy, design: .rounded))
+                        .foregroundStyle(AppTheme.Colors.successGreen)
+                        .contentTransition(.numericText())
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Full card
+
+    private var fullCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            headerRow
+            progressBar
+            if let rec = activeRec {
+                inlineRecommendation(rec)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+            incrementButtons
+        }
+        .animation(.easeInOut(duration: 0.25), value: activeRec == nil)
     }
 
     // MARK: - Header
@@ -47,9 +115,12 @@ struct ExerciseCard: View {
                     .foregroundStyle(isComplete ? AppTheme.Colors.successGreen : Color(UIColor.label))
                     .contentTransition(.numericText())
                     .animation(.spring(duration: 0.3), value: current)
-                Text("/ \(goal)")
-                    .font(AppTheme.Font.caption())
-                    .foregroundStyle(.secondary)
+                Button { showGoalEditor = true } label: {
+                    Text("/ \(goal)")
+                        .font(AppTheme.Font.caption())
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -71,6 +142,47 @@ struct ExerciseCard: View {
             }
         }
         .frame(height: 8)
+    }
+
+    // MARK: - Inline recommendation
+
+    private func inlineRecommendation(_ rec: GoalRecommendation) -> some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: rec.direction == .increase ? "arrow.up.right" : "arrow.down.right")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(rec.direction == .increase
+                                 ? AppTheme.Colors.successGreen
+                                 : Color(UIColor.secondaryLabel))
+
+            Text("Suggested: \(rec.suggestedGoal) \(exercise.unit)")
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Button {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                onApplyRecommendation?(rec.suggestedGoal)
+                withAnimation { recDismissed = true }
+            } label: {
+                Text("Apply")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(AppTheme.Colors.successGreen)
+                    .padding(.horizontal, AppTheme.Spacing.sm)
+                    .padding(.vertical, AppTheme.Spacing.xs)
+                    .background(AppTheme.Colors.successGreen.opacity(0.12), in: Capsule())
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                withAnimation { recDismissed = true }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color(UIColor.tertiaryLabel))
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     // MARK: - Increment buttons
@@ -97,7 +209,7 @@ struct ExerciseCard: View {
             }
 
             Button { showCustomEntry = true } label: {
-                Image(systemName: "ellipsis")
+                Image(systemName: "number")
                     .font(.system(size: 13, weight: .semibold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)

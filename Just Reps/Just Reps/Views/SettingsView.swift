@@ -35,7 +35,6 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 exercisesSection
-                goalsSection
                 notificationsSection
                 healthSection
                 backupSection
@@ -151,26 +150,6 @@ struct SettingsView: View {
     }
 
     // MARK: - Goals
-
-    private var goalsSection: some View {
-        Section("Daily Goals") {
-            ForEach(viewModel.activeExercises) { exercise in
-                HStack {
-                    Text(exercise.emoji)
-                    Text(exercise.displayName)
-                    Spacer()
-                    Text("\(viewModel.goal(for: exercise))")
-                        .font(AppTheme.Font.headline())
-                        .frame(minWidth: 36, alignment: .trailing)
-                    Stepper("", value: Binding(
-                        get: { viewModel.goal(for: exercise) },
-                        set: { viewModel.setGoal($0, for: exercise) }
-                    ), in: 1...999, step: exercise == .stretching ? 1 : 5)
-                    .labelsHidden()
-                }
-            }
-        }
-    }
 
     // MARK: - Notifications
 

@@ -5,7 +5,7 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var viewModel: HomeViewModel
     @State private var showSettings = false
-    @State private var dismissedRecs: Set<String> = []
+    @State private var showFreezeConfirm = false
 
     private let hkManager = HealthKitManager.shared
     private let weatherManager = WeatherManager.shared
@@ -20,17 +20,11 @@ struct HomeView: View {
                     HeaderCardView(
                         viewModel: viewModel,
                         hkManager: hkManager,
-                        weatherManager: weatherManager
+                        weatherManager: weatherManager,
+                        onFreezeRequested: { showFreezeConfirm = true }
                     )
                     stateMessage
-                    if viewModel.canMarkRestDay {
-                        restDayButton
-                    }
-                    if viewModel.shouldShowFreezePrompt {
-                        freezePromptCard
-                    }
                     exerciseCards
-                    goalSuggestionsSection
                 }
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.top, AppTheme.Spacing.md)
@@ -62,6 +56,11 @@ struct HomeView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .padding(AppTheme.Spacing.md)
                 }
+            }
+            .sheet(isPresented: $showFreezeConfirm) {
+                freezeConfirmSheet
+                    .presentationDetents([.height(220)])
+                    .presentationDragIndicator(.visible)
             }
             .onChange(of: allEntries) { viewModel.refresh(with: allEntries) }
             .onAppear { viewModel.refresh(with: allEntries) }
@@ -106,6 +105,15 @@ struct HomeView: View {
 
     // MARK: - Exercise cards
 
+    private var goalRecs: [GoalRecommendation] {
+        GoalAdvisorService.recommendations(
+            for: viewModel.activeExercises,
+            goals: viewModel.dailyGoals,
+            entries: allEntries,
+            trainingLoad: hkManager.trainingLoad
+        )
+    }
+
     private var exerciseCards: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             ForEach(viewModel.activeExercises) { exercise in
@@ -115,89 +123,60 @@ struct HomeView: View {
                     goal: viewModel.goal(for: exercise),
                     onIncrement: { amount in
                         viewModel.logReps(amount, for: exercise, context: modelContext)
+                    },
+                    recommendation: goalRecs.first { $0.exercise == exercise },
+                    onApplyRecommendation: { newGoal in
+                        viewModel.setGoal(newGoal, for: exercise)
+                    },
+                    onGoalChange: { newGoal in
+                        viewModel.setGoal(newGoal, for: exercise)
                     }
                 )
             }
         }
     }
 
-    // MARK: - Goal suggestions
+    // MARK: - Freeze confirm sheet
 
-    private var activeGoalRecs: [GoalRecommendation] {
-        GoalAdvisorService.recommendations(
-            for: viewModel.activeExercises,
-            goals: viewModel.dailyGoals,
-            entries: allEntries,
-            trainingLoad: hkManager.trainingLoad
-        ).filter { !dismissedRecs.contains($0.exercise.rawString) }
-    }
-
-    @ViewBuilder
-    private var goalSuggestionsSection: some View {
-        if !activeGoalRecs.isEmpty {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                Text("Suggested Goals".uppercased())
-                    .font(AppTheme.Font.caption())
-                    .kerning(1)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, AppTheme.Spacing.xs)
-
-                ForEach(activeGoalRecs, id: \.exercise.rawString) { rec in
-                    GoalSuggestionCard(
-                        recommendation: rec,
-                        onApply: {
-                            viewModel.setGoal(rec.suggestedGoal, for: rec.exercise)
-                            withAnimation { _ = dismissedRecs.insert(rec.exercise.rawString) }
-                        },
-                        onDismiss: {
-                            withAnimation { _ = dismissedRecs.insert(rec.exercise.rawString) }
-                        }
-                    )
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
-                }
-            }
-        }
-    }
-
-    // MARK: - Rest day button
-
-    private var restDayButton: some View {
-        Button {
-            viewModel.markRestDay(context: modelContext)
-        } label: {
-            Text("Rest day")
-                .font(AppTheme.Font.caption())
-                .foregroundStyle(Color(UIColor.secondaryLabel))
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Freeze prompt
-
-    private var freezePromptCard: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+    private var freezeConfirmSheet: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
             Text("🧊")
-                .font(.title2)
-            VStack(alignment: .leading, spacing: 2) {
+                .font(.system(size: 40))
+                .padding(.top, AppTheme.Spacing.lg)
+            VStack(spacing: AppTheme.Spacing.xs) {
                 Text("Use a freeze?")
-                    .font(AppTheme.Font.headline())
+                    .font(AppTheme.Font.title())
+                    .fontWeight(.bold)
                 Text("Life happens. Streak protected.")
-                    .font(AppTheme.Font.caption())
+                    .font(AppTheme.Font.body())
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button("Use") {
-                viewModel.useFreeze(context: modelContext)
+            VStack(spacing: AppTheme.Spacing.sm) {
+                Button {
+                    viewModel.useFreeze(context: modelContext)
+                    showFreezeConfirm = false
+                } label: {
+                    Text("Use Freeze")
+                        .font(AppTheme.Font.headline())
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(AppTheme.Colors.coolBlue)
+                        .foregroundStyle(.white)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                Button { showFreezeConfirm = false } label: {
+                    Text("Cancel")
+                        .font(AppTheme.Font.body())
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
             }
-            .font(AppTheme.Font.caption().weight(.semibold))
-            .foregroundStyle(AppTheme.Colors.coolBlue)
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
-            .background(AppTheme.Colors.coolBlue.opacity(0.12), in: Capsule())
+            .padding(.horizontal, AppTheme.Spacing.xl)
+            .padding(.bottom, AppTheme.Spacing.lg)
         }
-        .padding(AppTheme.Spacing.md)
-        .background(Color(UIColor.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Completion banner

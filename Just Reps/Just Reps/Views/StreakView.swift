@@ -338,40 +338,16 @@ private struct CreateMilestoneSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Name") {
-                    TextField("My milestone", text: $title)
+            ScrollView {
+                VStack(spacing: AppTheme.Spacing.md) {
+                    nameCard
+                    metricCard
+                    targetCard
                 }
-
-                Section("Metric") {
-                    Picker("Type", selection: $metricType) {
-                        Text("Rep Streak").tag("repStreak")
-                        Text("Goal Streak").tag("goalStreak")
-                        Text("Total Reps").tag("totalReps")
-                    }
-                    .pickerStyle(.segmented)
-                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-
-                    if metricType == "totalReps" {
-                        Picker("Exercise", selection: $selectedExercise) {
-                            ForEach(activeExercises, id: \.id) { ex in
-                                Text("\(ex.emoji) \(ex.displayName)").tag(ex)
-                            }
-                        }
-                    }
-                }
-
-                Section("Target") {
-                    HStack {
-                        TextField("Target", value: $target, format: .number)
-                            .keyboardType(.numberPad)
-                        Stepper("", value: $target, in: 1...9999, step: targetStep)
-                            .labelsHidden()
-                        Text(targetUnit)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                .padding(AppTheme.Spacing.md)
+                .padding(.bottom, AppTheme.Spacing.xl)
             }
+            .background(Color(UIColor.systemBackground))
             .navigationTitle("New Milestone")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -380,9 +356,115 @@ private struct CreateMilestoneSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
+                        .fontWeight(.semibold)
                         .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || target < 1)
                 }
             }
+        }
+    }
+
+    private var nameCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("NAME")
+                .font(AppTheme.Font.caption())
+                .kerning(1)
+                .foregroundStyle(.secondary)
+                .padding(.leading, AppTheme.Spacing.xs)
+
+            TextField("My milestone", text: $title)
+                .font(AppTheme.Font.body())
+                .padding(AppTheme.Spacing.md)
+                .background(Color(UIColor.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+        }
+    }
+
+    private var metricCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("METRIC")
+                .font(AppTheme.Font.caption())
+                .kerning(1)
+                .foregroundStyle(.secondary)
+                .padding(.leading, AppTheme.Spacing.xs)
+
+            VStack(spacing: 0) {
+                Picker("Type", selection: $metricType) {
+                    Text("Rep Streak").tag("repStreak")
+                    Text("Goal Streak").tag("goalStreak")
+                    Text("Total Reps").tag("totalReps")
+                }
+                .pickerStyle(.segmented)
+                .padding(AppTheme.Spacing.md)
+
+                if metricType == "totalReps" {
+                    Divider()
+                        .padding(.horizontal, AppTheme.Spacing.md)
+
+                    Picker("Exercise", selection: $selectedExercise) {
+                        ForEach(activeExercises, id: \.id) { ex in
+                            Text("\(ex.emoji) \(ex.displayName)").tag(ex)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(height: 120)
+                    .clipped()
+                }
+            }
+            .background(Color(UIColor.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+        }
+    }
+
+    private var targetCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("TARGET")
+                .font(AppTheme.Font.caption())
+                .kerning(1)
+                .foregroundStyle(.secondary)
+                .padding(.leading, AppTheme.Spacing.xs)
+
+            HStack(spacing: AppTheme.Spacing.lg) {
+                Button {
+                    target = max(1, target - targetStep)
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(width: 44, height: 44)
+                        .background(Color(UIColor.tertiarySystemBackground), in: Circle())
+                        .foregroundStyle(Color(UIColor.label))
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
+                HStack(alignment: .lastTextBaseline, spacing: 6) {
+                    Text("\(target)")
+                        .font(.system(size: 40, weight: .heavy, design: .rounded))
+                        .contentTransition(.numericText())
+                        .animation(.spring(duration: 0.2), value: target)
+                    Text(targetUnit)
+                        .font(AppTheme.Font.body())
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Button {
+                    target = min(9999, target + targetStep)
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(width: 44, height: 44)
+                        .background(Color(UIColor.tertiarySystemBackground), in: Circle())
+                        .foregroundStyle(Color(UIColor.label))
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(AppTheme.Spacing.md)
+            .background(Color(UIColor.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
         }
     }
 
