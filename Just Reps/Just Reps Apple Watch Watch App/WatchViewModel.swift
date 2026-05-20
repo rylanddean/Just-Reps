@@ -72,7 +72,22 @@ final class WatchViewModel {
     // MARK: - Streaks
 
     var loggedStreak: Int {
-        StreakEngine.calculate(entries: allEntries).current
+        let mvrDict = Dictionary(uniqueKeysWithValues:
+            minimumViableReps.compactMap { key, val -> (ExerciseType, Int)? in
+                guard val > 0 else { return nil }
+                return (ExerciseType(rawString: key), val)
+            }
+        )
+        guard !mvrDict.isEmpty else {
+            return StreakEngine.calculate(entries: allEntries).current
+        }
+        let goalsDict = Dictionary(uniqueKeysWithValues: activeExercises.map { ($0, goal(for: $0)) })
+        return StreakEngine.calculate(
+            entries: allEntries,
+            activeExercises: activeExercises,
+            goals: goalsDict,
+            minimumViableReps: mvrDict
+        ).current
     }
 
     var goalsStreak: Int {
