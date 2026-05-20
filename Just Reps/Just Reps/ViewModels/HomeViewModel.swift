@@ -27,6 +27,7 @@ final class HomeViewModel {
 
     var showCompletionBanner = false
     var showEffortPicker = false
+    private(set) var pendingEulogy: Int? = nil
     private(set) var freezeTokens: Int = 0
 
     // MARK: - Live entries (fed by @Query in the view)
@@ -105,6 +106,7 @@ final class HomeViewModel {
         if !allGoalsMet { bannerAlreadyShown = false }
 
         syncToWatch()
+        checkEulogy()
     }
 
     private func syncToWatch() {
@@ -345,6 +347,24 @@ final class HomeViewModel {
         saveFreezeState()
     }
 
+    // MARK: - Eulogy
+
+    private func checkEulogy() {
+        guard loggedStreak == 0, pendingEulogy == nil else { return }
+        guard let (length, endDay) = StreakEngine.lastCompletedStreak(entries: allEntries),
+              length >= 7 else { return }
+        let endDayKey = dayKey(endDay)
+        let shownForDay = Self.sharedDefaults.string(forKey: Self.eulogyShownForDayKey) ?? ""
+        guard endDayKey != shownForDay else { return }
+        pendingEulogy = length
+    }
+
+    func dismissEulogy() {
+        guard let (_, endDay) = StreakEngine.lastCompletedStreak(entries: allEntries) else { return }
+        Self.sharedDefaults.set(dayKey(endDay), forKey: Self.eulogyShownForDayKey)
+        pendingEulogy = nil
+    }
+
     private func saveFreezeState() {
         Self.sharedDefaults.set(freezeTokens, forKey: Self.freezeTokensKey)
     }
@@ -359,6 +379,7 @@ final class HomeViewModel {
     private static let completedGoalDaysKey = "completedGoalDays"
     private static let freezeTokensKey = "freezeTokens"
     private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
+    private static let eulogyShownForDayKey = "eulogyShownForDay"
     static let currentRepStreakKey = "currentRepStreak"
     static let currentGoalsStreakKey = "currentGoalsStreak"
     static let widgetHeatmapKey = "widgetHeatmap"

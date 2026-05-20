@@ -25,6 +25,7 @@ struct StreakView: View {
                 VStack(spacing: AppTheme.Spacing.xl) {
                     statsRow
                     heatmapSection
+                    muscleGroupSection
                     if !viewModel.visibleExercises(for: selectedPeriod).isEmpty {
                         progressSection
                     }
@@ -99,6 +100,50 @@ struct StreakView: View {
                     .font(AppTheme.Font.caption())
                     .foregroundStyle(.secondary)
             }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppTheme.Spacing.md)
+        .background(Color(UIColor.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+    }
+
+    // MARK: - Muscle Coverage
+
+    private var muscleGroupSection: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            Text("Coverage")
+                .font(AppTheme.Font.headline())
+
+            let covered = viewModel.muscleGroupCoverageThisWeek
+
+            LazyVGrid(
+                columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())],
+                spacing: AppTheme.Spacing.sm
+            ) {
+                ForEach(MuscleGroup.allCases, id: \.self) { group in
+                    let hit = covered.contains(group)
+                    Text(group.displayName)
+                        .font(AppTheme.Font.caption())
+                        .kerning(0.5)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AppTheme.Spacing.xs)
+                        .background(
+                            hit
+                                ? AppTheme.Colors.successGreen.opacity(0.15)
+                                : Color(UIColor.systemFill)
+                        )
+                        .foregroundStyle(
+                            hit
+                                ? AppTheme.Colors.successGreen
+                                : Color(UIColor.secondaryLabel)
+                        )
+                        .clipShape(Capsule())
+                }
+            }
+
+            Text("This week")
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppTheme.Spacing.md)

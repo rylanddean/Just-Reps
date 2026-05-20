@@ -53,8 +53,6 @@ struct WatchExerciseCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(exercise.emoji)
-                    .font(.body)
                 Text(exercise.displayName)
                     .font(.headline)
                 Spacer()

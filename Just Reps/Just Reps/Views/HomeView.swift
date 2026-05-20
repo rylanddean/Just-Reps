@@ -57,6 +57,16 @@ struct HomeView: View {
                         .padding(AppTheme.Spacing.md)
                 }
             }
+            .sheet(
+                isPresented: Binding(
+                    get: { viewModel.pendingEulogy != nil },
+                    set: { showing in if !showing { viewModel.dismissEulogy() } }
+                )
+            ) {
+                if let length = viewModel.pendingEulogy {
+                    StreakEulogySheet(streakLength: length)
+                }
+            }
             .sheet(isPresented: $showFreezeConfirm) {
                 freezeConfirmSheet
                     .presentationDetents([.height(220)])

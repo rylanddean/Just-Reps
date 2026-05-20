@@ -63,8 +63,6 @@ struct ExerciseCard: View {
     private var doneRow: some View {
         Button { withAnimation { isExpanded = true } } label: {
             HStack(spacing: AppTheme.Spacing.sm) {
-                Text(exercise.emoji)
-                    .font(.title3)
                 Text(exercise.displayName)
                     .font(AppTheme.Font.headline())
                     .foregroundStyle(Color(UIColor.label))
@@ -103,8 +101,6 @@ struct ExerciseCard: View {
     private var headerRow: some View {
         HStack(alignment: .center) {
             HStack(spacing: AppTheme.Spacing.sm) {
-                Text(exercise.emoji)
-                    .font(.title2)
                 Text(exercise.displayName)
                     .font(AppTheme.Font.headline())
             }

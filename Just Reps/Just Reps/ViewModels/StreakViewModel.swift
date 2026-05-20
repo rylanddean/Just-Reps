@@ -74,6 +74,18 @@ final class StreakViewModel {
         StreakEngine.freezeDays(entries: allEntries)
     }
 
+    var muscleGroupCoverageThisWeek: Set<MuscleGroup> {
+        let calendar = Calendar.current
+        let today = Date.now
+        let daysFromSunday = calendar.component(.weekday, from: today) - 1
+        let weekStart = calendar.date(byAdding: .day, value: -daysFromSunday, to: calendar.startOfDay(for: today))!
+        return Set(
+            allEntries
+                .filter { $0.kind == .workout && $0.timestamp >= weekStart }
+                .flatMap { $0.exercise.muscleGroups }
+        )
+    }
+
     var weeklyAverageBuckets: [StreakAnalytics.Bucket] {
         StreakAnalytics.averageBuckets(entries: allEntries, period: .weekly)
     }

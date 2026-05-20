@@ -16,7 +16,7 @@ struct SettingsView: View {
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
 
     @State private var reminderTime = Date()
-    @State private var newExerciseName = ""
+    @State private var showAddExerciseSheet = false
     @State private var exportDocument = BackupDocument(payload: .placeholder)
     @State private var isExporting = false
     @State private var isImporting = false
@@ -51,6 +51,12 @@ struct SettingsView: View {
             .task {
                 await notifManager.checkAuthorizationStatus()
                 reminderTime = makeDate(hour: notificationHour, minute: notificationMinute)
+            }
+        }
+        .sheet(isPresented: $showAddExerciseSheet) {
+            AddCustomExerciseSheet { exercise in
+                guard !viewModel.activeExercises.contains(where: { $0.id == exercise.id }) else { return }
+                viewModel.activeExercises.append(exercise)
             }
         }
         .confirmationDialog(
@@ -99,9 +105,13 @@ struct SettingsView: View {
                     get: { isActive },
                     set: { toggleExercise(exercise, enabled: $0) }
                 )) {
-                    HStack(spacing: AppTheme.Spacing.sm) {
-                        Text(exercise.emoji)
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(exercise.displayName)
+                        if !exercise.muscleGroups.isEmpty {
+                            Text(exercise.muscleGroups.map(\.displayName).joined(separator: " · "))
+                                .font(AppTheme.Font.caption())
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
                 .tint(AppTheme.Colors.successGreen)
@@ -114,10 +124,15 @@ struct SettingsView: View {
 
             ForEach(customExercises, id: \.id) { exercise in
                 HStack {
-                    Text(exercise.emoji)
-                        .font(.body)
-                    Text(exercise.displayName)
-                        .font(AppTheme.Font.body())
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(exercise.displayName)
+                            .font(AppTheme.Font.body())
+                        if !exercise.muscleGroups.isEmpty {
+                            Text(exercise.muscleGroups.map(\.displayName).joined(separator: " · "))
+                                .font(AppTheme.Font.caption())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                     Spacer()
                     Button {
                         guard viewModel.activeExercises.count > 1 else { return }
@@ -131,19 +146,11 @@ struct SettingsView: View {
                 mvrRow(for: exercise)
             }
 
-            HStack {
-                TextField("Add custom exercise…", text: $newExerciseName)
-                    .submitLabel(.done)
-                    .onSubmit { addCustomExercise() }
-
-                Button { addCustomExercise() } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundStyle(newExerciseName.trimmingCharacters(in: .whitespaces).isEmpty
-                                         ? Color(UIColor.tertiaryLabel)
-                                         : AppTheme.Colors.successGreen)
-                }
-                .buttonStyle(.plain)
-                .disabled(newExerciseName.trimmingCharacters(in: .whitespaces).isEmpty)
+            Button {
+                showAddExerciseSheet = true
+            } label: {
+                Label("Add custom exercise", systemImage: "plus.circle.fill")
+                    .foregroundStyle(AppTheme.Colors.successGreen)
             }
         }
     }
@@ -294,15 +301,6 @@ struct SettingsView: View {
         }
     }
 
-    private func addCustomExercise() {
-        let name = newExerciseName.trimmingCharacters(in: .whitespaces)
-        guard !name.isEmpty else { return }
-        let exercise = ExerciseType.custom(name: name)
-        guard !viewModel.activeExercises.contains(where: { $0.id == exercise.id }) else { return }
-        viewModel.activeExercises.append(exercise)
-        newExerciseName = ""
-    }
-
     private func handleNotificationToggle(_ enabled: Bool) {
         if enabled {
             Task {
@@ -341,5 +339,111 @@ struct SettingsView: View {
         comps.hour = hour
         comps.minute = minute
         return Calendar.current.date(from: comps) ?? .now
+    }
+}
+
+// MARK: - Add Custom Exercise Sheet
+
+private struct AddCustomExerciseSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let onAdd: (ExerciseType) -> Void
+
+    @State private var name = ""
+    @State private var selectedGroups: Set<MuscleGroup> = []
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: AppTheme.Spacing.md) {
+                    nameCard
+                    targetsCard
+                }
+                .padding(AppTheme.Spacing.md)
+                .padding(.bottom, AppTheme.Spacing.xl)
+            }
+            .background(Color(UIColor.systemBackground))
+            .navigationTitle("New Exercise")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") { save() }
+                        .fontWeight(.semibold)
+                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+        }
+    }
+
+    private var nameCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("NAME")
+                .font(AppTheme.Font.caption())
+                .kerning(1)
+                .foregroundStyle(.secondary)
+                .padding(.leading, AppTheme.Spacing.xs)
+
+            TextField("e.g. Lunges", text: $name)
+                .font(AppTheme.Font.body())
+                .padding(AppTheme.Spacing.md)
+                .background(Color(UIColor.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+                .submitLabel(.done)
+        }
+    }
+
+    private var targetsCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("TARGETS")
+                .font(AppTheme.Font.caption())
+                .kerning(1)
+                .foregroundStyle(.secondary)
+                .padding(.leading, AppTheme.Spacing.xs)
+
+            LazyVGrid(
+                columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())],
+                spacing: AppTheme.Spacing.sm
+            ) {
+                ForEach(MuscleGroup.allCases, id: \.self) { group in
+                    let selected = selectedGroups.contains(group)
+                    Button {
+                        if selected { selectedGroups.remove(group) }
+                        else { selectedGroups.insert(group) }
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    } label: {
+                        Text(group.displayName)
+                            .font(AppTheme.Font.caption())
+                            .kerning(0.5)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppTheme.Spacing.sm)
+                            .background(
+                                selected
+                                    ? AppTheme.Colors.successGreen.opacity(0.15)
+                                    : Color(UIColor.systemFill)
+                            )
+                            .foregroundStyle(
+                                selected
+                                    ? AppTheme.Colors.successGreen
+                                    : Color(UIColor.secondaryLabel)
+                            )
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(AppTheme.Spacing.md)
+            .background(Color(UIColor.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+        }
+    }
+
+    private func save() {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        let groups = MuscleGroup.allCases.filter { selectedGroups.contains($0) }
+        onAdd(ExerciseType.custom(name: trimmed, muscleGroups: groups))
+        dismiss()
     }
 }

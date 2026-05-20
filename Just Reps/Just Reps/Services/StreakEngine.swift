@@ -199,6 +199,29 @@ struct StreakEngine {
         return (start, end)
     }
 
+    /// Returns the length and last active day of the most recently completed streak —
+    /// the contiguous block of logged days that ended before the current gap.
+    static func lastCompletedStreak(entries: [WorkoutEntry]) -> (length: Int, endDay: DateComponents)? {
+        let completedDays = Set(entries.map { logicalDay(for: $0.timestamp) })
+        guard !completedDays.isEmpty else { return nil }
+
+        var checkDay = previousLogicalDay(before: logicalDay(for: .now))
+        var lookback = 0
+        while !completedDays.contains(checkDay) && lookback < 365 {
+            checkDay = previousLogicalDay(before: checkDay)
+            lookback += 1
+        }
+        guard lookback < 365, completedDays.contains(checkDay) else { return nil }
+
+        let endDay = checkDay
+        var length = 0
+        while completedDays.contains(checkDay) {
+            length += 1
+            checkDay = previousLogicalDay(before: checkDay)
+        }
+        return (length, endDay)
+    }
+
     static func previousLogicalDay(before day: DateComponents) -> DateComponents {
         let calendar = Calendar.current
         let dayStart = calendar.date(from: day)!

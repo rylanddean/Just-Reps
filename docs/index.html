@@ -17,6 +17,7 @@
   <a href="index.html" class="nav-logo">Just<span> Reps</span></a>
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
+    <li><a href="#widget">Widget</a></li>
     <li><a href="#watch">Apple Watch</a></li>
     <li><a href="#screenshots">Screenshots</a></li>
     <li><a href="press.html">Press</a></li>
@@ -174,7 +175,72 @@
         <div class="feature-desc">All data lives on your device. No account required, no server to trust, no sync to wait for.</div>
       </div>
 
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5FD38D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/><path d="M12 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+        </div>
+        <div class="feature-name">Minimum viable rep</div>
+        <div class="feature-desc">Set a floor per exercise. On a hard day, hitting your minimum keeps the streak alive. Showing up at 10% still counts.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon neutral">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F7F7F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        </div>
+        <div class="feature-name">Graceful endings</div>
+        <div class="feature-desc">When a streak ends, Just Reps doesn't pile on. A quiet acknowledgment of how far you came — then one button: Start again.</div>
+      </div>
+
     </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Widget -->
+<section id="widget">
+  <div class="section-inner watch-section">
+
+    <div class="watch-copy">
+      <p class="section-label">Home Screen Widget</p>
+      <h2 class="section-title">Your streak.<br>Always visible.</h2>
+      <p class="section-sub">See your streak every time you pick up your phone — no app required. Three widget sizes keep the streak front and center without any friction.</p>
+      <ul class="watch-feature-list">
+        <li>
+          <span class="wfl-dot" style="background: var(--green)"></span>
+          Small widget — streak count with "Just do the reps."
+        </li>
+        <li>
+          <span class="wfl-dot" style="background: var(--green)"></span>
+          Medium widget — dual streak + 8-week heatmap
+        </li>
+        <li>
+          <span class="wfl-dot" style="background: var(--blue)"></span>
+          Lock screen widget — streak inline, always in view
+        </li>
+        <li>
+          <span class="wfl-dot" style="background: var(--danger)"></span>
+          At-risk state — turns red after 8 PM if you haven't logged
+        </li>
+        <li>
+          <span class="wfl-dot" style="background: var(--muted)"></span>
+          Tap to open directly to Today tab
+        </li>
+      </ul>
+      <p class="watch-sync-note">Widget updates automatically whenever you log. No manual refresh, no stale data.</p>
+    </div>
+
+    <div class="watch-visual">
+      <div class="watch-frame" style="background: var(--dark-bg); border-radius: var(--radius-card); width: 220px; height: 220px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+        <div style="text-align: center;">
+          <div style="font-size: 11px; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 4px;">REP STREAK</div>
+          <div style="font-size: 64px; font-weight: 800; color: var(--green); line-height: 1;">14</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">days</div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 16px;">Just do the reps.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -199,22 +265,14 @@
         </li>
         <li>
           <span class="wfl-dot" style="background: var(--blue)"></span>
-          Training load synced from iPhone
-        </li>
-        <li>
-          <span class="wfl-dot" style="background: var(--blue)"></span>
-          Apply or skip goal suggestions on-wrist
-        </li>
-        <li>
-          <span class="wfl-dot" style="background: var(--muted)"></span>
-          Milestone tracker for both streak types
+          Watch face complication — streak visible without opening the app
         </li>
         <li>
           <span class="wfl-dot" style="background: var(--muted)"></span>
           7-day activity bar chart
         </li>
       </ul>
-      <p class="watch-sync-note">Data syncs automatically with the iPhone app via a shared store. Log on watch, see it on phone.</p>
+      <p class="watch-sync-note">Log on watch, see it on phone — and vice versa. Syncs automatically via WatchConnectivity.</p>
     </div>
 
     <div class="watch-visual">
@@ -282,6 +340,18 @@
         <span class="screenshot-caption">Apple Watch</span>
       </div>
 
+      <div class="screenshot-item">
+        <div class="screenshot-phone" style="display: flex; align-items: center; justify-content: center; background: var(--dark-bg);">
+          <div style="text-align: center; padding: 24px;">
+            <div style="font-size: 10px; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 4px;">REP STREAK</div>
+            <div style="font-size: 48px; font-weight: 800; color: var(--green); line-height: 1;">14</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">days</div>
+            <div style="font-size: 11px; color: var(--muted); margin-top: 14px;">Just do the reps.</div>
+          </div>
+        </div>
+        <span class="screenshot-caption">Widget</span>
+      </div>
+
     </div>
   </div>
 </section>
@@ -304,6 +374,7 @@
     <span class="footer-logo">Just<span> Reps</span></span>
     <ul class="footer-links">
       <li><a href="#features">Features</a></li>
+      <li><a href="#widget">Widget</a></li>
       <li><a href="#watch">Apple Watch</a></li>
       <li><a href="privacy.html">Privacy</a></li>
       <li><a href="press.html">Press</a></li>
