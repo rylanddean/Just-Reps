@@ -36,6 +36,7 @@ struct SettingsView: View {
             List {
                 exercisesSection
                 notificationsSection
+                siriSection
                 healthSection
                 backupSection
                 aboutSection
@@ -190,6 +191,30 @@ struct SettingsView: View {
                     notifManager.scheduleDailyReminder(hour: h, minute: m)
                 }
             }
+        }
+    }
+
+    // MARK: - Siri & Shortcuts
+
+    private var siriSection: some View {
+        Section(
+            header: Text("Siri & Shortcuts"),
+            footer: Text("All four intents appear in the Shortcuts app for automations and Lock Screen shortcuts.")
+        ) {
+            siriRow(phrase: "What's my Just Reps streak?")
+            siriRow(phrase: "Did I log today in Just Reps?")
+            siriRow(phrase: "How many reps this week in Just Reps?")
+            siriRow(phrase: "What's my longest streak in Just Reps?")
+        }
+    }
+
+    private func siriRow(phrase: String) -> some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "waveform")
+                .foregroundStyle(AppTheme.Colors.coolBlue)
+                .frame(width: 20)
+            Text("\u{201C}\(phrase)\u{201D}")
+                .font(AppTheme.Font.body())
         }
     }
 
