@@ -1,6 +1,6 @@
 # Refactor: Goal suggestion inline on ExerciseCard
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** S  
 **Risk:** Low — view-only change, no model changes
 

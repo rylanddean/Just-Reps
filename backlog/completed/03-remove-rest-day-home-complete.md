@@ -1,6 +1,6 @@
 # Cleanup: Remove rest day button from HomeView
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** XS  
 **Risk:** None
 

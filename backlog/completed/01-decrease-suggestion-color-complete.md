@@ -1,6 +1,6 @@
 # Fix: Goal suggestion decrease arrow color
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** XS  
 **Risk:** None
 

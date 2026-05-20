@@ -1,6 +1,6 @@
 # Feature: Streak header explainer — one-time tooltip
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** S  
 **Risk:** None
 

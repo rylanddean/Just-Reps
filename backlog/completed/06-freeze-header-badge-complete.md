@@ -1,6 +1,6 @@
 # Refactor: Freeze token as streak-header badge (remove freeze prompt card)
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** S  
 **Risk:** Low
 

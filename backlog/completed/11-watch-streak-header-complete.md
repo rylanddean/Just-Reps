@@ -1,6 +1,6 @@
 # Watch: Show streak on home tab
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** XS  
 **Risk:** None
 

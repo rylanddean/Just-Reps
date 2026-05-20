@@ -1,6 +1,6 @@
 # Watch: Rep streak complication
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** M  
 **Risk:** Low
 

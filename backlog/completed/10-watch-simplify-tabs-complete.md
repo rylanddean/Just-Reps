@@ -1,6 +1,6 @@
 # Watch: Cut tabs from 6 to 3
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** S  
 **Risk:** Low
 

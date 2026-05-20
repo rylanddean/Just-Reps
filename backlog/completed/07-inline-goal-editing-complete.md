@@ -1,6 +1,6 @@
 # Feature: Inline goal editing on ExerciseCard
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** M  
 **Risk:** Low — additive change, Settings fallback stays until confirmed working
 

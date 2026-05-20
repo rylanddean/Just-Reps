@@ -1,6 +1,6 @@
 # Polish: CreateMilestoneSheet visual redesign
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** M  
 **Risk:** None — view-only, no data model changes
 

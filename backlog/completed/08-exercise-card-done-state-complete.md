@@ -1,6 +1,6 @@
 # Feature: Exercise card done state
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** M  
 **Risk:** Low — purely visual/animation change
 

@@ -1,6 +1,6 @@
 # Watch: Distinct haptic on full goal completion
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** XS  
 **Risk:** None
 

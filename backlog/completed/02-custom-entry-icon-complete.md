@@ -1,6 +1,6 @@
 # Fix: Rename `…` custom entry button to a legible affordance
 
-**Status:** Ready  
+**Status:** Complete  
 **Effort:** XS  
 **Risk:** None
 
