@@ -43,6 +43,17 @@ final class HomeViewModel {
         activeExercises = Self.loadExercises()
         dailyGoals = Self.loadGoals()
         minimumViableReps = Self.loadMVR()
+        // If MVR was configured before the effective-date feature existed, set tomorrow as the
+        // effective date so all existing history stays qualified under the old "any reps" rule.
+        let existingMVR = Self.loadMVR()
+        let existingEffectiveDate = Self.sharedDefaults.double(forKey: Self.mvrEffectiveDateKey)
+        if existingMVR.values.contains(where: { $0 > 0 }) && existingEffectiveDate == 0 {
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+            Self.sharedDefaults.set(
+                Calendar.current.startOfDay(for: tomorrow).timeIntervalSinceReferenceDate,
+                forKey: Self.mvrEffectiveDateKey
+            )
+        }
         let saved = Self.sharedDefaults.stringArray(forKey: Self.completedGoalDaysKey)
         if let saved {
             completedGoalDays = Set(saved)
@@ -138,7 +149,8 @@ final class HomeViewModel {
             entries: allEntries,
             activeExercises: activeExercises,
             goals: goalsDict,
-            minimumViableReps: mvrDict
+            minimumViableReps: mvrDict,
+            effectiveFrom: mvrEffectiveDate
         ).current
     }
 
@@ -275,6 +287,15 @@ final class HomeViewModel {
 
     func setMVR(_ value: Int, for exercise: ExerciseType) {
         minimumViableReps[exercise.rawString] = value > 0 ? value : 0
+        let anyActive = minimumViableReps.values.contains { $0 > 0 }
+        if anyActive && mvrEffectiveDate == nil {
+            // First time enabling MVR: take effect from tomorrow so today and all
+            // prior history remain qualified under the original "any reps" rule.
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+            mvrEffectiveDate = Calendar.current.startOfDay(for: tomorrow)
+        } else if !anyActive {
+            mvrEffectiveDate = nil
+        }
     }
 
     func markRestDay(context: ModelContext) {
@@ -317,6 +338,7 @@ final class HomeViewModel {
     private static let exercisesKey = "activeExercises"
     private static let goalsKey = "dailyGoals"
     private static let mvrKey = "minimumViableReps"
+    private static let mvrEffectiveDateKey = "mvrEffectiveDate"
     private static let completedGoalDaysKey = "completedGoalDays"
     private static let freezeTokensKey = "freezeTokens"
     private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
@@ -341,6 +363,19 @@ final class HomeViewModel {
 
     private static func loadMVR() -> [String: Int] {
         (sharedDefaults.dictionary(forKey: mvrKey) as? [String: Int]) ?? [:]
+    }
+
+    private var mvrEffectiveDate: Date? {
+        get {
+            let ti = Self.sharedDefaults.double(forKey: Self.mvrEffectiveDateKey)
+            return ti > 0 ? Date(timeIntervalSinceReferenceDate: ti) : nil
+        }
+        set {
+            Self.sharedDefaults.set(
+                newValue.map { $0.timeIntervalSinceReferenceDate } ?? 0,
+                forKey: Self.mvrEffectiveDateKey
+            )
+        }
     }
 
     private static func loadExercises() -> [ExerciseType] {

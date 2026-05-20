@@ -31,15 +31,19 @@ struct StreakEngine {
     /// MVR-aware streak: a workout day qualifies only if every exercise with a configured
     /// MVR threshold meets it (reps ≥ MVR, or reps ≥ goal). Exercises without an MVR never
     /// gate the streak, preserving the original "any reps = shows up" behavior for those.
+    /// Days before `effectiveFrom` always qualify under the original "any reps" rule so that
+    /// configuring MVR never retroactively clears a pre-existing streak.
     static func calculate(
         entries: [WorkoutEntry],
         activeExercises: [ExerciseType],
         goals: [ExerciseType: Int],
-        minimumViableReps: [ExerciseType: Int]
+        minimumViableReps: [ExerciseType: Int],
+        effectiveFrom: Date? = nil
     ) -> Result {
         guard !entries.isEmpty else {
             return Result(current: 0, longest: 0, completedDates: [])
         }
+        let effectiveLogicalDay = effectiveFrom.map { logicalDay(for: $0) }
         var dayMap: [DateComponents: [WorkoutEntry]] = [:]
         for entry in entries {
             let day = logicalDay(for: entry.timestamp)
@@ -52,6 +56,14 @@ struct StreakEngine {
                 continue
             }
             guard dayEntries.contains(where: { $0.kind == .workout }) else { continue }
+            // Before the MVR effective date: original "any reps" rule.
+            if let effectiveLD = effectiveLogicalDay,
+               let dayDate = Calendar.current.date(from: day),
+               let effectiveDate = Calendar.current.date(from: effectiveLD),
+               dayDate < effectiveDate {
+                qualifiedDays.insert(day)
+                continue
+            }
             let allSatisfied = activeExercises.allSatisfy { exercise in
                 let mvr = minimumViableReps[exercise] ?? 0
                 guard mvr > 0 else { return true }
