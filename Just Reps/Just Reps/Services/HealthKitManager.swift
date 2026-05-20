@@ -41,7 +41,7 @@ final class HealthKitManager {
         guard isAvailable else { return false }
         do {
             try await store.requestAuthorization(
-                toShare: [.workoutType()],
+                toShare: [.workoutType(), HKQuantityType(.activeEnergyBurned)],
                 read: [HKQuantityType(.appleExerciseTime)]
             )
             checkAuthorization()
@@ -79,6 +79,18 @@ final class HealthKitManager {
         let builder = HKWorkoutBuilder(healthStore: store, configuration: config, device: .local())
         do {
             try await builder.beginCollection(at: start)
+
+            // Active energy is required for the workout to count toward the Exercise ring
+            let kcalPerMinute: Double = config.activityType == .flexibility ? 2.5 : 5.0
+            let kcal = max(1.0, (durationSeconds / 60.0) * kcalPerMinute)
+            let energySample = HKQuantitySample(
+                type: HKQuantityType(.activeEnergyBurned),
+                quantity: HKQuantity(unit: .kilocalorie(), doubleValue: kcal),
+                start: start,
+                end: end
+            )
+            try await builder.addSamples([energySample])
+
             if let effort {
                 // workoutEffortScore requires a private HealthKit unit, so store as metadata
                 await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
