@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 @Observable
 final class HomeViewModel {
@@ -86,6 +87,11 @@ final class HomeViewModel {
 
         awardFreezeTokenIfEarned()
         Self.sharedDefaults.set(loggedStreak, forKey: Self.currentRepStreakKey)
+        Self.sharedDefaults.set(goalsStreak, forKey: Self.currentGoalsStreakKey)
+        if let heatmapData = try? JSONEncoder().encode(Self.buildWidgetHeatmap(entries: allEntries)) {
+            Self.sharedDefaults.set(heatmapData, forKey: Self.widgetHeatmapKey)
+        }
+        WidgetCenter.shared.reloadAllTimelines()
 
         if allGoalsMet && !bannerAlreadyShown {
             bannerAlreadyShown = true
@@ -219,6 +225,17 @@ final class HomeViewModel {
         Self.sharedDefaults.set(Array(completedGoalDays), forKey: Self.completedGoalDaysKey)
     }
 
+    private static func buildWidgetHeatmap(entries: [WorkoutEntry]) -> [String: Bool] {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -91, to: .now)!
+        var map: [String: Bool] = [:]
+        for entry in entries where entry.timestamp >= cutoff && entry.kind == .workout {
+            let dc = StreakEngine.logicalDay(for: entry.timestamp)
+            guard let y = dc.year, let m = dc.month, let d = dc.day else { continue }
+            map[String(format: "%04d-%02d-%02d", y, m, d)] = true
+        }
+        return map
+    }
+
     // MARK: - Derived
 
     func totalReps(for exercise: ExerciseType) -> Int {
@@ -343,6 +360,8 @@ final class HomeViewModel {
     private static let freezeTokensKey = "freezeTokens"
     private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
     static let currentRepStreakKey = "currentRepStreak"
+    static let currentGoalsStreakKey = "currentGoalsStreak"
+    static let widgetHeatmapKey = "widgetHeatmap"
 
     private static var sharedDefaults: UserDefaults {
         UserDefaults(suiteName: appGroupID) ?? .standard

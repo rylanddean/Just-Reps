@@ -13,6 +13,9 @@
 		A9D5B0AE2FBD22A7006295A9 /* JustRepsWatchComplicationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A9D5B09C2FBD22A6006295A9 /* JustRepsWatchComplicationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A9D5B0BA2FBD2D09006295A9 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B0B92FBD2D09006295A9 /* WatchConnectivity.framework */; };
 		A9D5B0BC2FBD2D16006295A9 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B0BB2FBD2D16006295A9 /* WatchConnectivity.framework */; };
+		A9D5B2D62FBDD03F006295A9 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B09E2FBD22A6006295A9 /* WidgetKit.framework */; };
+		A9D5B2D72FBDD03F006295A9 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B0A02FBD22A6006295A9 /* SwiftUI.framework */; };
+		A9D5B2E42FBDD041006295A9 /* JustRepsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A9D5B2D52FBDD03F006295A9 /* JustRepsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +61,13 @@
 			remoteGlobalIDString = A9D5B09B2FBD22A6006295A9;
 			remoteInfo = JustRepsWatchComplicationExtension;
 		};
+		A9D5B2E22FBDD041006295A9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9CF92AB2FAF548D0005D5DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A9D5B2D42FBDD03F006295A9;
+			remoteInfo = JustRepsWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -83,6 +93,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9D5B2E52FBDD041006295A9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A9D5B2E42FBDD041006295A9 /* JustRepsWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -97,6 +118,8 @@
 		A9D5B0A02FBD22A6006295A9 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		A9D5B0B92FBD2D09006295A9 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		A9D5B0BB2FBD2D16006295A9 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.2.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
+		A9D5B2D52FBDD03F006295A9 /* JustRepsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JustRepsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9D5B2EA2FBDD11F006295A9 /* JustRepsWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JustRepsWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -113,6 +136,13 @@
 				Info.plist,
 			);
 			target = A9D5B09B2FBD22A6006295A9 /* JustRepsWatchComplicationExtension */;
+		};
+		A9D5B2E92FBDD041006295A9 /* Exceptions for "JustRepsWidget" folder in "JustRepsWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A9D5B2D42FBDD03F006295A9 /* JustRepsWidgetExtension */;
 		};
 		D18B9A6CC0495C008F6CFB48 /* Exceptions for "Just Reps Apple Watch Watch App" folder in "Just Reps Apple Watch Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -166,6 +196,14 @@
 				A9D5B0B22FBD22A7006295A9 /* Exceptions for "JustRepsWatchComplication" folder in "JustRepsWatchComplicationExtension" target */,
 			);
 			path = JustRepsWatchComplication;
+			sourceTree = "<group>";
+		};
+		A9D5B2D82FBDD03F006295A9 /* JustRepsWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A9D5B2E92FBDD041006295A9 /* Exceptions for "JustRepsWidget" folder in "JustRepsWidgetExtension" target */,
+			);
+			path = JustRepsWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -224,12 +262,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9D5B2D22FBDD03F006295A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9D5B2D72FBDD03F006295A9 /* SwiftUI.framework in Frameworks */,
+				A9D5B2D62FBDD03F006295A9 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		A9CF92AA2FAF548D0005D5DC = {
 			isa = PBXGroup;
 			children = (
+				A9D5B2EA2FBDD11F006295A9 /* JustRepsWidgetExtension.entitlements */,
 				A9CF92B52FAF548D0005D5DC /* Just Reps */,
 				A9CF92C72FAF548F0005D5DC /* Just RepsTests */,
 				A9CF92D12FAF548F0005D5DC /* Just RepsUITests */,
@@ -237,6 +285,7 @@
 				A97E52192FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */,
 				A97E52232FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */,
 				A9D5B0A22FBD22A6006295A9 /* JustRepsWatchComplication */,
+				A9D5B2D82FBDD03F006295A9 /* JustRepsWidget */,
 				A9D5B09D2FBD22A6006295A9 /* Frameworks */,
 				A9CF92B42FAF548D0005D5DC /* Products */,
 			);
@@ -252,6 +301,7 @@
 				A97E52162FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests.xctest */,
 				A97E52202FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests.xctest */,
 				A9D5B09C2FBD22A6006295A9 /* JustRepsWatchComplicationExtension.appex */,
+				A9D5B2D52FBDD03F006295A9 /* JustRepsWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -348,11 +398,13 @@
 				A9CF92B02FAF548D0005D5DC /* Frameworks */,
 				A9CF92B12FAF548D0005D5DC /* Resources */,
 				A97E522E2FB60C0E001AAFDD /* Embed Watch Content */,
+				A9D5B2E52FBDD041006295A9 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				A97E52292FB60C0E001AAFDD /* PBXTargetDependency */,
+				A9D5B2E32FBDD041006295A9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A9CF92B52FAF548D0005D5DC /* Just Reps */,
@@ -432,6 +484,28 @@
 			productReference = A9D5B09C2FBD22A6006295A9 /* JustRepsWatchComplicationExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		A9D5B2D42FBDD03F006295A9 /* JustRepsWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9D5B2E82FBDD041006295A9 /* Build configuration list for PBXNativeTarget "JustRepsWidgetExtension" */;
+			buildPhases = (
+				A9D5B2D12FBDD03F006295A9 /* Sources */,
+				A9D5B2D22FBDD03F006295A9 /* Frameworks */,
+				A9D5B2D32FBDD03F006295A9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A9D5B2D82FBDD03F006295A9 /* JustRepsWidget */,
+			);
+			name = JustRepsWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = JustRepsWidgetExtension;
+			productReference = A9D5B2D52FBDD03F006295A9 /* JustRepsWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -467,6 +541,9 @@
 					A9D5B09B2FBD22A6006295A9 = {
 						CreatedOnToolsVersion = 26.3;
 					};
+					A9D5B2D42FBDD03F006295A9 = {
+						CreatedOnToolsVersion = 26.3;
+					};
 				};
 			};
 			buildConfigurationList = A9CF92AE2FAF548D0005D5DC /* Build configuration list for PBXProject "Just Reps" */;
@@ -490,6 +567,7 @@
 				A97E52152FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */,
 				A97E521F2FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */,
 				A9D5B09B2FBD22A6006295A9 /* JustRepsWatchComplicationExtension */,
+				A9D5B2D42FBDD03F006295A9 /* JustRepsWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -538,6 +616,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A9D5B09A2FBD22A6006295A9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9D5B2D32FBDD03F006295A9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -596,6 +681,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9D5B2D12FBDD03F006295A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -628,6 +720,11 @@
 			isa = PBXTargetDependency;
 			target = A9D5B09B2FBD22A6006295A9 /* JustRepsWatchComplicationExtension */;
 			targetProxy = A9D5B0AC2FBD22A7006295A9 /* PBXContainerItemProxy */;
+		};
+		A9D5B2E32FBDD041006295A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A9D5B2D42FBDD03F006295A9 /* JustRepsWidgetExtension */;
+			targetProxy = A9D5B2E22FBDD041006295A9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1155,6 +1252,78 @@
 			};
 			name = Release;
 		};
+		A9D5B2E62FBDD041006295A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = JustRepsWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustRepsWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = JustRepsWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps.JustRepsWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A9D5B2E72FBDD041006295A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = JustRepsWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustRepsWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = JustRepsWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps.JustRepsWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1226,6 +1395,15 @@
 			buildConfigurations = (
 				A9D5B0B02FBD22A7006295A9 /* Debug */,
 				A9D5B0B12FBD22A7006295A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9D5B2E82FBDD041006295A9 /* Build configuration list for PBXNativeTarget "JustRepsWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9D5B2E62FBDD041006295A9 /* Debug */,
+				A9D5B2E72FBDD041006295A9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
