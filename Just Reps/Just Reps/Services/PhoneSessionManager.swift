@@ -13,18 +13,21 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
     }
 
     // Push current state to watch. Called whenever iOS entries, exercises, goals, or MVR change.
-    func pushContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int], mvr: [String: Int] = [:]) {
+    func pushContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int], mvr: [String: Int] = [:], mvrEffectiveDate: Date? = nil) {
         guard WCSession.default.activationState == .activated,
               WCSession.default.isPaired,
               WCSession.default.isWatchAppInstalled else { return }
         let cutoff = Date(timeIntervalSinceNow: -90 * 86400)
         let recent = entries.filter { $0.timestamp >= cutoff }
-        let payload: [String: Any] = [
+        var payload: [String: Any] = [
             "entries": recent.map { $0.toDictionary() },
             "exercises": exercises.map { $0.rawString },
             "goals": goals,
             "mvr": mvr
         ]
+        if let date = mvrEffectiveDate {
+            payload["mvrEffectiveDate"] = date.timeIntervalSinceReferenceDate
+        }
         try? WCSession.default.updateApplicationContext(payload)
     }
 
@@ -86,6 +89,8 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
             .map { ExerciseType(rawString: $0) }
         let goals = (ud.dictionary(forKey: "dailyGoals") as? [String: Int]) ?? ["pushups": 25, "squats": 50]
         let mvr = (ud.dictionary(forKey: "minimumViableReps") as? [String: Int]) ?? [:]
-        pushContext(entries: entries, exercises: exercises, goals: goals, mvr: mvr)
+        let mvrEffectiveDateTI = ud.double(forKey: "mvrEffectiveDate")
+        let mvrEffectiveDate: Date? = mvrEffectiveDateTI > 0 ? Date(timeIntervalSinceReferenceDate: mvrEffectiveDateTI) : nil
+        pushContext(entries: entries, exercises: exercises, goals: goals, mvr: mvr, mvrEffectiveDate: mvrEffectiveDate)
     }
 }

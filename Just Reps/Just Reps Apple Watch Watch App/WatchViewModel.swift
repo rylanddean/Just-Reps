@@ -7,6 +7,7 @@ final class WatchViewModel {
     private(set) var activeExercises: [ExerciseType] = ExerciseType.defaults
     private(set) var dailyGoals: [String: Int] = ["pushups": 25, "squats": 50]
     private(set) var minimumViableReps: [String: Int] = [:]
+    private(set) var mvrEffectiveDate: Date? = nil
 
     // Entries received from the phone (source of truth)
     private var phoneEntries: [WorkoutEntry] = []
@@ -21,13 +22,14 @@ final class WatchViewModel {
 
     // MARK: - Apply context from phone (via WatchSessionManager)
 
-    func applyPhoneContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int], minimumViableReps: [String: Int] = [:]) {
+    func applyPhoneContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int], minimumViableReps: [String: Int] = [:], mvrEffectiveDate: Date? = nil) {
         let phoneIds = Set(entries.map { $0.id })
         pendingEntries.removeAll { phoneIds.contains($0.id) }
         phoneEntries = entries
         activeExercises = exercises
         dailyGoals = goals
         self.minimumViableReps = minimumViableReps
+        self.mvrEffectiveDate = mvrEffectiveDate
         persistStreakForComplication()
     }
 
@@ -86,7 +88,8 @@ final class WatchViewModel {
             entries: allEntries,
             activeExercises: activeExercises,
             goals: goalsDict,
-            minimumViableReps: mvrDict
+            minimumViableReps: mvrDict,
+            effectiveFrom: mvrEffectiveDate
         ).current
     }
 

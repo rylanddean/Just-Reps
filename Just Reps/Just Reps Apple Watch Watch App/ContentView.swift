@@ -21,7 +21,8 @@ struct ContentView: View {
                     entries: session.entries,
                     exercises: session.exercises,
                     goals: session.goals,
-                    minimumViableReps: session.minimumViableReps
+                    minimumViableReps: session.minimumViableReps,
+                    mvrEffectiveDate: session.mvrEffectiveDate
                 )
             }
         }
@@ -30,7 +31,8 @@ struct ContentView: View {
                 entries: session.entries,
                 exercises: session.exercises,
                 goals: session.goals,
-                minimumViableReps: session.minimumViableReps
+                minimumViableReps: session.minimumViableReps,
+                mvrEffectiveDate: session.mvrEffectiveDate
             )
         }
     }

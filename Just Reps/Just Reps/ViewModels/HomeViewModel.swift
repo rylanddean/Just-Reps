@@ -110,7 +110,7 @@ final class HomeViewModel {
     }
 
     private func syncToWatch() {
-        PhoneSessionManager.shared.pushContext(entries: allEntries, exercises: activeExercises, goals: dailyGoals, mvr: minimumViableReps)
+        PhoneSessionManager.shared.pushContext(entries: allEntries, exercises: activeExercises, goals: dailyGoals, mvr: minimumViableReps, mvrEffectiveDate: mvrEffectiveDate)
     }
 
     // MARK: - Day state

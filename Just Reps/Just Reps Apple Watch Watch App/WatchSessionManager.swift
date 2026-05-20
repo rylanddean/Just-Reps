@@ -10,6 +10,7 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
     private(set) var exercises: [ExerciseType] = ExerciseType.defaults
     private(set) var goals: [String: Int] = ["pushups": 25, "squats": 50]
     private(set) var minimumViableReps: [String: Int] = [:]
+    private(set) var mvrEffectiveDate: Date? = nil
 
     // Bumped whenever any of the above change so ContentView can react with a single onChange.
     private(set) var lastUpdate: Date = .distantPast
@@ -55,6 +56,9 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         if let m = context["mvr"] as? [String: Int] {
             minimumViableReps = m
         }
+        if let ti = context["mvrEffectiveDate"] as? Double {
+            mvrEffectiveDate = Date(timeIntervalSinceReferenceDate: ti)
+        }
         lastUpdate = .now
     }
 
@@ -75,6 +79,9 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         }
         if let data = try? JSONSerialization.data(withJSONObject: context["mvr"] ?? [:]) {
             ud.set(data, forKey: "wc_mvr")
+        }
+        if let ti = context["mvrEffectiveDate"] as? Double {
+            ud.set(ti, forKey: "wc_mvrEffectiveDate")
         }
     }
 
@@ -97,6 +104,8 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
            let obj = try? JSONSerialization.jsonObject(with: data) {
             context["mvr"] = obj
         }
+        let mvrTI = ud.double(forKey: "wc_mvrEffectiveDate")
+        if mvrTI > 0 { context["mvrEffectiveDate"] = mvrTI }
         if !context.isEmpty {
             DispatchQueue.main.async { self.apply(context) }
         }
