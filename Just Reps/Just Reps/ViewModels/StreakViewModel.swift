@@ -52,7 +52,30 @@ final class StreakViewModel {
     // MARK: - Derived
 
     var streakResult: StreakEngine.Result {
-        StreakEngine.calculate(entries: allEntries)
+        let defaults = UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard
+        let mvrRaw = (defaults.dictionary(forKey: "minimumViableReps") as? [String: Int]) ?? [:]
+        let mvrDict = Dictionary(uniqueKeysWithValues:
+            mvrRaw.compactMap { key, val -> (ExerciseType, Int)? in
+                guard val > 0 else { return nil }
+                return (ExerciseType(rawString: key), val)
+            }
+        )
+        guard !mvrDict.isEmpty else {
+            return StreakEngine.calculate(entries: allEntries)
+        }
+        let exercisesRaw = defaults.stringArray(forKey: "activeExercises") ?? []
+        let activeExercises = exercisesRaw.isEmpty ? ExerciseType.defaults : exercisesRaw.map { ExerciseType(rawString: $0) }
+        let goalsRaw = (defaults.dictionary(forKey: "dailyGoals") as? [String: Int]) ?? [:]
+        let goalsDict = Dictionary(uniqueKeysWithValues: activeExercises.map { ($0, goalsRaw[$0.rawString] ?? 0) })
+        let mvrEffectiveDateTI = defaults.double(forKey: "mvrEffectiveDate")
+        let mvrEffectiveDate: Date? = mvrEffectiveDateTI > 0 ? Date(timeIntervalSinceReferenceDate: mvrEffectiveDateTI) : nil
+        return StreakEngine.calculate(
+            entries: allEntries,
+            activeExercises: activeExercises,
+            goals: goalsDict,
+            minimumViableReps: mvrDict,
+            effectiveFrom: mvrEffectiveDate
+        )
     }
 
     var currentStreak: Int { streakResult.current }
