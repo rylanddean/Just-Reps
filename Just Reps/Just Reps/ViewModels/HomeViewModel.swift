@@ -20,6 +20,10 @@ final class HomeViewModel {
         }
     }
 
+    var minimumViableReps: [String: Int] = [:] {
+        didSet { saveMVR() }
+    }
+
     var showCompletionBanner = false
     var showEffortPicker = false
     private(set) var freezeTokens: Int = 0
@@ -38,6 +42,18 @@ final class HomeViewModel {
     init() {
         activeExercises = Self.loadExercises()
         dailyGoals = Self.loadGoals()
+        minimumViableReps = Self.loadMVR()
+        // If MVR was configured before the effective-date feature existed, set tomorrow as the
+        // effective date so all existing history stays qualified under the old "any reps" rule.
+        let existingMVR = Self.loadMVR()
+        let existingEffectiveDate = Self.sharedDefaults.double(forKey: Self.mvrEffectiveDateKey)
+        if existingMVR.values.contains(where: { $0 > 0 }) && existingEffectiveDate == 0 {
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+            Self.sharedDefaults.set(
+                Calendar.current.startOfDay(for: tomorrow).timeIntervalSinceReferenceDate,
+                forKey: Self.mvrEffectiveDateKey
+            )
+        }
         let saved = Self.sharedDefaults.stringArray(forKey: Self.completedGoalDaysKey)
         if let saved {
             completedGoalDays = Set(saved)
@@ -117,7 +133,26 @@ final class HomeViewModel {
     // MARK: - Streaks
 
     /// Consecutive days where ANY reps were logged (keeps chain alive).
-    var loggedStreak: Int { StreakEngine.calculate(entries: allEntries).current }
+    /// When MVR is configured for at least one exercise, days must also meet those thresholds.
+    var loggedStreak: Int {
+        let mvrDict = Dictionary(uniqueKeysWithValues:
+            minimumViableReps.compactMap { key, val -> (ExerciseType, Int)? in
+                guard val > 0 else { return nil }
+                return (ExerciseType(rawString: key), val)
+            }
+        )
+        guard !mvrDict.isEmpty else {
+            return StreakEngine.calculate(entries: allEntries).current
+        }
+        let goalsDict = Dictionary(uniqueKeysWithValues: activeExercises.map { ($0, goal(for: $0)) })
+        return StreakEngine.calculate(
+            entries: allEntries,
+            activeExercises: activeExercises,
+            goals: goalsDict,
+            minimumViableReps: mvrDict,
+            effectiveFrom: mvrEffectiveDate
+        ).current
+    }
 
     /// Consecutive days where ALL active exercise goals were fully met.
     var goalsStreak: Int {
@@ -246,6 +281,23 @@ final class HomeViewModel {
         dailyGoals[exercise.rawString] = goal
     }
 
+    func mvr(for exercise: ExerciseType) -> Int {
+        minimumViableReps[exercise.rawString] ?? 0
+    }
+
+    func setMVR(_ value: Int, for exercise: ExerciseType) {
+        minimumViableReps[exercise.rawString] = value > 0 ? value : 0
+        let anyActive = minimumViableReps.values.contains { $0 > 0 }
+        if anyActive && mvrEffectiveDate == nil {
+            // First time enabling MVR: take effect from tomorrow so today and all
+            // prior history remain qualified under the original "any reps" rule.
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+            mvrEffectiveDate = Calendar.current.startOfDay(for: tomorrow)
+        } else if !anyActive {
+            mvrEffectiveDate = nil
+        }
+    }
+
     func markRestDay(context: ModelContext) {
         context.insert(WorkoutEntry(kind: .rest))
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
@@ -285,6 +337,8 @@ final class HomeViewModel {
     private static let appGroupID = "group.com.rylanddean.justreps"
     private static let exercisesKey = "activeExercises"
     private static let goalsKey = "dailyGoals"
+    private static let mvrKey = "minimumViableReps"
+    private static let mvrEffectiveDateKey = "mvrEffectiveDate"
     private static let completedGoalDaysKey = "completedGoalDays"
     private static let freezeTokensKey = "freezeTokens"
     private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
@@ -301,6 +355,27 @@ final class HomeViewModel {
 
     private func saveGoals() {
         Self.sharedDefaults.set(dailyGoals, forKey: Self.goalsKey)
+    }
+
+    private func saveMVR() {
+        Self.sharedDefaults.set(minimumViableReps, forKey: Self.mvrKey)
+    }
+
+    private static func loadMVR() -> [String: Int] {
+        (sharedDefaults.dictionary(forKey: mvrKey) as? [String: Int]) ?? [:]
+    }
+
+    private var mvrEffectiveDate: Date? {
+        get {
+            let ti = Self.sharedDefaults.double(forKey: Self.mvrEffectiveDateKey)
+            return ti > 0 ? Date(timeIntervalSinceReferenceDate: ti) : nil
+        }
+        set {
+            Self.sharedDefaults.set(
+                newValue.map { $0.timeIntervalSinceReferenceDate } ?? 0,
+                forKey: Self.mvrEffectiveDateKey
+            )
+        }
     }
 
     private static func loadExercises() -> [ExerciseType] {
