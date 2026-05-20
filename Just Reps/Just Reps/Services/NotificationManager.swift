@@ -13,13 +13,11 @@ final class NotificationManager {
     private let notificationId = "just_reps_daily_reminder"
 
     private let messages = [
-        "Quick set?",
-        "Keep the streak alive.",
+        "Your streak is at risk. Still time.",
         "5 reps still counts.",
-        "Today's a good day to show up.",
-        "Don't break the chain.",
         "One set is enough.",
-        "Show up daily.",
+        "Today's a good day to show up.",
+        "Show up. Even 5 reps counts.",
     ]
 
     // MARK: - Permission
@@ -61,6 +59,14 @@ final class NotificationManager {
         )
 
         center.add(request)
+    }
+
+    /// Schedules the at-risk notification at preferredLogHour + 3h, floored at 9AM,
+    /// capped at 9PM. Falls back to 8PM when fewer than 7 days are logged in the window.
+    func scheduleSmartReminder(entries: [WorkoutEntry]) {
+        let preferredHour = StreakEngine.preferredLogHour(from: entries)
+        let atRiskHour = max(9, min(21, preferredHour + 3))
+        scheduleDailyReminder(hour: atRiskHour, minute: 0)
     }
 
     func cancelReminder() {

@@ -229,4 +229,20 @@ struct StreakEngine {
         let previousAnchor = calendar.date(byAdding: .day, value: -1, to: anchor)!
         return logicalDay(for: previousAnchor)
     }
+
+    // MARK: - Smart reminder timing
+
+    /// Median logged hour over the last 14 days. Requires ≥7 unique logged days in the
+    /// window before deviating from the 8PM default — not enough data = don't guess.
+    static func preferredLogHour(from entries: [WorkoutEntry]) -> Int {
+        let calendar = Calendar.current
+        let cutoff = calendar.date(byAdding: .day, value: -14, to: .now)!
+        let recent = entries.filter { $0.timestamp >= cutoff && $0.kind == .workout }
+        let uniqueDays = Set(recent.map { logicalDay(for: $0.timestamp) })
+        guard uniqueDays.count >= 7 else { return 20 }
+        let hours = recent
+            .map { calendar.component(.hour, from: $0.timestamp) }
+            .sorted()
+        return hours[hours.count / 2]
+    }
 }

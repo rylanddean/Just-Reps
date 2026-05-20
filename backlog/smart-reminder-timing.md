@@ -1,6 +1,6 @@
 # Smart Reminder Timing
 
-> The nudge arrives when it's actually useful.
+> The reminder arrives when it can still help.
 
 ---
 
@@ -60,7 +60,7 @@ Unchanged: `"Your streak is at risk. Still time."` — the timing changes, the m
 ### Settings interaction
 
 - If the user has manually set a notification time in Settings, that setting takes precedence over smart timing. Smart timing is the fallback when no explicit time is set.
-- A new sub-label under the notification time picker in Settings: `"Or learn from your habits — remove the custom time."` This is optional copy; discuss with design before shipping.
+- No sub-label or explanation is added to the Settings UI. The behaviour is invisible.
 
 ---
 

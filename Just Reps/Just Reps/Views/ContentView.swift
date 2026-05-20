@@ -1,7 +1,12 @@
+import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("hasCompletedOnboarding")        private var hasCompletedOnboarding = false
+    @AppStorage("notificationsEnabled")          private var notificationsEnabled = false
+    @AppStorage("notificationTimeCustomized")    private var notificationTimeCustomized = false
+    @Environment(\.scenePhase)                   private var scenePhase
+    @Query                                       private var allEntries: [WorkoutEntry]
     @State private var homeViewModel = HomeViewModel()
     @State private var logoOpacity: Double = 1
     @State private var bgOpacity: Double = 1
@@ -31,6 +36,12 @@ struct ContentView: View {
             withAnimation(.easeOut(duration: 0.35)) {
                 bgOpacity = 0
             }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active,
+                  notificationsEnabled,
+                  !notificationTimeCustomized else { return }
+            NotificationManager.shared.scheduleSmartReminder(entries: allEntries)
         }
     }
 
