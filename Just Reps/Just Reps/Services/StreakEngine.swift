@@ -28,6 +28,44 @@ struct StreakEngine {
         return Result(current: current, longest: longest, completedDates: completedDays)
     }
 
+    /// MVR-aware streak: a workout day qualifies only if every exercise with a configured
+    /// MVR threshold meets it (reps ≥ MVR, or reps ≥ goal). Exercises without an MVR never
+    /// gate the streak, preserving the original "any reps = shows up" behavior for those.
+    static func calculate(
+        entries: [WorkoutEntry],
+        activeExercises: [ExerciseType],
+        goals: [ExerciseType: Int],
+        minimumViableReps: [ExerciseType: Int]
+    ) -> Result {
+        guard !entries.isEmpty else {
+            return Result(current: 0, longest: 0, completedDates: [])
+        }
+        var dayMap: [DateComponents: [WorkoutEntry]] = [:]
+        for entry in entries {
+            let day = logicalDay(for: entry.timestamp)
+            dayMap[day, default: []].append(entry)
+        }
+        var qualifiedDays = Set<DateComponents>()
+        for (day, dayEntries) in dayMap {
+            if dayEntries.contains(where: { $0.kind == .rest || $0.kind == .freeze }) {
+                qualifiedDays.insert(day)
+                continue
+            }
+            guard dayEntries.contains(where: { $0.kind == .workout }) else { continue }
+            let allSatisfied = activeExercises.allSatisfy { exercise in
+                let mvr = minimumViableReps[exercise] ?? 0
+                guard mvr > 0 else { return true }
+                let reps = dayEntries
+                    .filter { $0.kind == .workout && $0.exercise == exercise }
+                    .reduce(0) { $0 + $1.reps }
+                return reps >= mvr || reps >= (goals[exercise] ?? Int.max)
+            }
+            if allSatisfied { qualifiedDays.insert(day) }
+        }
+        let (current, longest) = calculateStreak(from: qualifiedDays)
+        return Result(current: current, longest: longest, completedDates: qualifiedDays)
+    }
+
     // MARK: - Generic streak from any set of completed days
 
     /// Compute current + longest streak from a pre-built set of logical day keys.

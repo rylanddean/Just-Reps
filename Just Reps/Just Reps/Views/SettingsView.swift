@@ -106,6 +106,10 @@ struct SettingsView: View {
                 }
                 .tint(AppTheme.Colors.successGreen)
                 .disabled(isActive && viewModel.activeExercises.count == 1)
+
+                if isActive {
+                    mvrRow(for: exercise)
+                }
             }
 
             ForEach(customExercises, id: \.id) { exercise in
@@ -124,6 +128,7 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                mvrRow(for: exercise)
             }
 
             HStack {
@@ -258,6 +263,27 @@ struct SettingsView: View {
     }
 
     // MARK: - Helpers
+
+    private func mvrRow(for exercise: ExerciseType) -> some View {
+        let mvrBinding = Binding(
+            get: { viewModel.mvr(for: exercise) },
+            set: { viewModel.setMVR($0, for: exercise) }
+        )
+        let mvrValue = viewModel.mvr(for: exercise)
+        let maxMVR = max(viewModel.goal(for: exercise) - 1, 1)
+        return HStack {
+            Text("Minimum reps to count the day")
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(mvrValue == 0 ? "Off" : "\(mvrValue)")
+                .font(AppTheme.Font.headline())
+                .foregroundStyle(mvrValue == 0 ? Color.secondary : AppTheme.Colors.successGreen)
+                .frame(minWidth: 36, alignment: .trailing)
+            Stepper("", value: mvrBinding, in: 0...maxMVR, step: 5)
+                .labelsHidden()
+        }
+    }
 
     private func toggleExercise(_ exercise: ExerciseType, enabled: Bool) {
         if enabled {
