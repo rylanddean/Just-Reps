@@ -8,9 +8,10 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allEntries: [WorkoutEntry]
 
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
-    @AppStorage("notificationHour")     private var notificationHour = 18
-    @AppStorage("notificationMinute")   private var notificationMinute = 0
+    @AppStorage("notificationsEnabled")      private var notificationsEnabled = false
+    @AppStorage("notificationHour")          private var notificationHour = 18
+    @AppStorage("notificationMinute")        private var notificationMinute = 0
+    @AppStorage("notificationTimeCustomized") private var notificationTimeCustomized = false
     @AppStorage("healthKitEnabled")     private var healthKitEnabled = false
     @AppStorage("repsPerMinute")        private var repsPerMinute = 20
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
@@ -188,6 +189,7 @@ struct SettingsView: View {
                     let m = comps.minute ?? 0
                     notificationHour = h
                     notificationMinute = m
+                    notificationTimeCustomized = true
                     notifManager.scheduleDailyReminder(hour: h, minute: m)
                 }
             }
@@ -331,7 +333,11 @@ struct SettingsView: View {
             Task {
                 await notifManager.requestAuthorization()
                 if notifManager.isAuthorized {
-                    notifManager.scheduleDailyReminder(hour: notificationHour, minute: notificationMinute)
+                    if notificationTimeCustomized {
+                        notifManager.scheduleDailyReminder(hour: notificationHour, minute: notificationMinute)
+                    } else {
+                        notifManager.scheduleSmartReminder(entries: allEntries)
+                    }
                 } else {
                     notificationsEnabled = false
                 }
