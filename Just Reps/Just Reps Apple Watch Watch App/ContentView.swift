@@ -20,7 +20,8 @@ struct ContentView: View {
                 vm.applyPhoneContext(
                     entries: session.entries,
                     exercises: session.exercises,
-                    goals: session.goals
+                    goals: session.goals,
+                    minimumViableReps: session.minimumViableReps
                 )
             }
         }
@@ -28,7 +29,8 @@ struct ContentView: View {
             vm.applyPhoneContext(
                 entries: session.entries,
                 exercises: session.exercises,
-                goals: session.goals
+                goals: session.goals,
+                minimumViableReps: session.minimumViableReps
             )
         }
     }

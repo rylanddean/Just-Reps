@@ -131,6 +131,7 @@ struct HomeView: View {
                     exercise: exercise,
                     current: viewModel.totalReps(for: exercise),
                     goal: viewModel.goal(for: exercise),
+                    mvr: viewModel.mvr(for: exercise),
                     onIncrement: { amount in
                         viewModel.logReps(amount, for: exercise, context: modelContext)
                     },

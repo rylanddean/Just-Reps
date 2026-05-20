@@ -9,6 +9,7 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
     private(set) var entries: [WorkoutEntry] = []
     private(set) var exercises: [ExerciseType] = ExerciseType.defaults
     private(set) var goals: [String: Int] = ["pushups": 25, "squats": 50]
+    private(set) var minimumViableReps: [String: Int] = [:]
 
     // Bumped whenever any of the above change so ContentView can react with a single onChange.
     private(set) var lastUpdate: Date = .distantPast
@@ -51,6 +52,9 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         if let g = context["goals"] as? [String: Int], !g.isEmpty {
             goals = g
         }
+        if let m = context["mvr"] as? [String: Int] {
+            minimumViableReps = m
+        }
         lastUpdate = .now
     }
 
@@ -69,6 +73,9 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         if let data = try? JSONSerialization.data(withJSONObject: context["goals"] ?? [:]) {
             ud.set(data, forKey: "wc_goals")
         }
+        if let data = try? JSONSerialization.data(withJSONObject: context["mvr"] ?? [:]) {
+            ud.set(data, forKey: "wc_mvr")
+        }
     }
 
     private func loadCached() {
@@ -85,6 +92,10 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         if let data = ud.data(forKey: "wc_goals"),
            let obj = try? JSONSerialization.jsonObject(with: data) {
             context["goals"] = obj
+        }
+        if let data = ud.data(forKey: "wc_mvr"),
+           let obj = try? JSONSerialization.jsonObject(with: data) {
+            context["mvr"] = obj
         }
         if !context.isEmpty {
             DispatchQueue.main.async { self.apply(context) }

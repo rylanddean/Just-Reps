@@ -4,6 +4,7 @@ struct ExerciseCard: View {
     let exercise: ExerciseType
     let current: Int
     let goal: Int
+    var mvr: Int = 0
     let onIncrement: (Int) -> Void
     var recommendation: GoalRecommendation? = nil
     var onApplyRecommendation: ((Int) -> Void)? = nil
@@ -13,6 +14,7 @@ struct ExerciseCard: View {
     @State private var showGoalEditor = false
     @State private var recDismissed = false
     @State private var isExpanded = true
+    @State private var timerStart: Date? = nil
 
     private var progress: Double { min(Double(current) / Double(goal), 1.0) }
     private var isComplete: Bool { current >= goal }
@@ -47,6 +49,7 @@ struct ExerciseCard: View {
         }
         .onChange(of: isComplete) { _, complete in
             if complete {
+                timerStart = nil
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                     isExpanded = false
                 }
@@ -91,7 +94,11 @@ struct ExerciseCard: View {
                 inlineRecommendation(rec)
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
-            incrementButtons
+            if exercise.isTimerBased {
+                timerControls
+            } else {
+                incrementButtons
+            }
         }
         .animation(.easeInOut(duration: 0.25), value: activeRec == nil)
     }
@@ -134,6 +141,13 @@ struct ExerciseCard: View {
                         .fill(progressColor)
                         .frame(width: max(geo.size.width * progress, 16), height: 8)
                         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: progress)
+                }
+                if mvr > 0 && mvr < goal {
+                    let mvrX = geo.size.width * Double(mvr) / Double(goal)
+                    Rectangle()
+                        .fill(Color(UIColor.label).opacity(0.25))
+                        .frame(width: 1.5, height: 14)
+                        .offset(x: mvrX - 0.75)
                 }
             }
         }
@@ -179,6 +193,64 @@ struct ExerciseCard: View {
             }
             .buttonStyle(.plain)
         }
+    }
+
+    // MARK: - Timer controls
+
+    @ViewBuilder
+    private var timerControls: some View {
+        if let start = timerStart {
+            TimelineView(.periodic(from: start, by: 1.0)) { context in
+                let elapsed = Int(context.date.timeIntervalSince(start))
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Text(formatElapsed(elapsed))
+                        .font(.system(size: 28, weight: .heavy, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(AppTheme.Colors.successGreen)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Button {
+                        if let s = timerStart {
+                            let secs = max(1, Int(Date().timeIntervalSince(s)))
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            if current + secs >= goal {
+                                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                            }
+                            onIncrement(secs)
+                            timerStart = nil
+                        }
+                    } label: {
+                        Text("Stop")
+                            .font(.system(size: 14, weight: .semibold))
+                            .padding(.horizontal, AppTheme.Spacing.lg)
+                            .padding(.vertical, 12)
+                            .background(Color(UIColor.tertiarySystemBackground))
+                            .foregroundStyle(Color(UIColor.label))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        } else {
+            Button {
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                timerStart = Date()
+            } label: {
+                Text("Start")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .foregroundStyle(Color(UIColor.label))
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func formatElapsed(_ seconds: Int) -> String {
+        let m = seconds / 60
+        let s = seconds % 60
+        return m > 0 ? "\(m):\(String(format: "%02d", s))" : "\(s)s"
     }
 
     // MARK: - Increment buttons

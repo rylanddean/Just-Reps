@@ -12,8 +12,8 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
         WCSession.default.activate()
     }
 
-    // Push current state to watch. Called whenever iOS entries, exercises, or goals change.
-    func pushContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int]) {
+    // Push current state to watch. Called whenever iOS entries, exercises, goals, or MVR change.
+    func pushContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int], mvr: [String: Int] = [:]) {
         guard WCSession.default.activationState == .activated,
               WCSession.default.isPaired,
               WCSession.default.isWatchAppInstalled else { return }
@@ -22,7 +22,8 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
         let payload: [String: Any] = [
             "entries": recent.map { $0.toDictionary() },
             "exercises": exercises.map { $0.rawString },
-            "goals": goals
+            "goals": goals,
+            "mvr": mvr
         ]
         try? WCSession.default.updateApplicationContext(payload)
     }
@@ -84,6 +85,7 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
         let exercises = (ud.stringArray(forKey: "activeExercises") ?? ["pushups", "squats"])
             .map { ExerciseType(rawString: $0) }
         let goals = (ud.dictionary(forKey: "dailyGoals") as? [String: Int]) ?? ["pushups": 25, "squats": 50]
-        pushContext(entries: entries, exercises: exercises, goals: goals)
+        let mvr = (ud.dictionary(forKey: "minimumViableReps") as? [String: Int]) ?? [:]
+        pushContext(entries: entries, exercises: exercises, goals: goals, mvr: mvr)
     }
 }

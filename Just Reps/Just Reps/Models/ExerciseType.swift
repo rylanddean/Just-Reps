@@ -1,6 +1,20 @@
 import Foundation
 import SwiftData
 
+enum TrackingType: String, CaseIterable, Codable {
+    case reps
+    case seconds
+    case sessions
+
+    var displayName: String {
+        switch self {
+        case .reps:     return "Reps"
+        case .seconds:  return "Seconds"
+        case .sessions: return "Sessions"
+        }
+    }
+}
+
 // Built-in exercise types — custom exercises stored as `.custom(name:)`
 enum ExerciseType: Codable, Hashable, Identifiable {
     case pushups
@@ -9,7 +23,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
     case pullups
     case situps
     case stretching   // counts sessions, not reps
-    case custom(name: String, muscleGroups: [MuscleGroup] = [])
+    case custom(name: String, muscleGroups: [MuscleGroup] = [], trackingType: TrackingType = .reps)
 
     var id: String { displayName }
 
@@ -21,7 +35,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         case .pullups:    return "Pullups"
         case .situps:     return "Situps"
         case .stretching: return "Stretching"
-        case .custom(let name, _): return name
+        case .custom(let name, _, _): return name
         }
     }
 
@@ -42,7 +56,13 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         switch self {
         case .plank:      return "sec"
         case .stretching: return "sessions"
-        default:          return "reps"
+        case .custom(_, _, let trackingType):
+            switch trackingType {
+            case .reps:     return "reps"
+            case .seconds:  return "sec"
+            case .sessions: return "sessions"
+            }
+        default: return "reps"
         }
     }
 
@@ -54,7 +74,15 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         case .pullups:    return [.back, .arms]
         case .situps:     return [.core]
         case .stretching: return []
-        case .custom(_, let groups): return groups
+        case .custom(_, let groups, _): return groups
+        }
+    }
+
+    var isTimerBased: Bool {
+        switch self {
+        case .plank: return true
+        case .custom(_, _, let trackingType): return trackingType == .seconds
+        default: return false
         }
     }
 
@@ -63,36 +91,50 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         switch self {
         case .plank:      return [10, 30, 60]
         case .stretching: return [1]
-        default:          return [5, 10, 25]
+        case .custom(_, _, let trackingType):
+            switch trackingType {
+            case .reps:     return [5, 10, 25]
+            case .seconds:  return [10, 30, 60]
+            case .sessions: return [1]
+            }
+        default: return [5, 10, 25]
         }
     }
 
     // Codable support for SwiftData serialisation via rawValue string
+    // Format: "custom:name", "custom:name|upper,core", or "custom:name|upper,core|seconds"
     var rawString: String {
         switch self {
-        case .pushups:          return "pushups"
-        case .squats:           return "squats"
-        case .plank:            return "plank"
-        case .pullups:          return "pullups"
-        case .situps:           return "situps"
-        case .stretching:       return "stretching"
-        case .custom(let name, let groups):
-            if groups.isEmpty { return "custom:\(name)" }
-            return "custom:\(name)|\(groups.map(\.rawValue).joined(separator: ","))"
+        case .pushups:    return "pushups"
+        case .squats:     return "squats"
+        case .plank:      return "plank"
+        case .pullups:    return "pullups"
+        case .situps:     return "situps"
+        case .stretching: return "stretching"
+        case .custom(let name, let groups, let trackingType):
+            var result = "custom:\(name)"
+            if !groups.isEmpty || trackingType != .reps {
+                result += "|" + groups.map(\.rawValue).joined(separator: ",")
+            }
+            if trackingType != .reps {
+                result += "|\(trackingType.rawValue)"
+            }
+            return result
         }
     }
 
     init(rawString: String) {
         if rawString.hasPrefix("custom:") {
             let remainder = String(rawString.dropFirst(7))
-            if let pipeIdx = remainder.firstIndex(of: "|") {
-                let name = String(remainder[remainder.startIndex..<pipeIdx])
-                let groupsStr = String(remainder[remainder.index(after: pipeIdx)...])
-                let groups = groupsStr.split(separator: ",").compactMap { MuscleGroup(rawValue: String($0)) }
-                self = .custom(name: name, muscleGroups: groups)
-            } else {
-                self = .custom(name: remainder)
-            }
+            let parts = remainder.components(separatedBy: "|")
+            let name = parts[0]
+            let groups = parts.count >= 2
+                ? parts[1].split(separator: ",").compactMap { MuscleGroup(rawValue: String($0)) }
+                : []
+            let trackingType = parts.count >= 3
+                ? TrackingType(rawValue: parts[2]) ?? .reps
+                : .reps
+            self = .custom(name: name, muscleGroups: groups, trackingType: trackingType)
         } else {
             switch rawString {
             case "squats":     self = .squats

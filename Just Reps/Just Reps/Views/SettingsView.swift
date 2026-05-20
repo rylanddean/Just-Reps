@@ -350,12 +350,14 @@ private struct AddCustomExerciseSheet: View {
 
     @State private var name = ""
     @State private var selectedGroups: Set<MuscleGroup> = []
+    @State private var trackingType: TrackingType = .reps
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: AppTheme.Spacing.md) {
                     nameCard
+                    tracksCard
                     targetsCard
                 }
                 .padding(AppTheme.Spacing.md)
@@ -391,6 +393,47 @@ private struct AddCustomExerciseSheet: View {
                 .background(Color(UIColor.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
                 .submitLabel(.done)
+        }
+    }
+
+    private var tracksCard: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("TRACKS")
+                .font(AppTheme.Font.caption())
+                .kerning(1)
+                .foregroundStyle(.secondary)
+                .padding(.leading, AppTheme.Spacing.xs)
+
+            HStack(spacing: AppTheme.Spacing.sm) {
+                ForEach(TrackingType.allCases, id: \.self) { type in
+                    let selected = trackingType == type
+                    Button {
+                        trackingType = type
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    } label: {
+                        Text(type.displayName)
+                            .font(AppTheme.Font.caption())
+                            .kerning(0.5)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppTheme.Spacing.sm)
+                            .background(
+                                selected
+                                    ? AppTheme.Colors.successGreen.opacity(0.15)
+                                    : Color(UIColor.systemFill)
+                            )
+                            .foregroundStyle(
+                                selected
+                                    ? AppTheme.Colors.successGreen
+                                    : Color(UIColor.secondaryLabel)
+                            )
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(AppTheme.Spacing.md)
+            .background(Color(UIColor.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
         }
     }
 
@@ -443,7 +486,7 @@ private struct AddCustomExerciseSheet: View {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
         let groups = MuscleGroup.allCases.filter { selectedGroups.contains($0) }
-        onAdd(ExerciseType.custom(name: trimmed, muscleGroups: groups))
+        onAdd(ExerciseType.custom(name: trimmed, muscleGroups: groups, trackingType: trackingType))
         dismiss()
     }
 }
