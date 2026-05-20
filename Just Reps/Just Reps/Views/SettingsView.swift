@@ -38,6 +38,7 @@ struct SettingsView: View {
                 notificationsSection
                 healthSection
                 backupSection
+                aboutSection
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -289,6 +290,24 @@ struct SettingsView: View {
         } else {
             notifManager.cancelReminder()
         }
+    }
+
+    // MARK: - About
+
+    private var aboutSection: some View {
+        Section {
+            LabeledContent("Version") {
+                Text(appVersionString)
+                    .foregroundStyle(.secondary)
+                    .font(AppTheme.Font.caption())
+            }
+        }
+    }
+
+    private var appVersionString: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
+        return "\(version) (\(build))"
     }
 
     private func makeDate(hour: Int, minute: Int) -> Date {

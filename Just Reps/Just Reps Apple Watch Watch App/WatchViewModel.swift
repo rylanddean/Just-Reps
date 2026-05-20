@@ -1,32 +1,32 @@
 import SwiftUI
-import SwiftData
-
-struct WatchGoalRec {
-    let exercise: ExerciseType
-    let currentGoal: Int
-    let suggestedGoal: Int
-    let increase: Bool
-}
+import WidgetKit
 
 @Observable
 final class WatchViewModel {
 
     private(set) var activeExercises: [ExerciseType] = ExerciseType.defaults
     private(set) var dailyGoals: [String: Int] = ["pushups": 25, "squats": 50]
-    private var allEntries: [WorkoutEntry] = []
 
-    // MARK: - Training Load
+    // Entries received from the phone (source of truth)
+    private var phoneEntries: [WorkoutEntry] = []
+    // Entries logged on watch but not yet confirmed by phone
+    private var pendingEntries: [WorkoutEntry] = []
 
-    private(set) var trainingLoadTodayMins = 0
-    private(set) var trainingLoadWeeklyMins = 0
-    private(set) var trainingLoadTrend = "neutral"
-    private(set) var hasTrainingLoadData = false
+    private var allEntries: [WorkoutEntry] {
+        let phoneIds = Set(phoneEntries.map { $0.id })
+        let unconfirmed = pendingEntries.filter { !phoneIds.contains($0.id) }
+        return phoneEntries + unconfirmed
+    }
 
-    init() { loadPreferences() }
+    // MARK: - Apply context from phone (via WatchSessionManager)
 
-    func refresh(with entries: [WorkoutEntry]) {
-        allEntries = entries
-        loadPreferences()
+    func applyPhoneContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int]) {
+        let phoneIds = Set(entries.map { $0.id })
+        pendingEntries.removeAll { phoneIds.contains($0.id) }
+        phoneEntries = entries
+        activeExercises = exercises
+        dailyGoals = goals
+        persistStreakForComplication()
     }
 
     // MARK: - Today
@@ -87,88 +87,14 @@ final class WatchViewModel {
 
     // MARK: - Logging
 
-    func logReps(_ reps: Int, for exercise: ExerciseType, context: ModelContext) {
+    // Optimistically adds to pending and sends to phone via WCSession.
+    func logReps(_ reps: Int, for exercise: ExerciseType) {
         let entry = WorkoutEntry(exercise: exercise, reps: reps)
-        context.insert(entry)
-    }
-
-    // MARK: - Goal Recommendations
-
-    var goalRecommendations: [WatchGoalRec] {
-        let calendar = Calendar.current
-        let todayStart = calendar.startOfDay(for: .now)
-        let dayStarts: [Date] = (1...7).compactMap {
-            calendar.date(byAdding: .day, value: -$0, to: todayStart)
-        }
-
-        var recs: [WatchGoalRec] = []
-
-        for exercise in activeExercises {
-            guard exercise != .stretching else { continue }
-            let goalValue = goal(for: exercise)
-            var daysWithActivity = 0
-            var daysGoalMet = 0
-            var rpeValues: [Double] = []
-
-            for dayStart in dayStarts {
-                guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { continue }
-                let dayEntries = allEntries.filter {
-                    $0.exercise == exercise &&
-                    $0.timestamp >= dayStart &&
-                    $0.timestamp < dayEnd
-                }
-                guard !dayEntries.isEmpty else { continue }
-                daysWithActivity += 1
-                if dayEntries.reduce(0, { $0 + $1.reps }) >= goalValue { daysGoalMet += 1 }
-                rpeValues.append(contentsOf: dayEntries.compactMap { $0.effortRPE })
-            }
-
-            guard daysWithActivity >= 4 else { continue }
-
-            let avgRPE = rpeValues.isEmpty ? nil : rpeValues.reduce(0, +) / Double(rpeValues.count)
-
-            let shouldIncrease = daysGoalMet >= 6
-                && (avgRPE == nil || avgRPE! <= 5.0)
-                && trainingLoadTrend != "up"
-
-            let shouldDecrease = daysGoalMet <= 3
-                || (avgRPE != nil && avgRPE! >= 7.5 && daysGoalMet < 5)
-                || (trainingLoadTrend == "up" && avgRPE != nil && avgRPE! >= 7.5)
-
-            if shouldIncrease {
-                let suggested = roundToNearest5(Int(Double(goalValue) * 1.15))
-                if suggested != goalValue {
-                    recs.append(WatchGoalRec(exercise: exercise, currentGoal: goalValue, suggestedGoal: suggested, increase: true))
-                }
-            } else if shouldDecrease {
-                let suggested = max(5, roundToNearest5(Int(Double(goalValue) * 0.85)))
-                if suggested != goalValue {
-                    recs.append(WatchGoalRec(exercise: exercise, currentGoal: goalValue, suggestedGoal: suggested, increase: false))
-                }
-            }
-        }
-        return recs
-    }
-
-    func applyGoalRecommendation(_ rec: WatchGoalRec) {
-        dailyGoals[rec.exercise.rawString] = rec.suggestedGoal
-        let defaults = UserDefaults(suiteName: Self.appGroupID) ?? .standard
-        defaults.set(dailyGoals, forKey: Self.goalsKey)
-    }
-
-    // MARK: - Milestones
-
-    static let milestoneThresholds = [3, 7, 14, 30, 60, 100]
-
-    func nextMilestone(for streak: Int) -> Int? {
-        Self.milestoneThresholds.first { $0 > streak }
+        pendingEntries.append(entry)
+        WatchSessionManager.shared.send(entry)
     }
 
     // MARK: - Helpers
-
-    private func roundToNearest5(_ value: Int) -> Int {
-        Int((Double(value) / 5.0).rounded()) * 5
-    }
 
     private func goalCompletedDays() -> Set<DateComponents> {
         var dayMap: [DateComponents: [WorkoutEntry]] = [:]
@@ -189,23 +115,17 @@ final class WatchViewModel {
         return completed
     }
 
-    // MARK: - Preferences (App Group UserDefaults)
+    // MARK: - Complication
 
     private static let appGroupID = "group.com.rylanddean.justreps"
-    private static let exercisesKey = "activeExercises"
-    private static let goalsKey = "dailyGoals"
 
-    private func loadPreferences() {
+    private func persistStreakForComplication() {
         let defaults = UserDefaults(suiteName: Self.appGroupID) ?? .standard
-        if let raw = defaults.stringArray(forKey: Self.exercisesKey), !raw.isEmpty {
-            activeExercises = raw.map { ExerciseType(rawString: $0) }
+        defaults.set(loggedStreak, forKey: "currentRepStreak")
+        let activity = last7DaysActivity.map { $0.reps > 0 }
+        if let data = try? JSONEncoder().encode(activity) {
+            defaults.set(data, forKey: "last7DaysActivity")
         }
-        if let goals = defaults.dictionary(forKey: Self.goalsKey) as? [String: Int] {
-            dailyGoals = goals
-        }
-        trainingLoadTodayMins = defaults.integer(forKey: "trainingLoadTodayMins")
-        trainingLoadWeeklyMins = defaults.integer(forKey: "trainingLoadWeeklyMins")
-        trainingLoadTrend = defaults.string(forKey: "trainingLoadTrend") ?? "neutral"
-        hasTrainingLoadData = defaults.object(forKey: "trainingLoadTodayMins") != nil
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

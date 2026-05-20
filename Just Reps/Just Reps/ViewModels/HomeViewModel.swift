@@ -7,11 +7,17 @@ final class HomeViewModel {
     // MARK: - Persistent state (survives app restarts)
 
     var activeExercises: [ExerciseType] {
-        didSet { saveExercises() }
+        didSet {
+            saveExercises()
+            syncToWatch()
+        }
     }
 
     var dailyGoals: [String: Int] {
-        didSet { saveGoals() }
+        didSet {
+            saveGoals()
+            syncToWatch()
+        }
     }
 
     var showCompletionBanner = false
@@ -63,6 +69,7 @@ final class HomeViewModel {
         }
 
         awardFreezeTokenIfEarned()
+        Self.sharedDefaults.set(loggedStreak, forKey: Self.currentRepStreakKey)
 
         if allGoalsMet && !bannerAlreadyShown {
             bannerAlreadyShown = true
@@ -74,6 +81,12 @@ final class HomeViewModel {
         }
 
         if !allGoalsMet { bannerAlreadyShown = false }
+
+        syncToWatch()
+    }
+
+    private func syncToWatch() {
+        PhoneSessionManager.shared.pushContext(entries: allEntries, exercises: activeExercises, goals: dailyGoals)
     }
 
     // MARK: - Day state
@@ -275,6 +288,7 @@ final class HomeViewModel {
     private static let completedGoalDaysKey = "completedGoalDays"
     private static let freezeTokensKey = "freezeTokens"
     private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
+    static let currentRepStreakKey = "currentRepStreak"
 
     private static var sharedDefaults: UserDefaults {
         UserDefaults(suiteName: appGroupID) ?? .standard

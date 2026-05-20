@@ -1,29 +1,36 @@
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var context
-    @Query private var entries: [WorkoutEntry]
     @State private var vm = WatchViewModel()
+    private let session = WatchSessionManager.shared
 
     var body: some View {
         TabView {
-            WatchHomeView(vm: vm, context: context)
+            WatchHomeView(vm: vm)
                 .tag(0)
             WatchStreakView(vm: vm)
                 .tag(1)
             WatchActivityView(vm: vm)
                 .tag(2)
-            WatchTrainingLoadView(vm: vm)
-                .tag(3)
-            WatchGoalSuggestionsView(vm: vm)
-                .tag(4)
-            WatchMilestonesView(vm: vm)
-                .tag(5)
         }
         .tabViewStyle(.page)
-        .onAppear { vm.refresh(with: entries) }
-        .onChange(of: entries) { _, updated in vm.refresh(with: updated) }
+        .onAppear {
+            // Apply any cached data that loaded before this view appeared.
+            if session.lastUpdate > .distantPast {
+                vm.applyPhoneContext(
+                    entries: session.entries,
+                    exercises: session.exercises,
+                    goals: session.goals
+                )
+            }
+        }
+        .onChange(of: session.lastUpdate) { _, _ in
+            vm.applyPhoneContext(
+                entries: session.entries,
+                exercises: session.exercises,
+                goals: session.goals
+            )
+        }
     }
 }
 

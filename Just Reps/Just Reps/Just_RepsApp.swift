@@ -3,6 +3,10 @@ import SwiftData
 
 @main
 struct Just_RepsApp: App {
+    init() {
+        PhoneSessionManager.shared.activate()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

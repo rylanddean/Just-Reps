@@ -35,7 +35,19 @@ struct WatchActivityView: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 4)
             }
+
+            Text("Just Reps \(appVersion)")
+                .font(.system(size: 9))
+                .foregroundStyle(.tertiary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.horizontal, 4)
         }
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
+        return "\(version) (\(build))"
     }
 
     private func barHeight(for reps: Int) -> CGFloat {

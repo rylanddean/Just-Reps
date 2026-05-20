@@ -34,6 +34,41 @@ final class WorkoutEntry {
     }
 }
 
+// MARK: - WatchConnectivity serialization
+
+extension WorkoutEntry {
+    func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = [
+            "id": id.uuidString,
+            "exerciseRaw": exerciseRaw,
+            "reps": reps,
+            "timestamp": timestamp.timeIntervalSinceReferenceDate
+        ]
+        if let rpe = effortRPE { dict["effortRPE"] = rpe }
+        if let k = kindRaw { dict["kindRaw"] = k }
+        return dict
+    }
+
+    static func from(dictionary dict: [String: Any]) -> WorkoutEntry? {
+        guard
+            let idStr = dict["id"] as? String,
+            let uuid = UUID(uuidString: idStr),
+            let exerciseRaw = dict["exerciseRaw"] as? String,
+            let reps = dict["reps"] as? Int,
+            let ts = dict["timestamp"] as? TimeInterval
+        else { return nil }
+        let entry = WorkoutEntry(
+            exercise: ExerciseType(rawString: exerciseRaw),
+            reps: reps,
+            timestamp: Date(timeIntervalSinceReferenceDate: ts),
+            effortRPE: dict["effortRPE"] as? Double,
+            kind: EntryKind(rawValue: dict["kindRaw"] as? String ?? "") ?? .workout
+        )
+        entry.id = uuid
+        return entry
+    }
+}
+
 // MARK: - Convenience queries
 
 extension WorkoutEntry {

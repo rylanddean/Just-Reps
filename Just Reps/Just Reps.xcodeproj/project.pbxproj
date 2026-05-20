@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		A97E522A2FB60C0E001AAFDD /* Just Reps Apple Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A97E520A2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A9D5B09F2FBD22A6006295A9 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B09E2FBD22A6006295A9 /* WidgetKit.framework */; };
+		A9D5B0A12FBD22A6006295A9 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B0A02FBD22A6006295A9 /* SwiftUI.framework */; };
+		A9D5B0AE2FBD22A7006295A9 /* JustRepsWatchComplicationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A9D5B09C2FBD22A6006295A9 /* JustRepsWatchComplicationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A9D5B0BA2FBD2D09006295A9 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B0B92FBD2D09006295A9 /* WatchConnectivity.framework */; };
+		A9D5B0BC2FBD2D16006295A9 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D5B0BB2FBD2D16006295A9 /* WatchConnectivity.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +51,13 @@
 			remoteGlobalIDString = A9CF92B22FAF548D0005D5DC;
 			remoteInfo = "Just Reps";
 		};
+		A9D5B0AC2FBD22A7006295A9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A9CF92AB2FAF548D0005D5DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A9D5B09B2FBD22A6006295A9;
+			remoteInfo = JustRepsWatchComplicationExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +72,17 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9D5B0B32FBD22A7006295A9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A9D5B0AE2FBD22A7006295A9 /* JustRepsWatchComplicationExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +92,11 @@
 		A9CF92B32FAF548D0005D5DC /* Just Reps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Just Reps.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9CF92C42FAF548F0005D5DC /* Just RepsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Just RepsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9CF92CE2FAF548F0005D5DC /* Just RepsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Just RepsUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9D5B09C2FBD22A6006295A9 /* JustRepsWatchComplicationExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JustRepsWatchComplicationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9D5B09E2FBD22A6006295A9 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		A9D5B0A02FBD22A6006295A9 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		A9D5B0B92FBD2D09006295A9 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
+		A9D5B0BB2FBD2D16006295A9 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.2.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -78,6 +106,13 @@
 				Info.plist,
 			);
 			target = A9CF92B22FAF548D0005D5DC /* Just Reps */;
+		};
+		A9D5B0B22FBD22A7006295A9 /* Exceptions for "JustRepsWatchComplication" folder in "JustRepsWatchComplicationExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A9D5B09B2FBD22A6006295A9 /* JustRepsWatchComplicationExtension */;
 		};
 		D18B9A6CC0495C008F6CFB48 /* Exceptions for "Just Reps Apple Watch Watch App" folder in "Just Reps Apple Watch Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -125,6 +160,14 @@
 			path = "Just RepsUITests";
 			sourceTree = "<group>";
 		};
+		A9D5B0A22FBD22A6006295A9 /* JustRepsWatchComplication */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A9D5B0B22FBD22A7006295A9 /* Exceptions for "JustRepsWatchComplication" folder in "JustRepsWatchComplicationExtension" target */,
+			);
+			path = JustRepsWatchComplication;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +175,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9D5B0BC2FBD2D16006295A9 /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,6 +197,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9D5B0BA2FBD2D09006295A9 /* WatchConnectivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -170,6 +215,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9D5B0992FBD22A6006295A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9D5B0A12FBD22A6006295A9 /* SwiftUI.framework in Frameworks */,
+				A9D5B09F2FBD22A6006295A9 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -182,6 +236,8 @@
 				A97E520B2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */,
 				A97E52192FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */,
 				A97E52232FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */,
+				A9D5B0A22FBD22A6006295A9 /* JustRepsWatchComplication */,
+				A9D5B09D2FBD22A6006295A9 /* Frameworks */,
 				A9CF92B42FAF548D0005D5DC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -195,8 +251,20 @@
 				A97E520A2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App.app */,
 				A97E52162FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests.xctest */,
 				A97E52202FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests.xctest */,
+				A9D5B09C2FBD22A6006295A9 /* JustRepsWatchComplicationExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A9D5B09D2FBD22A6006295A9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A9D5B0B92FBD2D09006295A9 /* WatchConnectivity.framework */,
+				A9D5B0BB2FBD2D16006295A9 /* WatchConnectivity.framework */,
+				A9D5B09E2FBD22A6006295A9 /* WidgetKit.framework */,
+				A9D5B0A02FBD22A6006295A9 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -209,10 +277,12 @@
 				A97E52062FB60C0C001AAFDD /* Sources */,
 				A97E52072FB60C0C001AAFDD /* Frameworks */,
 				A97E52082FB60C0C001AAFDD /* Resources */,
+				A9D5B0B32FBD22A7006295A9 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A9D5B0AD2FBD22A7006295A9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A97E520B2FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */,
@@ -340,6 +410,28 @@
 			productReference = A9CF92CE2FAF548F0005D5DC /* Just RepsUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		A9D5B09B2FBD22A6006295A9 /* JustRepsWatchComplicationExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9D5B0AF2FBD22A7006295A9 /* Build configuration list for PBXNativeTarget "JustRepsWatchComplicationExtension" */;
+			buildPhases = (
+				A9D5B0982FBD22A6006295A9 /* Sources */,
+				A9D5B0992FBD22A6006295A9 /* Frameworks */,
+				A9D5B09A2FBD22A6006295A9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A9D5B0A22FBD22A6006295A9 /* JustRepsWatchComplication */,
+			);
+			name = JustRepsWatchComplicationExtension;
+			packageProductDependencies = (
+			);
+			productName = JustRepsWatchComplicationExtension;
+			productReference = A9D5B09C2FBD22A6006295A9 /* JustRepsWatchComplicationExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -372,6 +464,9 @@
 						CreatedOnToolsVersion = 26.3;
 						TestTargetID = A9CF92B22FAF548D0005D5DC;
 					};
+					A9D5B09B2FBD22A6006295A9 = {
+						CreatedOnToolsVersion = 26.3;
+					};
 				};
 			};
 			buildConfigurationList = A9CF92AE2FAF548D0005D5DC /* Build configuration list for PBXProject "Just Reps" */;
@@ -394,6 +489,7 @@
 				A97E52092FB60C0C001AAFDD /* Just Reps Apple Watch Watch App */,
 				A97E52152FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppTests */,
 				A97E521F2FB60C0E001AAFDD /* Just Reps Apple Watch Watch AppUITests */,
+				A9D5B09B2FBD22A6006295A9 /* JustRepsWatchComplicationExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -435,6 +531,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A9CF92CC2FAF548F0005D5DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A9D5B09A2FBD22A6006295A9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -486,6 +589,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A9D5B0982FBD22A6006295A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -514,6 +624,11 @@
 			target = A9CF92B22FAF548D0005D5DC /* Just Reps */;
 			targetProxy = A9CF92CF2FAF548F0005D5DC /* PBXContainerItemProxy */;
 		};
+		A9D5B0AD2FBD22A7006295A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A9D5B09B2FBD22A6006295A9 /* JustRepsWatchComplicationExtension */;
+			targetProxy = A9D5B0AC2FBD22A7006295A9 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -524,7 +639,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Just Reps Apple Watch Watch App/Just_Reps_Apple_Watch.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 6SD6D59K29;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -562,7 +677,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Just Reps Apple Watch Watch App/Just_Reps_Apple_Watch.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 6SD6D59K29;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -612,7 +727,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Just Reps Apple Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Just Reps Apple Watch Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Debug;
 		};
@@ -635,7 +750,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Just Reps Apple Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Just Reps Apple Watch Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Release;
 		};
@@ -657,7 +772,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_TARGET_NAME = "Just Reps Apple Watch Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Debug;
 		};
@@ -679,7 +794,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				TEST_TARGET_NAME = "Just Reps Apple Watch Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Release;
 		};
@@ -690,7 +805,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Just Reps/Just_Reps.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 6SD6D59K29;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -708,7 +823,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -732,7 +847,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Just Reps/Just_Reps.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 6SD6D59K29;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -750,7 +865,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -972,6 +1087,74 @@
 			};
 			name = Release;
 		};
+		A9D5B0B02FBD22A7006295A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = JustRepsWatchComplication/JustRepsWatchComplication.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustRepsWatchComplication/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = JustRepsWatchComplication;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps.watchkitapp.JustRepsWatchComplication";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Debug;
+		};
+		A9D5B0B12FBD22A7006295A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = JustRepsWatchComplication/JustRepsWatchComplication.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = 6SD6D59K29;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustRepsWatchComplication/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = JustRepsWatchComplication;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "Ryland-Dean.Just-Reps.watchkitapp.JustRepsWatchComplication";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1034,6 +1217,15 @@
 			buildConfigurations = (
 				A9CF92E02FAF548F0005D5DC /* Debug */,
 				A9CF92E12FAF548F0005D5DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9D5B0AF2FBD22A7006295A9 /* Build configuration list for PBXNativeTarget "JustRepsWatchComplicationExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9D5B0B02FBD22A7006295A9 /* Debug */,
+				A9D5B0B12FBD22A7006295A9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

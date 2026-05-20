@@ -25,7 +25,7 @@ struct HeaderCardView: View {
                 hasSeenStreakExplainer = true
                 showExplainer = false
             }
-            .presentationDetents([.height(340)])
+            .presentationDetents([.height(380)])
             .presentationDragIndicator(.visible)
         }
     }

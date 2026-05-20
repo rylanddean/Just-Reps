@@ -3,6 +3,10 @@ import SwiftData
 
 @main
 struct Just_Reps_Apple_Watch_Watch_AppApp: App {
+    init() {
+        WatchSessionManager.shared.activate()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

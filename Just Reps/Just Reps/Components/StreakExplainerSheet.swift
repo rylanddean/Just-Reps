@@ -54,6 +54,7 @@ struct StreakExplainerSheet: View {
                 Text(description)
                     .font(AppTheme.Font.body())
                     .foregroundStyle(Color(UIColor.label))
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(AppTheme.Spacing.md)
