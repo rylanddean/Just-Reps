@@ -99,13 +99,18 @@ final class WatchViewModel {
 
     // MARK: - Activity (last 7 logical days)
 
-    var last7DaysActivity: [(date: Date, reps: Int)] {
+    var last7DaysActivity: [(date: Date, reps: Int, isFreeze: Bool)] {
         let calendar = Calendar.current
         let heatmap = StreakEngine.heatmapData(entries: allEntries, days: 7)
+        let freezeKeys: Set<DateComponents> = Set(
+            allEntries
+                .filter { $0.kind == .freeze }
+                .map { StreakEngine.logicalDay(for: $0.timestamp) }
+        )
         return (0..<7).reversed().compactMap { offset in
             guard let date = calendar.date(byAdding: .day, value: -offset, to: .now) else { return nil }
             let key = StreakEngine.logicalDay(for: date)
-            return (date: date, reps: heatmap[key] ?? 0)
+            return (date: date, reps: heatmap[key] ?? 0, isFreeze: freezeKeys.contains(key))
         }
     }
 
@@ -146,7 +151,7 @@ final class WatchViewModel {
     private func persistStreakForComplication() {
         let defaults = UserDefaults(suiteName: Self.appGroupID) ?? .standard
         defaults.set(loggedStreak, forKey: "currentRepStreak")
-        let activity = last7DaysActivity.map { $0.reps > 0 }
+        let activity = last7DaysActivity.map { $0.reps > 0 || $0.isFreeze }
         if let data = try? JSONEncoder().encode(activity) {
             defaults.set(data, forKey: "last7DaysActivity")
         }

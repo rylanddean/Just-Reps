@@ -3,7 +3,7 @@ import SwiftUI
 struct WatchActivityView: View {
     var vm: WatchViewModel
 
-    private var data: [(date: Date, reps: Int)] { vm.last7DaysActivity }
+    private var data: [(date: Date, reps: Int, isFreeze: Bool)] { vm.last7DaysActivity }
     private var maxReps: Int { max(data.map(\.reps).max() ?? 1, 1) }
 
     var body: some View {
@@ -17,8 +17,8 @@ struct WatchActivityView: View {
                 ForEach(data, id: \.date) { item in
                     VStack(spacing: 4) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(item.reps > 0 ? WatchTheme.successGreen : Color.white.opacity(0.12))
-                            .frame(height: barHeight(for: item.reps))
+                            .fill(barColor(for: item))
+                            .frame(height: barHeight(for: item.reps, isFreeze: item.isFreeze))
                         Text(dayLetter(from: item.date))
                             .font(.system(size: 8))
                             .foregroundStyle(.secondary)
@@ -29,7 +29,7 @@ struct WatchActivityView: View {
             .frame(height: 76)
             .padding(.horizontal, 4)
 
-            if data.allSatisfy({ $0.reps == 0 }) {
+            if data.allSatisfy({ $0.reps == 0 && !$0.isFreeze }) {
                 Text("Come back after a week.")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -50,7 +50,13 @@ struct WatchActivityView: View {
         return "\(version) (\(build))"
     }
 
-    private func barHeight(for reps: Int) -> CGFloat {
+    private func barColor(for item: (date: Date, reps: Int, isFreeze: Bool)) -> Color {
+        if item.isFreeze { return Color(red: 107/255, green: 168/255, blue: 255/255) }
+        return item.reps > 0 ? WatchTheme.successGreen : Color.white.opacity(0.12)
+    }
+
+    private func barHeight(for reps: Int, isFreeze: Bool) -> CGFloat {
+        if isFreeze { return 6 }
         guard reps > 0 else { return 4 }
         return max(CGFloat(reps) / CGFloat(maxReps) * 58, 6)
     }

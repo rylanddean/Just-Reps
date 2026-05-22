@@ -10,6 +10,9 @@ struct Just_RepsApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .task {
+                    GameCenterManager.shared.authenticateLocalPlayer()
+                }
         }
         .modelContainer(sharedModelContainer)
     }

@@ -13,7 +13,6 @@ struct SettingsView: View {
     @AppStorage("notificationMinute")        private var notificationMinute = 0
     @AppStorage("notificationTimeCustomized") private var notificationTimeCustomized = false
     @AppStorage("healthKitEnabled")     private var healthKitEnabled = false
-    @AppStorage("repsPerMinute")        private var repsPerMinute = 20
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
 
     @State private var reminderTime = Date()
@@ -237,17 +236,6 @@ struct SettingsView: View {
                     }
                 }
 
-            if healthKitEnabled {
-                HStack {
-                    Text("Reps per minute")
-                    Spacer()
-                    Text("\(repsPerMinute)")
-                        .font(AppTheme.Font.headline())
-                        .frame(minWidth: 36, alignment: .trailing)
-                    Stepper("", value: $repsPerMinute, in: 5...120, step: 5)
-                        .labelsHidden()
-                }
-            }
         }
     }
 
