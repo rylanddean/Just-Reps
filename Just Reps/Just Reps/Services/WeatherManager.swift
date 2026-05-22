@@ -31,6 +31,8 @@ final class WeatherManager {
     private(set) var temperatureString: String = "--"
     private(set) var symbolName: String = "thermometer.medium"
     private(set) var conditionText: String = ""
+    private(set) var lowTemperatureString: String = "--"
+    private(set) var highTemperatureString: String = "--"
     private(set) var precipitationChance: Int = 0
     private(set) var hasData: Bool = false
 
@@ -74,6 +76,8 @@ final class WeatherManager {
 
             if let today = weather.dailyForecast.first {
                 precipitationChance = Int(today.precipitationChance * 100)
+                lowTemperatureString = formatter.string(from: today.lowTemperature)
+                highTemperatureString = formatter.string(from: today.highTemperature)
             }
             hasData = true
         } catch {

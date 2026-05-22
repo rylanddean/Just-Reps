@@ -20,7 +20,6 @@ struct PreferencesRecord: Codable {
     var notificationMinute: Int
     var darkModeOverride: Bool
     var healthKitEnabled: Bool
-    var repsPerMinute: Int
 }
 
 struct BackupPayload: Codable {
@@ -40,8 +39,7 @@ struct BackupPayload: Codable {
             notificationHour: 18,
             notificationMinute: 0,
             darkModeOverride: false,
-            healthKitEnabled: false,
-            repsPerMinute: 20
+            healthKitEnabled: false
         )
     )
 }
@@ -103,8 +101,7 @@ enum BackupManager {
             notificationHour: UserDefaults.standard.integer(forKey: "notificationHour"),
             notificationMinute: UserDefaults.standard.integer(forKey: "notificationMinute"),
             darkModeOverride: UserDefaults.standard.bool(forKey: "darkModeOverride"),
-            healthKitEnabled: UserDefaults.standard.bool(forKey: "healthKitEnabled"),
-            repsPerMinute: UserDefaults.standard.integer(forKey: "repsPerMinute")
+            healthKitEnabled: UserDefaults.standard.bool(forKey: "healthKitEnabled")
         )
         return BackupDocument(payload: BackupPayload(
             version: 1,
@@ -153,7 +150,6 @@ enum BackupManager {
         UserDefaults.standard.set(prefs.notificationMinute, forKey: "notificationMinute")
         UserDefaults.standard.set(prefs.darkModeOverride, forKey: "darkModeOverride")
         UserDefaults.standard.set(prefs.healthKitEnabled, forKey: "healthKitEnabled")
-        UserDefaults.standard.set(prefs.repsPerMinute, forKey: "repsPerMinute")
 
         // Update live view model state
         viewModel.activeExercises = prefs.activeExercises.map { ExerciseType(rawString: $0) }

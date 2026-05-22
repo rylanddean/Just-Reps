@@ -52,8 +52,9 @@ final class HealthKitManager {
     }
 
     /// Logs a strength training workout to HealthKit for exercise ring credit.
-    /// Plank reps are treated as seconds of hold; all others use repsPerMinute.
-    func logWorkout(exercise: ExerciseType, reps: Int, repsPerMinute: Int, effort: WorkoutEffort?) async {
+    /// Plank reps are treated as seconds of hold; stretching reps as 10-min sessions;
+    /// all other exercises get a flat 2-minute credit per log entry.
+    func logWorkout(exercise: ExerciseType, reps: Int, effort: WorkoutEffort?) async {
         guard isAuthorized, reps > 0 else { return }
 
         let durationSeconds: TimeInterval
@@ -63,7 +64,7 @@ final class HealthKitManager {
         case .stretching:
             durationSeconds = Double(reps) * 600  // 10 min per session
         default:
-            durationSeconds = (Double(reps) / Double(max(1, repsPerMinute))) * 60
+            durationSeconds = 120  // flat 2-minute credit per rep-count set
         }
         guard durationSeconds >= 1 else { return }
 

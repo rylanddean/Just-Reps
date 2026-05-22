@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var homeViewModel = HomeViewModel()
     @State private var logoOpacity: Double = 1
     @State private var bgOpacity: Double = 1
+    @State private var showAtRiskSheet = false
 
     var body: some View {
         Group {
@@ -42,6 +43,12 @@ struct ContentView: View {
                   notificationsEnabled,
                   !notificationTimeCustomized else { return }
             NotificationManager.shared.scheduleSmartReminder(entries: allEntries)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .streakAtRiskTapped)) { _ in
+            showAtRiskSheet = true
+        }
+        .sheet(isPresented: $showAtRiskSheet) {
+            StreakAtRiskSheet(viewModel: homeViewModel)
         }
     }
 
@@ -84,6 +91,11 @@ struct ContentView: View {
             HistoryView()
                 .tabItem {
                     Label("History", systemImage: "clock.fill")
+                }
+
+            FriendsView()
+                .tabItem {
+                    Label("Friends", systemImage: "person.2.fill")
                 }
         }
         .tint(AppTheme.Colors.successGreen)
