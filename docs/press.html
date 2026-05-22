@@ -55,7 +55,7 @@
 
   <div class="press-callout" style="margin-top: -24px;">
     <span class="label">Version</span>
-    <span class="value">1.2</span>
+    <span class="value">1.3</span>
   </div>
 
   <div class="press-callout" style="margin-top: -24px;">
@@ -67,6 +67,37 @@
     <span class="label">Press contact</span>
     <span class="value">press@justreps.app</span>
   </div>
+
+  <hr>
+
+  <!-- V1.3 press release -->
+  <p class="meta">FOR IMMEDIATE RELEASE — MAY 2026</p>
+
+  <h2>Just Reps 1.3 — friends, streak-at-risk warnings, and a HealthKit fix</h2>
+
+  <p><strong>May 2026</strong> — Just Reps, the minimalist iOS fitness streak app, releases version 1.3. The update adds a Friends tab powered by Game Center, a second at-risk notification for users with a streak to protect, and a correction to how rep sessions are credited to Apple Health.</p>
+
+  <p>The update adds the first social surface in Just Reps — deliberately narrow. Friends is a leaderboard of streaks, nothing more.</p>
+
+  <h3>What's new</h3>
+
+  <p><strong>Friends.</strong> A new tab shows where you and your Game Center friends rank by current rep streak. No posts, no likes, no activity feed. Just one number next to each name: how many days in a row they've shown up.</p>
+
+  <p><strong>Streak-at-risk notification.</strong> A second notification now fires at 8 PM when a user has an active streak but hasn't logged today. It auto-cancels the moment reps are logged. Tapping it opens a sheet showing which exercises still need reps and offers a streak freeze. The message is unchanged: "Your streak is at risk. Still time."</p>
+
+  <p><strong>Widget and Watch warnings.</strong> The small widget, medium widget, lock screen inline widget, and all Watch complications now swap to a ⚠ warning display after 8 PM when the streak is at risk — consistent with the threshold used elsewhere in the app.</p>
+
+  <p><strong>Watch freeze bars.</strong> Freeze days in the Watch activity bar chart now render as flat blue bars, visually distinct from logged days and zero days.</p>
+
+  <p><strong>HealthKit ring credit fix.</strong> Previous versions calculated Apple Health exercise credit using a reps-per-minute formula, which over- or under-credited depending on exercise pace. Version 1.3 replaces this with a flat 2-minute credit per rep-count log. Timer-based exercises — plank and stretching — keep their accurate durations. The reps-per-minute setting has been removed.</p>
+
+  <h3>What didn't change</h3>
+
+  <p>One-tap logging is unchanged. The Friends tab is additive — it doesn't appear in the log flow and doesn't interrupt anything. The at-risk notification only fires if the user already has a streak to protect, and cancels itself the moment they log.</p>
+
+  <h3>Pricing and availability</h3>
+
+  <p>Just Reps 1.3 is a free update for all existing users. The app remains free to download with no subscription and no paywall.</p>
 
   <hr>
 
@@ -150,11 +181,12 @@
     <li>One-tap rep logging — no login, no setup after onboarding</li>
     <li>Two independent streaks: Rep Streak and Goal Streak</li>
     <li>GitHub-style heatmap calendar, 20-week view</li>
+    <li>Friends leaderboard via Game Center — streak ranks, no feed</li>
     <li>Opt-in notifications only — never coercive</li>
-    <li>Fully offline — SwiftData, no server, no account</li>
+    <li>Fully offline core — SwiftData, no account required</li>
     <li>Free — no subscription, no paywall</li>
     <li>Dark-first design, supports light mode</li>
-    <li>No confetti, no social features, no gamification loops</li>
+    <li>No confetti, no gamification loops</li>
     <li>Built with SwiftUI and SwiftData, targeting iOS 17+</li>
   </ul>
 

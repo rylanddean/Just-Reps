@@ -156,7 +156,15 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F7F7F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <div class="feature-name">Smart reminders</div>
-        <div class="feature-desc">Opt-in reminders that learn when you usually log and time themselves accordingly. No badge counts, no guilt, no streak-shaming.</div>
+        <div class="feature-desc">Opt-in reminders that learn when you usually log and time themselves accordingly. A second notification at 8 PM fires when you have a streak to protect — and cancels itself the moment you log.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5FD38D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="feature-name">Friends</div>
+        <div class="feature-desc">See where your Game Center friends rank by current rep streak. One number per name. No feed, no posts — just who's showing up.</div>
       </div>
 
       <div class="feature-card">
@@ -228,7 +236,7 @@
         </li>
         <li>
           <span class="wfl-dot" style="background: var(--danger)"></span>
-          At-risk state — turns red after 8 PM if you haven't logged
+          At-risk state — ⚠ warning display after 8 PM if you haven't logged
         </li>
         <li>
           <span class="wfl-dot" style="background: var(--muted)"></span>
@@ -276,8 +284,12 @@
           Watch face complication — streak visible without opening the app
         </li>
         <li>
+          <span class="wfl-dot" style="background: var(--danger)"></span>
+          At-risk complication — ⚠ warning after 8 PM when streak is in danger
+        </li>
+        <li>
           <span class="wfl-dot" style="background: var(--muted)"></span>
-          7-day activity bar chart
+          7-day activity bar chart — freeze days shown as flat blue bars
         </li>
       </ul>
       <p class="watch-sync-note">Log on watch, see it on phone — and vice versa. Syncs automatically via WatchConnectivity.</p>
