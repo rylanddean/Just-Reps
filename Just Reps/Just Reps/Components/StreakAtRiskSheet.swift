@@ -22,9 +22,9 @@ struct StreakAtRiskSheet: View {
 
     private var header: some View {
         VStack(spacing: AppTheme.Spacing.xs) {
-            Text("Streak at Risk")
+            Text("Your streak is at risk.")
                 .font(AppTheme.Font.title())
-            Text("Log a few reps before midnight to keep your \(viewModel.loggedStreak)-day streak alive.")
+            Text("Still time today. \(viewModel.loggedStreak) days on the line.")
                 .font(AppTheme.Font.body())
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -77,7 +77,7 @@ struct StreakAtRiskSheet: View {
                     viewModel.freezeToday(context: modelContext)
                     dismiss()
                 } label: {
-                    Text("Freeze Streak (\(viewModel.freezeTokens) left)")
+                    Text("Freeze today (\(viewModel.freezeTokens) left)")
                         .font(AppTheme.Font.body())
                         .frame(maxWidth: .infinity)
                         .padding(AppTheme.Spacing.md)

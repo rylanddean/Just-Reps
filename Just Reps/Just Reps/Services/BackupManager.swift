@@ -10,6 +10,8 @@ struct WorkoutEntryRecord: Codable {
     var reps: Int
     var timestamp: Date
     var effortRPE: Double?
+    // Preserves rest/freeze entries across backup/restore cycles.
+    var kindRaw: String?
 }
 
 struct PreferencesRecord: Codable {
@@ -20,6 +22,9 @@ struct PreferencesRecord: Codable {
     var notificationMinute: Int
     var darkModeOverride: Bool
     var healthKitEnabled: Bool
+    // Freeze token state — earned by streak milestones, capped at 2.
+    var freezeTokens: Int
+    var lastFreezeAwardDay: String
 }
 
 struct BackupPayload: Codable {
@@ -29,7 +34,7 @@ struct BackupPayload: Codable {
     var preferences: PreferencesRecord
 
     static let placeholder = BackupPayload(
-        version: 1,
+        version: 2,
         createdAt: .now,
         workoutEntries: [],
         preferences: PreferencesRecord(
@@ -39,7 +44,9 @@ struct BackupPayload: Codable {
             notificationHour: 18,
             notificationMinute: 0,
             darkModeOverride: false,
-            healthKitEnabled: false
+            healthKitEnabled: false,
+            freezeTokens: 0,
+            lastFreezeAwardDay: ""
         )
     )
 }
@@ -79,6 +86,8 @@ enum BackupManager {
     static let lastBackupKey = "lastBackupDate"
 
     private static let appGroupID = "group.com.rylanddean.justreps"
+    private static let freezeTokensKey = "freezeTokens"
+    private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
 
     private static var sharedDefaults: UserDefaults {
         UserDefaults(suiteName: appGroupID) ?? .standard
@@ -91,7 +100,8 @@ enum BackupManager {
                 exerciseRaw: $0.exerciseRaw,
                 reps: $0.reps,
                 timestamp: $0.timestamp,
-                effortRPE: $0.effortRPE
+                effortRPE: $0.effortRPE,
+                kindRaw: $0.kindRaw
             )
         }
         let prefs = PreferencesRecord(
@@ -101,10 +111,12 @@ enum BackupManager {
             notificationHour: UserDefaults.standard.integer(forKey: "notificationHour"),
             notificationMinute: UserDefaults.standard.integer(forKey: "notificationMinute"),
             darkModeOverride: UserDefaults.standard.bool(forKey: "darkModeOverride"),
-            healthKitEnabled: UserDefaults.standard.bool(forKey: "healthKitEnabled")
+            healthKitEnabled: UserDefaults.standard.bool(forKey: "healthKitEnabled"),
+            freezeTokens: sharedDefaults.integer(forKey: freezeTokensKey),
+            lastFreezeAwardDay: sharedDefaults.string(forKey: lastFreezeAwardDayKey) ?? ""
         )
         return BackupDocument(payload: BackupPayload(
-            version: 1,
+            version: 2,
             createdAt: .now,
             workoutEntries: records,
             preferences: prefs
@@ -126,7 +138,7 @@ enum BackupManager {
         decoder.dateDecodingStrategy = .iso8601
         let payload = try decoder.decode(BackupPayload.self, from: data)
 
-        // Replace workout entries
+        // Replace workout entries (preserving kind for rest/freeze days)
         let existing = try context.fetch(FetchDescriptor<WorkoutEntry>())
         existing.forEach { context.delete($0) }
 
@@ -138,6 +150,7 @@ enum BackupManager {
                 effortRPE: record.effortRPE
             )
             entry.id = record.id
+            entry.kindRaw = record.kindRaw  // restore rest/freeze classification
             context.insert(entry)
         }
 
@@ -150,6 +163,9 @@ enum BackupManager {
         UserDefaults.standard.set(prefs.notificationMinute, forKey: "notificationMinute")
         UserDefaults.standard.set(prefs.darkModeOverride, forKey: "darkModeOverride")
         UserDefaults.standard.set(prefs.healthKitEnabled, forKey: "healthKitEnabled")
+        // Restore freeze token state (v2+ backups only; older backups default to 0)
+        sharedDefaults.set(prefs.freezeTokens, forKey: freezeTokensKey)
+        sharedDefaults.set(prefs.lastFreezeAwardDay, forKey: lastFreezeAwardDayKey)
 
         // Update live view model state
         viewModel.activeExercises = prefs.activeExercises.map { ExerciseType(rawString: $0) }

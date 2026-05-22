@@ -150,7 +150,7 @@ struct StreakEngine {
     static func heatmapData(entries: [WorkoutEntry], days: Int = 365) -> [DateComponents: Int] {
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now)!
         var map: [DateComponents: Int] = [:]
-        for entry in entries where entry.timestamp >= cutoff {
+        for entry in entries where entry.timestamp >= cutoff && entry.kind == .workout {
             let key = logicalDay(for: entry.timestamp)
             map[key, default: 0] += entry.reps
         }

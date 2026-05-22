@@ -344,6 +344,8 @@ final class HomeViewModel {
 
     func freezeToday(context: ModelContext) {
         guard freezeTokens > 0 else { return }
+        // Don't spend a token if today already qualifies — a workout was logged.
+        guard todaysEntries.filter({ $0.kind == .workout }).isEmpty else { return }
         let today = StreakEngine.logicalDay(for: .now)
         let todayDate = Calendar.current.date(from: today)!
         let entryTime = Calendar.current.date(

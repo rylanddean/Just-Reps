@@ -83,7 +83,7 @@ struct ContentView: View {
                     Label("Today", systemImage: "house.fill")
                 }
 
-            StreakView()
+            StreakView(homeViewModel: homeViewModel)
                 .tabItem {
                     Label("Streak", systemImage: "flame.fill")
                 }

@@ -7,6 +7,9 @@ import SwiftData
 private enum IntentDataStore {
     static let appGroupID = "group.com.rylanddean.justreps"
     static let exercisesKey = "activeExercises"
+    static let goalsKey = "dailyGoals"
+    static let mvrKey = "minimumViableReps"
+    static let mvrEffectiveDateKey = "mvrEffectiveDate"
 
     static var sharedDefaults: UserDefaults {
         UserDefaults(suiteName: appGroupID) ?? .standard
@@ -17,6 +20,62 @@ private enum IntentDataStore {
             return ExerciseType.defaults
         }
         return raw.map { ExerciseType(rawString: $0) }
+    }
+
+    /// Returns the MVR-aware current streak, falling back to the simple calculation
+    /// when no MVR thresholds are configured — matching what HomeViewModel computes.
+    static func currentStreak(entries: [WorkoutEntry]) -> Int {
+        let exercises = activeExercises
+        let goalsRaw = sharedDefaults.dictionary(forKey: goalsKey) as? [String: Int] ?? [:]
+        let mvrRaw = sharedDefaults.dictionary(forKey: mvrKey) as? [String: Int] ?? [:]
+        let mvrDict = Dictionary(uniqueKeysWithValues:
+            mvrRaw.compactMap { key, val -> (ExerciseType, Int)? in
+                guard val > 0 else { return nil }
+                return (ExerciseType(rawString: key), val)
+            }
+        )
+        guard !mvrDict.isEmpty else {
+            return StreakEngine.calculate(entries: entries).current
+        }
+        let goalsDict = Dictionary(uniqueKeysWithValues:
+            exercises.map { ($0, goalsRaw[$0.rawString] ?? 25) }
+        )
+        let ti = sharedDefaults.double(forKey: mvrEffectiveDateKey)
+        let effectiveFrom: Date? = ti > 0 ? Date(timeIntervalSinceReferenceDate: ti) : nil
+        return StreakEngine.calculate(
+            entries: entries,
+            activeExercises: exercises,
+            goals: goalsDict,
+            minimumViableReps: mvrDict,
+            effectiveFrom: effectiveFrom
+        ).current
+    }
+
+    static func longestStreak(entries: [WorkoutEntry]) -> Int {
+        let exercises = activeExercises
+        let goalsRaw = sharedDefaults.dictionary(forKey: goalsKey) as? [String: Int] ?? [:]
+        let mvrRaw = sharedDefaults.dictionary(forKey: mvrKey) as? [String: Int] ?? [:]
+        let mvrDict = Dictionary(uniqueKeysWithValues:
+            mvrRaw.compactMap { key, val -> (ExerciseType, Int)? in
+                guard val > 0 else { return nil }
+                return (ExerciseType(rawString: key), val)
+            }
+        )
+        guard !mvrDict.isEmpty else {
+            return StreakEngine.calculate(entries: entries).longest
+        }
+        let goalsDict = Dictionary(uniqueKeysWithValues:
+            exercises.map { ($0, goalsRaw[$0.rawString] ?? 25) }
+        )
+        let ti = sharedDefaults.double(forKey: mvrEffectiveDateKey)
+        let effectiveFrom: Date? = ti > 0 ? Date(timeIntervalSinceReferenceDate: ti) : nil
+        return StreakEngine.calculate(
+            entries: entries,
+            activeExercises: exercises,
+            goals: goalsDict,
+            minimumViableReps: mvrDict,
+            effectiveFrom: effectiveFrom
+        ).longest
     }
 
     static func makeContainer() throws -> ModelContainer {
@@ -119,7 +178,7 @@ struct GetCurrentStreakIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
         let container = try IntentDataStore.makeContainer()
         let entries = try IntentDataStore.fetchAllEntries(from: container)
-        let streak = StreakEngine.calculate(entries: entries).current
+        let streak = IntentDataStore.currentStreak(entries: entries)
         let message: String = streak == 0
             ? "No streak yet. Log some reps today."
             : "Your current rep streak is \(streak) \(streak == 1 ? "day" : "days")."
@@ -200,7 +259,7 @@ struct GetLongestStreakIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
         let container = try IntentDataStore.makeContainer()
         let entries = try IntentDataStore.fetchAllEntries(from: container)
-        let longest = StreakEngine.calculate(entries: entries).longest
+        let longest = IntentDataStore.longestStreak(entries: entries)
         let message: String = longest == 0
             ? "No streak on record yet."
             : "Your personal best is \(longest) \(longest == 1 ? "day" : "days")."

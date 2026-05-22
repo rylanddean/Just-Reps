@@ -91,15 +91,6 @@
             ReferencedContainer = "container:Just Reps.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A97E52092FB60C0C001AAFDD"
-            BuildableName = "Just Reps Apple Watch Watch App.app"
-            BlueprintName = "Just Reps Apple Watch Watch App"
-            ReferencedContainer = "container:Just Reps.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
