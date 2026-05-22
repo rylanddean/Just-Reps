@@ -144,36 +144,54 @@ struct JustRepsWidgetView: View {
 
     private var smallView: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("REP STREAK")
-                .font(.system(size: 10, weight: .semibold))
-                .tracking(1.5)
-                .foregroundStyle(.secondary)
-                .padding(.bottom, 4)
+            if entry.isRepAtRisk {
+                Text("STREAK AT RISK")
+                    .font(.system(size: 10, weight: .semibold))
+                    .tracking(1.5)
+                    .foregroundStyle(streakDanger)
+                    .padding(.bottom, 4)
 
-            if entry.isPlaceholder {
-                Text("—")
+                Text("⚠")
                     .font(.system(size: 48, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(streakDanger)
+
+                Spacer()
+
+                Text("Log reps tonight.")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(streakDanger.opacity(0.8))
             } else {
-                Text("\(entry.repStreak)")
-                    .font(.system(size: 48, weight: .heavy, design: .rounded))
-                    .foregroundStyle(streakColor(streak: entry.repStreak, atRisk: entry.isRepAtRisk))
-                    .contentTransition(.numericText())
+                Text("REP STREAK")
+                    .font(.system(size: 10, weight: .semibold))
+                    .tracking(1.5)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 4)
+
+                if entry.isPlaceholder {
+                    Text("—")
+                        .font(.system(size: 48, weight: .heavy, design: .rounded))
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("\(entry.repStreak)")
+                        .font(.system(size: 48, weight: .heavy, design: .rounded))
+                        .foregroundStyle(streakColor(streak: entry.repStreak, atRisk: false))
+                        .contentTransition(.numericText())
+                }
+
+                Text(entry.repStreak == 1 ? "day" : "days")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Text("Just do the reps.")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
             }
-
-            Text(entry.repStreak == 1 ? "day" : "days")
-                .font(.system(size: 13))
-                .foregroundStyle(.secondary)
-
-            Spacer()
-
-            Text("Just do the reps.")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(14)
-        .widgetURL(URL(string: "justreps://today"))
+        .widgetURL(URL(string: "justreps://streak-at-risk"))
     }
 
     // MARK: - Medium
@@ -213,15 +231,19 @@ struct JustRepsWidgetView: View {
 
     private func streakCell(value: Int?, label: String, atRisk: Bool, activeColor: Color) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(label)
+            Text(atRisk ? "STREAK AT RISK" : label)
                 .font(.system(size: 9, weight: .semibold))
                 .tracking(1.5)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(atRisk ? streakDanger : .secondary)
             Group {
-                if let v = value {
+                if atRisk {
+                    Text("⚠")
+                        .font(.system(size: 28, weight: .heavy, design: .rounded))
+                        .foregroundStyle(streakDanger)
+                } else if let v = value {
                     Text("\(v)")
                         .font(.system(size: 28, weight: .heavy, design: .rounded))
-                        .foregroundStyle(streakColor(streak: v, atRisk: atRisk, activeColor: activeColor))
+                        .foregroundStyle(streakColor(streak: v, atRisk: false, activeColor: activeColor))
                         .contentTransition(.numericText())
                 } else {
                     Text("—")
@@ -229,9 +251,9 @@ struct JustRepsWidgetView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            Text(value == 1 ? "day" : "days")
+            Text(atRisk ? "Log reps tonight." : (value == 1 ? "day" : "days"))
                 .font(.system(size: 10))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(atRisk ? streakDanger.opacity(0.8) : .secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 14)
@@ -286,13 +308,13 @@ struct JustRepsWidgetView: View {
     // MARK: - Lock screen inline
 
     private var inlineView: some View {
-        let label: String
-        if entry.isPlaceholder {
-            label = "— day streak"
+        if entry.isRepAtRisk {
+            return Text("⚠ Streak at risk")
+        } else if entry.isPlaceholder {
+            return Text("— day streak")
         } else {
-            label = entry.repStreak == 1 ? "1 day streak" : "\(entry.repStreak) day streak"
+            return Text(entry.repStreak == 1 ? "1 day streak" : "\(entry.repStreak) day streak")
         }
-        return Text(label)
     }
 
     // MARK: - Helpers

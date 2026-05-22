@@ -11,22 +11,28 @@ struct ComplicationEntry: TimelineEntry {
     let date: Date
     let streak: Int
     let activityLast7Days: [Bool]
+    let isAtRisk: Bool
 }
 
 struct JustRepsComplicationProvider: TimelineProvider {
     func placeholder(in context: Context) -> ComplicationEntry {
         ComplicationEntry(date: .now, streak: 7,
-                          activityLast7Days: [true, false, true, true, false, true, true])
+                          activityLast7Days: [true, false, true, true, false, true, true],
+                          isAtRisk: false)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ComplicationEntry) -> Void) {
-        completion(ComplicationEntry(date: .now, streak: currentStreak(),
-                                     activityLast7Days: currentActivity()))
+        let streak = currentStreak()
+        completion(ComplicationEntry(date: .now, streak: streak,
+                                     activityLast7Days: currentActivity(),
+                                     isAtRisk: computeIsAtRisk(streak: streak)))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<ComplicationEntry>) -> Void) {
-        let entry = ComplicationEntry(date: .now, streak: currentStreak(),
-                                      activityLast7Days: currentActivity())
+        let streak = currentStreak()
+        let entry = ComplicationEntry(date: .now, streak: streak,
+                                      activityLast7Days: currentActivity(),
+                                      isAtRisk: computeIsAtRisk(streak: streak))
         // Refresh every hour; Watch app also calls reloadAllTimelines() after each log
         let nextRefresh = Calendar.current.date(byAdding: .hour, value: 1, to: .now)!
         completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
@@ -46,6 +52,13 @@ struct JustRepsComplicationProvider: TimelineProvider {
             return Array(repeating: false, count: 7)
         }
         return decoded
+    }
+
+    private func computeIsAtRisk(streak: Int) -> Bool {
+        guard streak > 0 else { return false }
+        let hour = Calendar.current.component(.hour, from: .now)
+        guard hour >= 20 else { return false }
+        return !(currentActivity().last ?? false)
     }
 }
 
@@ -70,48 +83,84 @@ struct JustRepsComplicationView: View {
         }
     }
 
+    private var streakColor: Color {
+        entry.isAtRisk ? .red : (entry.streak > 0 ? successGreen : .secondary)
+    }
+
     private var circularView: some View {
         ZStack {
             AccessoryWidgetBackground()
             VStack(spacing: 0) {
-                Text("\(entry.streak)")
-                    .font(.system(size: 22, weight: .heavy, design: .rounded))
-                    .foregroundStyle(entry.streak > 0 ? successGreen : .secondary)
-                Text("DAYS")
-                    .font(.system(size: 7, weight: .semibold))
-                    .tracking(1)
-                    .foregroundStyle(.secondary)
+                if entry.isAtRisk {
+                    Text("⚠")
+                        .font(.system(size: 22, weight: .heavy, design: .rounded))
+                        .foregroundStyle(.red)
+                    Text("NOW")
+                        .font(.system(size: 7, weight: .semibold))
+                        .tracking(1)
+                        .foregroundStyle(.red)
+                } else {
+                    Text("\(entry.streak)")
+                        .font(.system(size: 22, weight: .heavy, design: .rounded))
+                        .foregroundStyle(streakColor)
+                    Text("DAYS")
+                        .font(.system(size: 7, weight: .semibold))
+                        .tracking(1)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
     }
 
     private var cornerView: some View {
-        Text("\(entry.streak)")
-            .font(.system(size: 16, weight: .heavy, design: .rounded))
-            .foregroundStyle(entry.streak > 0 ? successGreen : .secondary)
-            .widgetLabel("REP STREAK")
+        Group {
+            if entry.isAtRisk {
+                Text("⚠")
+                    .font(.system(size: 16, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.red)
+                    .widgetLabel("LOG NOW")
+            } else {
+                Text("\(entry.streak)")
+                    .font(.system(size: 16, weight: .heavy, design: .rounded))
+                    .foregroundStyle(streakColor)
+                    .widgetLabel("REP STREAK")
+            }
+        }
     }
 
     private var inlineView: some View {
-        Text(entry.streak > 0 ? "🔥 \(entry.streak)" : "Log reps")
+        if entry.isAtRisk {
+            return Text("⚠ Streak at risk")
+        } else {
+            return Text(entry.streak > 0 ? "🔥 \(entry.streak)" : "Log reps")
+        }
     }
 
     private var rectangularView: some View {
         HStack(alignment: .bottom, spacing: 0) {
             VStack(alignment: .leading, spacing: 1) {
-                Text("REP STREAK")
+                Text(entry.isAtRisk ? "STREAK AT RISK" : "REP STREAK")
                     .font(.system(size: 9, weight: .semibold))
                     .tracking(1.5)
-                    .foregroundStyle(.secondary)
-                Text("\(entry.streak)")
-                    .font(.system(size: 28, weight: .heavy, design: .rounded))
-                    .foregroundStyle(entry.streak > 0 ? successGreen : .secondary)
-                Text(entry.streak == 1 ? "day" : "days")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(entry.isAtRisk ? .red : .secondary)
+                if entry.isAtRisk {
+                    Text("⚠")
+                        .font(.system(size: 28, weight: .heavy, design: .rounded))
+                        .foregroundStyle(.red)
+                    Text("Log reps tonight.")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.red.opacity(0.8))
+                } else {
+                    Text("\(entry.streak)")
+                        .font(.system(size: 28, weight: .heavy, design: .rounded))
+                        .foregroundStyle(streakColor)
+                    Text(entry.streak == 1 ? "day" : "days")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
             }
             Spacer()
-            activityBars
+            if !entry.isAtRisk { activityBars }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -155,12 +204,22 @@ struct JustRepsStreakWidget: Widget {
     JustRepsStreakWidget()
 } timeline: {
     ComplicationEntry(date: .now, streak: 12,
-                      activityLast7Days: [true, false, true, true, true, false, true])
+                      activityLast7Days: [true, false, true, true, true, false, true],
+                      isAtRisk: false)
 }
 
 #Preview(as: .accessoryRectangular) {
     JustRepsStreakWidget()
 } timeline: {
     ComplicationEntry(date: .now, streak: 12,
-                      activityLast7Days: [true, false, true, true, true, false, true])
+                      activityLast7Days: [true, false, true, true, true, false, true],
+                      isAtRisk: false)
+}
+
+#Preview("At Risk", as: .accessoryRectangular) {
+    JustRepsStreakWidget()
+} timeline: {
+    ComplicationEntry(date: .now, streak: 12,
+                      activityLast7Days: [true, false, true, true, true, false, false],
+                      isAtRisk: true)
 }

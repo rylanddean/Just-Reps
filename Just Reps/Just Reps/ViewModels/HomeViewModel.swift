@@ -89,6 +89,7 @@ final class HomeViewModel {
         awardFreezeTokenIfEarned()
         Self.sharedDefaults.set(loggedStreak, forKey: Self.currentRepStreakKey)
         Self.sharedDefaults.set(goalsStreak, forKey: Self.currentGoalsStreakKey)
+        GameCenterManager.shared.submitStreak(loggedStreak)
         if let heatmapData = try? JSONEncoder().encode(Self.buildWidgetHeatmap(entries: allEntries)) {
             Self.sharedDefaults.set(heatmapData, forKey: Self.widgetHeatmapKey)
         }
@@ -107,6 +108,20 @@ final class HomeViewModel {
 
         syncToWatch()
         checkEulogy()
+        updateAtRiskNotification()
+    }
+
+    private func updateAtRiskNotification() {
+        guard UserDefaults.standard.bool(forKey: "notificationsEnabled") else {
+            NotificationManager.shared.cancelAtRiskNotification()
+            return
+        }
+        let hasLoggedToday = todaysEntries.contains { $0.kind == .workout }
+        if loggedStreak > 0 && !hasLoggedToday {
+            NotificationManager.shared.scheduleAtRiskNotification(streak: loggedStreak)
+        } else {
+            NotificationManager.shared.cancelAtRiskNotification()
+        }
     }
 
     private func syncToWatch() {
@@ -282,15 +297,13 @@ final class HomeViewModel {
 
     private func commitLog(_ reps: Int, for exercise: ExerciseType, effort: WorkoutEffort?, context: ModelContext) {
         context.insert(WorkoutEntry(exercise: exercise, reps: reps, effortRPE: effort?.rpeValue))
+        NotificationManager.shared.cancelAtRiskNotification()
 
         guard UserDefaults.standard.bool(forKey: "healthKitEnabled") else { return }
-        let stored = UserDefaults.standard.integer(forKey: "repsPerMinute")
-        let repsPerMinute = stored > 0 ? stored : 20
         Task {
             await HealthKitManager.shared.logWorkout(
                 exercise: exercise,
                 reps: reps,
-                repsPerMinute: repsPerMinute,
                 effort: effort
             )
         }
@@ -317,9 +330,29 @@ final class HomeViewModel {
         }
     }
 
+    /// Exercises that haven't hit their daily goal yet, with remaining rep count.
+    var unmetExercises: [(exercise: ExerciseType, remaining: Int)] {
+        activeExercises
+            .filter { !goalMet(for: $0) }
+            .map { ($0, goal(for: $0) - totalReps(for: $0)) }
+    }
+
     func markRestDay(context: ModelContext) {
         context.insert(WorkoutEntry(kind: .rest))
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+    }
+
+    func freezeToday(context: ModelContext) {
+        guard freezeTokens > 0 else { return }
+        let today = StreakEngine.logicalDay(for: .now)
+        let todayDate = Calendar.current.date(from: today)!
+        let entryTime = Calendar.current.date(
+            bySettingHour: StreakEngine.rolloverHour + 1, minute: 0, second: 0, of: todayDate
+        )!
+        context.insert(WorkoutEntry(timestamp: entryTime, kind: .freeze))
+        freezeTokens -= 1
+        saveFreezeState()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
 
     func useFreeze(context: ModelContext) {

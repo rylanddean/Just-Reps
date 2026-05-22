@@ -33,7 +33,7 @@ struct HeaderCardView: View {
     // MARK: - Context bar
 
     private var contextBar: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .center, spacing: AppTheme.Spacing.xs) {
             Text(
                 Date.now.formatted(
                     .dateTime.weekday(.abbreviated).month(.abbreviated).day()
@@ -42,42 +42,48 @@ struct HeaderCardView: View {
             .font(AppTheme.Font.caption())
             .kerning(1.5)
             .foregroundStyle(.secondary)
-            .fixedSize()
 
-            Spacer(minLength: AppTheme.Spacing.sm)
-
-            HStack(spacing: AppTheme.Spacing.sm) {
-                if weatherManager.hasData {
-                    HStack(spacing: 4) {
+            if weatherManager.hasData || hkManager.trainingLoad != nil {
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    if weatherManager.hasData {
                         Image(systemName: weatherManager.symbolName)
                             .symbolRenderingMode(.multicolor)
                             .font(.system(size: 13))
-                        Text(weatherManager.temperatureString)
+                        Text(weatherManager.conditionText)
+                        HStack(spacing: 3) {
+                            Image(systemName: "arrow.up")
+                            Text(weatherManager.highTemperatureString)
+                            Image(systemName: "arrow.down")
+                            Text(weatherManager.lowTemperatureString)
+                        }
+                        .foregroundStyle(Color(UIColor.tertiaryLabel))
                     }
-                }
 
-                if let load = hkManager.trainingLoad {
-                    if weatherManager.hasData {
-                        Text("·")
-                    }
-                    HStack(spacing: 3) {
-                        Text("\(load.todayMinutes) min")
-                        if load.trend != .neutral {
-                            Image(systemName: load.trend.arrowSymbol)
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundStyle(
-                                    load.trend == .up
-                                        ? AppTheme.Colors.successGreen
-                                        : Color(UIColor.secondaryLabel)
-                                )
+                    if let load = hkManager.trainingLoad {
+                        if weatherManager.hasData {
+                            Text("·")
+                                .foregroundStyle(Color(UIColor.tertiaryLabel))
+                        }
+                        HStack(spacing: 3) {
+                            Text("\(load.todayMinutes) min")
+                            if load.trend != .neutral {
+                                Image(systemName: load.trend.arrowSymbol)
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundStyle(
+                                        load.trend == .up
+                                            ? AppTheme.Colors.successGreen
+                                            : Color(UIColor.secondaryLabel)
+                                    )
+                            }
                         }
                     }
                 }
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(.secondary)
+                .animation(.easeIn(duration: 0.3), value: weatherManager.hasData)
             }
-            .font(AppTheme.Font.caption())
-            .foregroundStyle(.secondary)
-            .animation(.easeIn(duration: 0.3), value: weatherManager.hasData)
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.vertical, AppTheme.Spacing.sm)
     }
