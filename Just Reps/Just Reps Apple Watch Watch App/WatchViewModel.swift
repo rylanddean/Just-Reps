@@ -97,7 +97,25 @@ final class WatchViewModel {
         StreakEngine.calculateStreak(from: goalCompletedDays()).current
     }
 
-    // MARK: - Activity (last 7 logical days)
+    // MARK: - Activity
+
+    /// 30 elements, index 0 = oldest (29 days ago), index 29 = today.
+    /// Freeze days count as 1 rep minimum so the complication grid marks them active.
+    var last30DaysReps: [Int] {
+        let calendar = Calendar.current
+        let heatmap = StreakEngine.heatmapData(entries: allEntries, days: 30)
+        let freezeKeys: Set<DateComponents> = Set(
+            allEntries
+                .filter { $0.kind == .freeze }
+                .map { StreakEngine.logicalDay(for: $0.timestamp) }
+        )
+        return (0..<30).reversed().compactMap { offset -> Int? in
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: .now) else { return nil }
+            let key = StreakEngine.logicalDay(for: date)
+            let r = heatmap[key] ?? 0
+            return freezeKeys.contains(key) ? max(r, 1) : r
+        }
+    }
 
     var last7DaysActivity: [(date: Date, reps: Int, isFreeze: Bool, isRest: Bool)] {
         let calendar = Calendar.current
@@ -164,6 +182,9 @@ final class WatchViewModel {
         let activity = last7DaysActivity.map { $0.reps > 0 || $0.isFreeze }
         if let data = try? JSONEncoder().encode(activity) {
             defaults.set(data, forKey: "last7DaysActivity")
+        }
+        if let data = try? JSONEncoder().encode(last30DaysReps) {
+            defaults.set(data, forKey: "last30DaysReps")
         }
         WidgetCenter.shared.reloadAllTimelines()
     }

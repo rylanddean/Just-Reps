@@ -5,5 +5,6 @@ import SwiftUI
 struct JustRepsWatchComplicationBundle: WidgetBundle {
     var body: some Widget {
         JustRepsStreakWidget()
+        JustRepsActivityWidget()
     }
 }
