@@ -3,6 +3,10 @@ import SwiftUI
 struct FriendsView: View {
     private let gc = GameCenterManager.shared
 
+    // TODO: Replace with the actual App Store URL once the listing is live.
+    private static let appStoreURL = URL(string: "https://apps.apple.com/app/id6502567527")!
+    private static let inviteText = "Join me on Just Reps — I'm building a daily fitness streak. Just do the reps."
+
     var body: some View {
         NavigationStack {
             Group {
@@ -20,13 +24,22 @@ struct FriendsView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 if gc.isAuthenticated {
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItemGroup(placement: .navigationBarTrailing) {
+                        ShareLink(
+                            item: Self.appStoreURL,
+                            subject: Text("Just Reps"),
+                            message: Text(Self.inviteText)
+                        ) {
+                            Image(systemName: "person.badge.plus")
+                                .foregroundStyle(Color(UIColor.secondaryLabel))
+                        }
+
                         Button {
                             Task { await gc.loadFriendEntries() }
                         } label: {
                             Image(systemName: "arrow.clockwise")
+                                .foregroundStyle(Color(UIColor.secondaryLabel))
                         }
-                        .tint(AppTheme.Colors.successGreen)
                         .disabled(gc.isLoadingFriends)
                     }
                 }
@@ -68,6 +81,17 @@ struct FriendsView: View {
                     .foregroundStyle(AppTheme.Colors.secondaryText)
                     .padding(AppTheme.Spacing.md)
             }
+
+            ShareLink(
+                item: Self.appStoreURL,
+                subject: Text("Just Reps"),
+                message: Text(Self.inviteText)
+            ) {
+                Text("Invite a friend")
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(AppTheme.Colors.successGreen)
+            }
+            .padding(.bottom, AppTheme.Spacing.lg)
         }
     }
 
@@ -83,6 +107,16 @@ struct FriendsView: View {
                 .foregroundStyle(AppTheme.Colors.secondaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppTheme.Spacing.xl)
+            ShareLink(
+                item: Self.appStoreURL,
+                subject: Text("Just Reps"),
+                message: Text(Self.inviteText)
+            ) {
+                Text("Invite a friend")
+                    .font(AppTheme.Font.body())
+                    .foregroundStyle(AppTheme.Colors.successGreen)
+            }
+            .padding(.top, AppTheme.Spacing.xs)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
