@@ -36,6 +36,11 @@ struct FriendsView: View {
                     await gc.loadFriendEntries()
                 }
             }
+            .onChange(of: gc.isAuthenticated) { _, isAuth in
+                if isAuth {
+                    Task { await gc.loadFriendEntries() }
+                }
+            }
         }
     }
 

@@ -13,6 +13,7 @@ final class GameCenterManager {
     private(set) var friendEntries: [FriendEntry] = []
     private(set) var isLoadingFriends = false
     private(set) var friendLoadError: String?
+    private var pendingStreak: Int = 0
 
     // MARK: - Types
 
@@ -41,6 +42,9 @@ final class GameCenterManager {
                 } else {
                     self.isAuthenticated = GKLocalPlayer.local.isAuthenticated
                     self.authError = nil
+                    if self.isAuthenticated && self.pendingStreak > 0 {
+                        self.submitStreak(self.pendingStreak)
+                    }
                 }
             }
         }
@@ -49,7 +53,9 @@ final class GameCenterManager {
     // MARK: - Score submission
 
     func submitStreak(_ streak: Int) {
-        guard isAuthenticated, streak > 0 else { return }
+        guard streak > 0 else { return }
+        pendingStreak = streak
+        guard isAuthenticated else { return }
         let todayKey = currentDayKey()
         guard UserDefaults.standard.string(forKey: Self.lastSubmitDayKey) != todayKey else { return }
 
@@ -90,15 +96,25 @@ final class GameCenterManager {
             var result: [FriendEntry] = []
 
             if let local = localEntry {
+                // If GC has 0 but we have a real streak queued, the dedupe key
+                // was set before a successful submission — clear it and retry.
+                if local.score == 0 && pendingStreak > 0 {
+                    UserDefaults.standard.removeObject(forKey: Self.lastSubmitDayKey)
+                    submitStreak(pendingStreak)
+                }
                 result.append(FriendEntry(
                     id: localID,
                     displayName: "You",
                     streak: local.score,
                     isLocalPlayer: true
                 ))
+            } else if pendingStreak > 0 {
+                // No entry yet — score was never successfully submitted.
+                UserDefaults.standard.removeObject(forKey: Self.lastSubmitDayKey)
+                submitStreak(pendingStreak)
             }
 
-            for entry in (friendsEntries ?? []) where entry.player.gamePlayerID != localID {
+            for entry in friendsEntries where entry.player.gamePlayerID != localID {
                 result.append(FriendEntry(
                     id: entry.player.gamePlayerID,
                     displayName: entry.player.displayName,
