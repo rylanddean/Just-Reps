@@ -14,7 +14,8 @@ struct WatchActivityView: View {
                 .padding(.horizontal, 4)
 
             HStack(alignment: .bottom, spacing: 3) {
-                ForEach(data, id: \.date) { item in
+                ForEach(data.indices, id: \.self) { i in
+                    let item = data[i]
                     VStack(spacing: 4) {
                         RoundedRectangle(cornerRadius: 3)
                             .fill(barColor(for: item))
