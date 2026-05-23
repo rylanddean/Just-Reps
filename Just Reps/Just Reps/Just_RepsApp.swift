@@ -10,6 +10,7 @@ struct Just_RepsApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.dark)
                 .task {
                     GameCenterManager.shared.authenticateLocalPlayer()
                 }

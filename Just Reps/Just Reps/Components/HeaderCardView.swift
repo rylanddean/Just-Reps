@@ -82,6 +82,17 @@ struct HeaderCardView: View {
                 .foregroundStyle(.secondary)
                 .animation(.easeIn(duration: 0.3), value: weatherManager.hasData)
             }
+
+            if weatherManager.hasData {
+                Link(destination: URL(string: "https://weatherkit.apple.com/legal-attribution.html")!) {
+                    HStack(spacing: 3) {
+                        Image(systemName: "apple.logo")
+                        Text("Weather")
+                    }
+                    .font(.system(size: 9))
+                    .foregroundStyle(Color(UIColor.tertiaryLabel))
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, AppTheme.Spacing.md)

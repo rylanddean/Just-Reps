@@ -4,7 +4,7 @@ struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var page = 0
     @State private var selectedExercises: Set<ExerciseType> = [.pushups, .squats]
-    private let builtInExercises: [ExerciseType] = [.pushups, .squats, .pullups, .situps, .plank]
+    private let builtInExercises: [ExerciseType] = [.pushups, .squats, .pullups, .situps, .plank, .stretching]
 
     // Passed back to HomeViewModel after onboarding completes
     var onComplete: ([ExerciseType]) -> Void
@@ -55,6 +55,8 @@ struct OnboardingView: View {
                 featurePill("🔥", "Build a daily streak")
                 featurePill("⚡️", "Log reps in one tap")
                 featurePill("🧘", "Even 5 reps keeps the chain alive")
+                featurePill("👥", "See how friends stack up")
+                featurePill("⌚", "Log from your Apple Watch")
             }
 
             Spacer()
