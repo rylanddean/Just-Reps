@@ -4,7 +4,7 @@ struct WatchActivityView: View {
     var vm: WatchViewModel
 
     private var data: [(date: Date, reps: Int, isFreeze: Bool, isRest: Bool)] { vm.last7DaysActivity }
-    private var maxReps: Int { max(data.map(\.reps).max() ?? 1, 1) }
+    private var maxReps: Int { max(data.map { $0.reps }.max() ?? 1, 1) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
