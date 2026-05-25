@@ -111,7 +111,7 @@ enum BackupManager {
             notificationHour: UserDefaults.standard.integer(forKey: "notificationHour"),
             notificationMinute: UserDefaults.standard.integer(forKey: "notificationMinute"),
             darkModeOverride: UserDefaults.standard.bool(forKey: "darkModeOverride"),
-            healthKitEnabled: UserDefaults.standard.bool(forKey: "healthKitEnabled"),
+            healthKitEnabled: sharedDefaults.bool(forKey: "healthKitEnabled"),
             freezeTokens: sharedDefaults.integer(forKey: freezeTokensKey),
             lastFreezeAwardDay: sharedDefaults.string(forKey: lastFreezeAwardDayKey) ?? ""
         )
@@ -162,7 +162,7 @@ enum BackupManager {
         UserDefaults.standard.set(prefs.notificationHour, forKey: "notificationHour")
         UserDefaults.standard.set(prefs.notificationMinute, forKey: "notificationMinute")
         UserDefaults.standard.set(prefs.darkModeOverride, forKey: "darkModeOverride")
-        UserDefaults.standard.set(prefs.healthKitEnabled, forKey: "healthKitEnabled")
+        sharedDefaults.set(prefs.healthKitEnabled, forKey: "healthKitEnabled")
         // Restore freeze token state (v2+ backups only; older backups default to 0)
         sharedDefaults.set(prefs.freezeTokens, forKey: freezeTokensKey)
         sharedDefaults.set(prefs.lastFreezeAwardDay, forKey: lastFreezeAwardDayKey)

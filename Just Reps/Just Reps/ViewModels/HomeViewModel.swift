@@ -280,7 +280,7 @@ final class HomeViewModel {
     // MARK: - Actions
 
     func logReps(_ reps: Int, for exercise: ExerciseType, context: ModelContext) {
-        guard UserDefaults.standard.bool(forKey: "healthKitEnabled") else {
+        guard Self.sharedDefaults.bool(forKey: "healthKitEnabled") else {
             commitLog(reps, for: exercise, effort: nil, context: context)
             return
         }
@@ -299,7 +299,7 @@ final class HomeViewModel {
         context.insert(WorkoutEntry(exercise: exercise, reps: reps, effortRPE: effort?.rpeValue))
         NotificationManager.shared.cancelAtRiskNotification()
 
-        guard UserDefaults.standard.bool(forKey: "healthKitEnabled") else { return }
+        guard Self.sharedDefaults.bool(forKey: "healthKitEnabled") else { return }
         Task {
             await HealthKitManager.shared.logWorkout(
                 exercise: exercise,

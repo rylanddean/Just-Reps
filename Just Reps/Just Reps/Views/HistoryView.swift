@@ -125,7 +125,7 @@ struct HistoryView: View {
             Button(role: .destructive) {
                 let timestamp = entry.timestamp
                 modelContext.delete(entry)
-                if UserDefaults.standard.bool(forKey: "healthKitEnabled") {
+                if (UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard).bool(forKey: "healthKitEnabled") {
                     Task { await HealthKitManager.shared.deleteWorkout(near: timestamp) }
                 }
             } label: {

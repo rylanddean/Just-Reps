@@ -12,7 +12,8 @@ struct SettingsView: View {
     @AppStorage("notificationHour")          private var notificationHour = 18
     @AppStorage("notificationMinute")        private var notificationMinute = 0
     @AppStorage("notificationTimeCustomized") private var notificationTimeCustomized = false
-    @AppStorage("healthKitEnabled")     private var healthKitEnabled = false
+    @AppStorage("healthKitEnabled", store: UserDefaults(suiteName: "group.com.rylanddean.justreps"))
+    private var healthKitEnabled = false
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
 
     @State private var reminderTime = Date()

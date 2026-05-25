@@ -77,6 +77,18 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
             ctx.insert(entry)
             try? ctx.save()
 
+            // Credit exercise ring on behalf of the Watch entry
+            if UserDefaults(suiteName: "group.com.rylanddean.justreps")?.bool(forKey: "healthKitEnabled") == true {
+                Task {
+                    await HealthKitManager.shared.logWorkout(
+                        exercise: entry.exercise,
+                        reps: entry.reps,
+                        effort: nil,
+                        at: entry.timestamp
+                    )
+                }
+            }
+
             // Push updated context back to watch immediately (handles background case)
             self.pushUpdatedContext(ctx: ctx)
         }

@@ -29,7 +29,16 @@ final class HealthKitManager {
     var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
 
     private init() {
+        migrateHealthKitEnabledToAppGroup()
         checkAuthorization()
+    }
+
+    // One-time migration: move healthKitEnabled from UserDefaults.standard → App Group
+    // so the Watch app can read the same flag. Runs once; subsequent launches skip it.
+    private func migrateHealthKitEnabledToAppGroup() {
+        let appGroup = UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard
+        guard appGroup.object(forKey: "healthKitEnabled") == nil else { return }
+        appGroup.set(UserDefaults.standard.bool(forKey: "healthKitEnabled"), forKey: "healthKitEnabled")
     }
 
     func checkAuthorization() {
@@ -54,7 +63,8 @@ final class HealthKitManager {
     /// Logs a strength training workout to HealthKit for exercise ring credit.
     /// Plank reps are treated as seconds of hold; stretching reps as 10-min sessions;
     /// all other exercises get a flat 2-minute credit per log entry.
-    func logWorkout(exercise: ExerciseType, reps: Int, effort: WorkoutEffort?) async {
+    /// Pass `at` when logging on behalf of a Watch entry so the timestamp is correct.
+    func logWorkout(exercise: ExerciseType, reps: Int, effort: WorkoutEffort?, at timestamp: Date? = nil) async {
         guard isAuthorized, reps > 0 else { return }
 
         let durationSeconds: TimeInterval
@@ -68,7 +78,7 @@ final class HealthKitManager {
         }
         guard durationSeconds >= 1 else { return }
 
-        let end = Date()
+        let end = timestamp ?? Date()
         let start = end.addingTimeInterval(-durationSeconds)
 
         let config = HKWorkoutConfiguration()
