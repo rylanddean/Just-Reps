@@ -8,15 +8,19 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allEntries: [WorkoutEntry]
 
-    @AppStorage("notificationsEnabled")      private var notificationsEnabled = false
-    @AppStorage("notificationHour")          private var notificationHour = 18
-    @AppStorage("notificationMinute")        private var notificationMinute = 0
-    @AppStorage("notificationTimeCustomized") private var notificationTimeCustomized = false
+    @AppStorage("notificationsEnabled")        private var notificationsEnabled = false
+    @AppStorage("notificationHour")            private var notificationHour = 18
+    @AppStorage("notificationMinute")          private var notificationMinute = 0
+    @AppStorage("notificationTimeCustomized")  private var notificationTimeCustomized = false
+    @AppStorage("endOfDayReminderEnabled")     private var endOfDayReminderEnabled = true
+    @AppStorage("endOfDayHour")               private var endOfDayHour = 18
+    @AppStorage("endOfDayMinute")             private var endOfDayMinute = 0
     @AppStorage("healthKitEnabled", store: UserDefaults(suiteName: "group.com.rylanddean.justreps"))
     private var healthKitEnabled = false
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
 
     @State private var reminderTime = Date()
+    @State private var endOfDayTime = Date()
     @State private var showAddExerciseSheet = false
     @State private var exportDocument = BackupDocument(payload: .placeholder)
     @State private var isExporting = false
@@ -53,6 +57,7 @@ struct SettingsView: View {
             .task {
                 await notifManager.checkAuthorizationStatus()
                 reminderTime = makeDate(hour: notificationHour, minute: notificationMinute)
+                endOfDayTime = makeDate(hour: endOfDayHour, minute: endOfDayMinute)
             }
         }
         .sheet(isPresented: $showAddExerciseSheet) {
@@ -191,6 +196,43 @@ struct SettingsView: View {
                     notificationMinute = m
                     notificationTimeCustomized = true
                     notifManager.scheduleDailyReminder(hour: h, minute: m)
+                }
+
+                Toggle("End of day reminder", isOn: $endOfDayReminderEnabled)
+                    .tint(AppTheme.Colors.successGreen)
+                    .onChange(of: endOfDayReminderEnabled) { _, enabled in
+                        if enabled && !viewModel.allGoalsMet {
+                            notifManager.scheduleEndOfDayReminder(
+                                hour: endOfDayHour,
+                                minute: endOfDayMinute,
+                                body: viewModel.endOfDayNotificationBody
+                            )
+                        } else {
+                            notifManager.cancelEndOfDayReminder()
+                        }
+                    }
+
+                if endOfDayReminderEnabled {
+                    DatePicker(
+                        "End of day time",
+                        selection: $endOfDayTime,
+                        displayedComponents: .hourAndMinute
+                    )
+                    .tint(AppTheme.Colors.successGreen)
+                    .onChange(of: endOfDayTime) { _, newTime in
+                        let comps = Calendar.current.dateComponents([.hour, .minute], from: newTime)
+                        let h = comps.hour ?? 18
+                        let m = comps.minute ?? 0
+                        endOfDayHour = h
+                        endOfDayMinute = m
+                        if !viewModel.allGoalsMet {
+                            notifManager.scheduleEndOfDayReminder(
+                                hour: h,
+                                minute: m,
+                                body: viewModel.endOfDayNotificationBody
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -333,6 +375,7 @@ struct SettingsView: View {
             }
         } else {
             notifManager.cancelReminder()
+            notifManager.cancelEndOfDayReminder()
         }
     }
 

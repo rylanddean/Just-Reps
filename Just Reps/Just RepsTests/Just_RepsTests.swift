@@ -32,6 +32,27 @@ struct Just_RepsTests {
         #expect(bounds.end > bounds.start)
     }
 
+    @Test func streakEngineLongestIgnoresGap() {
+        let calendar = Calendar.current
+        let logicalDayDate = calendar.date(from: StreakEngine.logicalDay(for: .now))!
+        // 5-day first streak, 3-day gap, 3-day second streak (most recent, just broken)
+        let makeEntry: (Int) -> WorkoutEntry = { offset in
+            let day = calendar.date(byAdding: .day, value: offset, to: logicalDayDate)!
+            return WorkoutEntry(exercise: .pushups, reps: 10,
+                                timestamp: calendar.date(bySettingHour: 4, minute: 0, second: 0, of: day)!)
+        }
+        let entries = [
+            makeEntry(-10), makeEntry(-9), makeEntry(-8), makeEntry(-7), makeEntry(-6), // 5-day streak
+            // gap: -5, -4, -3 (no entries)
+            makeEntry(-2), makeEntry(-1), makeEntry(0),  // 3-day streak (today included)
+        ]
+
+        let result = StreakEngine.calculate(entries: entries)
+
+        #expect(result.longest == 5)
+        #expect(result.current == 3)
+    }
+
     @Test func streakEngineCountsContiguousDays() {
         let calendar = Calendar.current
         let logicalDayDate = calendar.date(from: StreakEngine.logicalDay(for: .now))!

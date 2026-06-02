@@ -108,19 +108,39 @@ final class HomeViewModel {
 
         syncToWatch()
         checkEulogy()
-        updateAtRiskNotification()
+        updateNotifications()
     }
 
-    private func updateAtRiskNotification() {
+    private func updateNotifications() {
         guard UserDefaults.standard.bool(forKey: "notificationsEnabled") else {
             NotificationManager.shared.cancelAtRiskNotification()
+            NotificationManager.shared.cancelEndOfDayReminder()
             return
         }
+
         let hasLoggedToday = todaysEntries.contains { $0.kind == .workout }
         if loggedStreak > 0 && !hasLoggedToday {
             NotificationManager.shared.scheduleAtRiskNotification(streak: loggedStreak)
         } else {
             NotificationManager.shared.cancelAtRiskNotification()
+        }
+
+        let endOfDayEnabled = (UserDefaults.standard.object(forKey: "endOfDayReminderEnabled") as? Bool) ?? true
+        if endOfDayEnabled && !allGoalsMet {
+            let hour   = (UserDefaults.standard.object(forKey: "endOfDayHour")   as? Int) ?? 18
+            let minute = (UserDefaults.standard.object(forKey: "endOfDayMinute") as? Int) ?? 0
+            NotificationManager.shared.scheduleEndOfDayReminder(hour: hour, minute: minute, body: endOfDayNotificationBody)
+        } else {
+            NotificationManager.shared.cancelEndOfDayReminder()
+        }
+    }
+
+    var endOfDayNotificationBody: String {
+        let parts = unmetExercises.map { "\($0.remaining) \($0.exercise.displayName.lowercased())" }
+        switch parts.count {
+        case 0:  return "Still time."
+        case 1:  return "\(parts[0]) left."
+        default: return "\(parts.joined(separator: " · ")) left."
         }
     }
 

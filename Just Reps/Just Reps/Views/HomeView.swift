@@ -6,6 +6,7 @@ struct HomeView: View {
     @Bindable var viewModel: HomeViewModel
     @State private var showSettings = false
     @State private var showFreezeConfirm = false
+    @State private var showRestDayConfirm = false
 
     private let hkManager = HealthKitManager.shared
     private let weatherManager = WeatherManager.shared
@@ -24,7 +25,14 @@ struct HomeView: View {
                         onFreezeRequested: { showFreezeConfirm = true }
                     )
                     stateMessage
-                    exerciseCards
+                    if viewModel.isRestDay {
+                        restDayCard
+                    } else {
+                        exerciseCards
+                        if viewModel.canMarkRestDay {
+                            restDayButton
+                        }
+                    }
                 }
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.top, AppTheme.Spacing.md)
@@ -72,6 +80,11 @@ struct HomeView: View {
                     .presentationDetents([.height(220)])
                     .presentationDragIndicator(.visible)
             }
+            .sheet(isPresented: $showRestDayConfirm) {
+                restDayConfirmSheet
+                    .presentationDetents([.height(220)])
+                    .presentationDragIndicator(.visible)
+            }
             .onChange(of: allEntries) { viewModel.refresh(with: allEntries) }
             .onAppear { viewModel.refresh(with: allEntries) }
             .task {
@@ -97,9 +110,6 @@ struct HomeView: View {
     }
 
     private var messageContent: (String, Color) {
-        if viewModel.isRestDay {
-            return ("Rest day. See you tomorrow.", Color(UIColor.secondaryLabel))
-        }
         if viewModel.streakAtRisk {
             return ("Your streak is at risk. Still time.", AppTheme.Colors.streakDanger)
         }
@@ -145,6 +155,84 @@ struct HomeView: View {
                 )
             }
         }
+    }
+
+    // MARK: - Rest day
+
+    private var restDayCard: some View {
+        VStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "moon.fill")
+                .font(.system(size: 28))
+                .foregroundStyle(Color(UIColor.secondaryLabel))
+            Text("Rest day.")
+                .font(AppTheme.Font.headline())
+            Text("See you tomorrow.")
+                .font(AppTheme.Font.body())
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, AppTheme.Spacing.xl)
+        .background(Color(UIColor.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+    }
+
+    private var restDayButton: some View {
+        Button {
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            showRestDayConfirm = true
+        } label: {
+            Text("Rest day")
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(Color(UIColor.secondaryLabel))
+                .padding(.horizontal, AppTheme.Spacing.lg)
+                .padding(.vertical, AppTheme.Spacing.sm)
+                .background(Color(UIColor.systemFill), in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+    }
+
+    private var restDayConfirmSheet: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            Image(systemName: "moon.fill")
+                .font(.system(size: 40))
+                .foregroundStyle(Color(UIColor.secondaryLabel))
+                .padding(.top, AppTheme.Spacing.lg)
+            VStack(spacing: AppTheme.Spacing.xs) {
+                Text("Rest day?")
+                    .font(AppTheme.Font.title())
+                    .fontWeight(.bold)
+                Text("One per week. Streak stays intact.")
+                    .font(AppTheme.Font.body())
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            VStack(spacing: AppTheme.Spacing.sm) {
+                Button {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    viewModel.markRestDay(context: modelContext)
+                    showRestDayConfirm = false
+                } label: {
+                    Text("Take the day")
+                        .font(AppTheme.Font.headline())
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(Color(UIColor.systemFill))
+                        .foregroundStyle(Color(UIColor.label))
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                Button { showRestDayConfirm = false } label: {
+                    Text("Cancel")
+                        .font(AppTheme.Font.body())
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, AppTheme.Spacing.xl)
+            .padding(.bottom, AppTheme.Spacing.lg)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Freeze confirm sheet

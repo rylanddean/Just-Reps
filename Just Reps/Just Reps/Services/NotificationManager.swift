@@ -18,8 +18,9 @@ final class NotificationManager: NSObject {
 
     var isAuthorized = false
 
-    private let dailyReminderId   = "just_reps_daily_reminder"
-    private let atRiskReminderId  = "just_reps_streak_at_risk"
+    private let dailyReminderId    = "just_reps_daily_reminder"
+    private let atRiskReminderId   = "just_reps_streak_at_risk"
+    private let endOfDayReminderId = "just_reps_end_of_day"
 
     private let dailyMessages = [
         "Your streak is at risk. Still time.",
@@ -110,6 +111,41 @@ final class NotificationManager: NSObject {
         UNUserNotificationCenter.current()
             .removePendingNotificationRequests(withIdentifiers: [atRiskReminderId])
     }
+
+    // MARK: - End-of-Day Reminder
+
+    /// Schedules a one-time notification today at the given time. No-ops if the time has already passed.
+    func scheduleEndOfDayReminder(hour: Int, minute: Int, body: String) {
+        let now = Date()
+        let cal = Calendar.current
+        let currentHour = cal.component(.hour, from: now)
+        let currentMinute = cal.component(.minute, from: now)
+        guard hour > currentHour || (hour == currentHour && minute > currentMinute) else { return }
+
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [endOfDayReminderId])
+
+        let content = UNMutableNotificationContent()
+        content.title = "Just Reps"
+        content.body = body
+        content.sound = .default
+
+        var fireDate = DateComponents()
+        fireDate.hour = hour
+        fireDate.minute = minute
+
+        let request = UNNotificationRequest(
+            identifier: endOfDayReminderId,
+            content: content,
+            trigger: UNCalendarNotificationTrigger(dateMatching: fireDate, repeats: false)
+        )
+        center.add(request)
+    }
+
+    func cancelEndOfDayReminder() {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: [endOfDayReminderId])
+    }
 }
 
 // MARK: - UNUserNotificationCenterDelegate
@@ -134,8 +170,9 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        // Suppress at-risk notification in-foreground; the app's own UI handles it
-        if notification.request.identifier == atRiskReminderId {
+        // Suppress in-foreground: app UI already shows streak/progress state
+        let suppressed = [atRiskReminderId, endOfDayReminderId]
+        if suppressed.contains(notification.request.identifier) {
             completionHandler([])
         } else {
             completionHandler([.banner, .sound])

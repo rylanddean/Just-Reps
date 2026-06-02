@@ -146,6 +146,31 @@ final class StreakViewModel {
         return raw.isEmpty ? ExerciseType.defaults : raw.map { ExerciseType(rawString: $0) }
     }
 
+    var personalBests: [(exercise: ExerciseType, reps: Int)] {
+        let workoutEntries = allEntries.filter { $0.kind == .workout && $0.reps > 0 }
+        guard !workoutEntries.isEmpty else { return [] }
+
+        var bestMap: [String: Int] = [:]
+        for entry in workoutEntries {
+            if entry.reps > bestMap[entry.exerciseRaw, default: 0] {
+                bestMap[entry.exerciseRaw] = entry.reps
+            }
+        }
+
+        let active = activeExercises
+        var result = active.compactMap { ex -> (ExerciseType, Int)? in
+            guard let best = bestMap[ex.rawString] else { return nil }
+            return (ex, best)
+        }
+        let coveredRaws = Set(active.map(\.rawString))
+        let extras = bestMap
+            .filter { !coveredRaws.contains($0.key) }
+            .map { (ExerciseType(rawString: $0.key), $0.value) }
+            .sorted { $0.1 > $1.1 }
+        result.append(contentsOf: extras)
+        return result
+    }
+
     private static let appGroupID = "group.com.rylanddean.justreps"
     private static let exercisesKey = "activeExercises"
     private static let completedGoalDaysKey = "completedGoalDays"

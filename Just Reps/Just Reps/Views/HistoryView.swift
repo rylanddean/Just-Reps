@@ -101,13 +101,14 @@ struct HistoryView: View {
 
     private func entryRow(_ entry: WorkoutEntry) -> some View {
         HStack(spacing: AppTheme.Spacing.sm) {
-            Text(entry.exercise.emoji)
+            Text(entry.kind == .rest ? "😴" : entry.kind == .freeze ? "❄️" : entry.exercise.emoji)
                 .font(.title3)
                 .frame(width: 36, alignment: .center)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(entry.exercise.displayName)
+                Text(entry.kind == .rest ? "Rest day" : entry.kind == .freeze ? "Streak freeze" : entry.exercise.displayName)
                     .font(AppTheme.Font.body())
+                    .foregroundStyle(entry.kind == .workout ? Color(UIColor.label) : .secondary)
                 Text(timeFormatter.string(from: entry.timestamp))
                     .font(AppTheme.Font.caption())
                     .foregroundStyle(.secondary)
@@ -115,8 +116,10 @@ struct HistoryView: View {
 
             Spacer()
 
-            Text("\(entry.reps) \(entry.exercise.unit)")
-                .font(AppTheme.Font.headline())
+            if entry.kind == .workout {
+                Text("\(entry.reps) \(entry.exercise.unit)")
+                    .font(AppTheme.Font.headline())
+            }
         }
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.vertical, AppTheme.Spacing.sm)

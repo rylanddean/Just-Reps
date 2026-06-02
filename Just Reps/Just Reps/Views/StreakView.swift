@@ -25,6 +25,9 @@ struct StreakView: View {
             ScrollView {
                 VStack(spacing: AppTheme.Spacing.xl) {
                     statsRow
+                    if !viewModel.personalBests.isEmpty {
+                        personalBestsSection
+                    }
                     heatmapSection
                     muscleGroupSection
                     if !viewModel.visibleExercises(for: selectedPeriod).isEmpty {
@@ -70,6 +73,49 @@ struct StreakView: View {
         .frame(maxWidth: .infinity)
     }
 
+    // MARK: - Personal Bests
+
+    private var personalBestsSection: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            Text("Personal Bests")
+                .font(AppTheme.Font.headline())
+
+            VStack(spacing: 0) {
+                ForEach(Array(viewModel.personalBests.enumerated()), id: \.element.exercise.id) { index, item in
+                    if index > 0 {
+                        Divider()
+                    }
+                    personalBestRow(exercise: item.exercise, reps: item.reps)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppTheme.Spacing.md)
+        .background(Color(UIColor.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+    }
+
+    private func personalBestRow(exercise: ExerciseType, reps: Int) -> some View {
+        HStack {
+            HStack(spacing: AppTheme.Spacing.xs) {
+                Text(exercise.emoji)
+                Text(exercise.displayName)
+                    .font(AppTheme.Font.body())
+            }
+            Spacer()
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text("\(reps)")
+                    .font(AppTheme.Font.title())
+                    .foregroundStyle(AppTheme.Colors.successGreen)
+                    .contentTransition(.numericText())
+                Text(exercise.unit)
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, AppTheme.Spacing.sm)
+    }
+
     // MARK: - Heatmap
 
     private var heatmapSection: some View {
@@ -100,6 +146,28 @@ struct StreakView: View {
                 Text("More")
                     .font(AppTheme.Font.caption())
                     .foregroundStyle(.secondary)
+                Spacer()
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color(UIColor.systemFill))
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(Color(UIColor.separator))
+                            .frame(width: 7, height: 2)
+                    }
+                    .frame(width: 12, height: 12)
+                    Text("Rest")
+                        .font(AppTheme.Font.caption())
+                        .foregroundStyle(.secondary)
+                }
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .strokeBorder(AppTheme.Colors.coolBlue.opacity(0.5), lineWidth: 1.5)
+                        .frame(width: 12, height: 12)
+                    Text("Freeze")
+                        .font(AppTheme.Font.caption())
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
