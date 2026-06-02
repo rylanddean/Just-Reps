@@ -8,9 +8,6 @@ struct HomeView: View {
     @State private var showFreezeConfirm = false
     @State private var showRestDayConfirm = false
 
-    private let hkManager = HealthKitManager.shared
-    private let weatherManager = WeatherManager.shared
-
     @Query(sort: \WorkoutEntry.timestamp, order: .reverse)
     private var allEntries: [WorkoutEntry]
 
@@ -20,8 +17,6 @@ struct HomeView: View {
                 VStack(spacing: AppTheme.Spacing.lg) {
                     HeaderCardView(
                         viewModel: viewModel,
-                        hkManager: hkManager,
-                        weatherManager: weatherManager,
                         onFreezeRequested: { showFreezeConfirm = true }
                     )
                     stateMessage
@@ -87,10 +82,6 @@ struct HomeView: View {
             }
             .onChange(of: allEntries) { viewModel.refresh(with: allEntries) }
             .onAppear { viewModel.refresh(with: allEntries) }
-            .task {
-                weatherManager.requestWeather()
-                await hkManager.fetchTrainingLoad()
-            }
         }
     }
 
@@ -125,15 +116,6 @@ struct HomeView: View {
 
     // MARK: - Exercise cards
 
-    private var goalRecs: [GoalRecommendation] {
-        GoalAdvisorService.recommendations(
-            for: viewModel.activeExercises,
-            goals: viewModel.dailyGoals,
-            entries: allEntries,
-            trainingLoad: hkManager.trainingLoad
-        )
-    }
-
     private var exerciseCards: some View {
         VStack(spacing: AppTheme.Spacing.md) {
             ForEach(viewModel.activeExercises) { exercise in
@@ -144,10 +126,6 @@ struct HomeView: View {
                     mvr: viewModel.mvr(for: exercise),
                     onIncrement: { amount in
                         viewModel.logReps(amount, for: exercise, context: modelContext)
-                    },
-                    recommendation: goalRecs.first { $0.exercise == exercise },
-                    onApplyRecommendation: { newGoal in
-                        viewModel.setGoal(newGoal, for: exercise)
                     },
                     onGoalChange: { newGoal in
                         viewModel.setGoal(newGoal, for: exercise)

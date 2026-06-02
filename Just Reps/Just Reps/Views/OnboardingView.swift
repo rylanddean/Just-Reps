@@ -2,8 +2,11 @@ import SwiftUI
 
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("userName") private var userName = ""
     @State private var page = 0
+    @State private var nameInput = ""
     @State private var selectedExercises: Set<ExerciseType> = [.pushups, .squats]
+    @FocusState private var nameFieldFocused: Bool
     private let builtInExercises: [ExerciseType] = [.pushups, .squats, .pullups, .situps, .plank, .stretching]
 
     // Passed back to HomeViewModel after onboarding completes
@@ -15,7 +18,8 @@ struct OnboardingView: View {
 
             TabView(selection: $page) {
                 welcomePage.tag(0)
-                exercisePickerPage.tag(1)
+                nameEntryPage.tag(1)
+                exercisePickerPage.tag(2)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut, value: page)
@@ -75,6 +79,48 @@ struct OnboardingView: View {
         .padding(.vertical, AppTheme.Spacing.sm)
         .background(Color(UIColor.secondarySystemBackground))
         .clipShape(Capsule())
+    }
+
+    // MARK: - Name entry
+
+    private var nameEntryPage: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            Spacer()
+
+            VStack(spacing: AppTheme.Spacing.sm) {
+                Text("What's your name?")
+                    .font(AppTheme.Font.title())
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                Text("Pulse will use it.")
+                    .font(AppTheme.Font.body())
+                    .foregroundStyle(.secondary)
+            }
+
+            TextField("Your name", text: $nameInput)
+                .font(.system(size: 24, weight: .semibold, design: .rounded))
+                .multilineTextAlignment(.center)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.words)
+                .textContentType(.givenName)
+                .submitLabel(.next)
+                .focused($nameFieldFocused)
+                .onSubmit { withAnimation { page = 2 } }
+                .padding(AppTheme.Spacing.md)
+                .background(Color(UIColor.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+
+            Spacer()
+            Spacer()
+        }
+        .padding(AppTheme.Spacing.xl)
+        .onChange(of: page) { _, newPage in
+            if newPage == 1 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    nameFieldFocused = true
+                }
+            }
+        }
     }
 
     // MARK: - Exercise picker
@@ -154,7 +200,7 @@ struct OnboardingView: View {
         VStack(spacing: AppTheme.Spacing.md) {
             // Page dots
             HStack(spacing: 6) {
-                ForEach(0..<2, id: \.self) { i in
+                ForEach(0..<3, id: \.self) { i in
                     Capsule()
                         .fill(page == i ? Color(UIColor.label) : Color(UIColor.tertiaryLabel))
                         .frame(width: page == i ? 20 : 8, height: 8)
@@ -164,7 +210,7 @@ struct OnboardingView: View {
 
             // CTA button
             Button(action: handleCTA) {
-                Text(page == 0 ? "Get started" : "Let's go")
+                Text(ctaLabel)
                     .font(AppTheme.Font.headline())
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
@@ -188,10 +234,23 @@ struct OnboardingView: View {
         )
     }
 
+    private var ctaLabel: String {
+        switch page {
+        case 0: return "Get started"
+        case 1: return nameInput.trimmingCharacters(in: .whitespaces).isEmpty ? "Skip" : "Continue"
+        default: return "Let's go"
+        }
+    }
+
     private func handleCTA() {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        if page == 0 {
-            withAnimation { page = 1 }
+        if page < 2 {
+            if page == 1 {
+                let trimmed = nameInput.trimmingCharacters(in: .whitespaces)
+                if !trimmed.isEmpty { userName = trimmed }
+                nameFieldFocused = false
+            }
+            withAnimation { page += 1 }
         } else {
             withAnimation {
                 hasCompletedOnboarding = true

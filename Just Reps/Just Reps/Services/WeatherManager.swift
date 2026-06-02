@@ -61,6 +61,17 @@ final class WeatherManager {
         }
     }
 
+    // Awaitable version — polls up to 4 seconds for data, then gives up gracefully.
+    func fetchIfNeeded() async {
+        guard !hasData else { return }
+        requestWeather()
+        var elapsed = 0
+        while !hasData && elapsed < 40 {
+            try? await Task.sleep(for: .milliseconds(100))
+            elapsed += 1
+        }
+    }
+
     private func fetch(for location: CLLocation) async {
         do {
             let weather = try await service.weather(for: location)

@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allEntries: [WorkoutEntry]
 
+    @AppStorage("userName")                     private var userName = ""
     @AppStorage("notificationsEnabled")        private var notificationsEnabled = false
     @AppStorage("notificationHour")            private var notificationHour = 18
     @AppStorage("notificationMinute")          private var notificationMinute = 0
@@ -39,6 +40,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
+                profileSection
                 exercisesSection
                 notificationsSection
                 siriSection
@@ -96,6 +98,23 @@ struct SettingsView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(resultMessage)
+        }
+    }
+
+    // MARK: - Profile
+
+    private var profileSection: some View {
+        Section("Profile") {
+            HStack {
+                Text("Name")
+                Spacer()
+                TextField("Your name", text: $userName)
+                    .multilineTextAlignment(.trailing)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.words)
+                    .textContentType(.givenName)
+                    .foregroundStyle(userName.isEmpty ? Color(UIColor.tertiaryLabel) : Color(UIColor.label))
+            }
         }
     }
 

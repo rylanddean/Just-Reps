@@ -2,101 +2,24 @@ import SwiftUI
 
 struct HeaderCardView: View {
     var viewModel: HomeViewModel
-    var hkManager: HealthKitManager
-    var weatherManager: WeatherManager
     var onFreezeRequested: (() -> Void)? = nil
 
     @AppStorage("hasSeenStreakExplainer") private var hasSeenStreakExplainer = false
     @State private var showExplainer = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            contextBar
-            Rectangle()
-                .fill(Color(UIColor.separator))
-                .frame(height: 0.5)
-            streakRow
-        }
-        .background(Color(UIColor.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
-        .frame(maxWidth: .infinity)
-        .sheet(isPresented: $showExplainer) {
-            StreakExplainerSheet {
-                hasSeenStreakExplainer = true
-                showExplainer = false
-            }
-            .presentationDetents([.height(380)])
-            .presentationDragIndicator(.visible)
-        }
-    }
-
-    // MARK: - Context bar
-
-    private var contextBar: some View {
-        VStack(alignment: .center, spacing: AppTheme.Spacing.xs) {
-            Text(
-                Date.now.formatted(
-                    .dateTime.weekday(.abbreviated).month(.abbreviated).day()
-                ).uppercased()
-            )
-            .font(AppTheme.Font.caption())
-            .kerning(1.5)
-            .foregroundStyle(.secondary)
-
-            if weatherManager.hasData || hkManager.trainingLoad != nil {
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    if weatherManager.hasData {
-                        Image(systemName: weatherManager.symbolName)
-                            .symbolRenderingMode(.multicolor)
-                            .font(.system(size: 13))
-                        Text(weatherManager.conditionText)
-                        HStack(spacing: 3) {
-                            Image(systemName: "arrow.up")
-                            Text(weatherManager.highTemperatureString)
-                            Image(systemName: "arrow.down")
-                            Text(weatherManager.lowTemperatureString)
-                        }
-                        .foregroundStyle(Color(UIColor.tertiaryLabel))
-                    }
-
-                    if let load = hkManager.trainingLoad {
-                        if weatherManager.hasData {
-                            Text("·")
-                                .foregroundStyle(Color(UIColor.tertiaryLabel))
-                        }
-                        HStack(spacing: 3) {
-                            Text("\(load.todayMinutes) min")
-                            if load.trend != .neutral {
-                                Image(systemName: load.trend.arrowSymbol)
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundStyle(
-                                        load.trend == .up
-                                            ? AppTheme.Colors.successGreen
-                                            : Color(UIColor.secondaryLabel)
-                                    )
-                            }
-                        }
-                    }
+        streakRow
+            .background(Color(UIColor.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+            .frame(maxWidth: .infinity)
+            .sheet(isPresented: $showExplainer) {
+                StreakExplainerSheet {
+                    hasSeenStreakExplainer = true
+                    showExplainer = false
                 }
-                .font(AppTheme.Font.caption())
-                .foregroundStyle(.secondary)
-                .animation(.easeIn(duration: 0.3), value: weatherManager.hasData)
+                .presentationDetents([.height(380)])
+                .presentationDragIndicator(.visible)
             }
-
-            if weatherManager.hasData {
-                Link(destination: URL(string: "https://weatherkit.apple.com/legal-attribution.html")!) {
-                    HStack(spacing: 3) {
-                        Image(systemName: "apple.logo")
-                        Text("Weather")
-                    }
-                    .font(.system(size: 9))
-                    .foregroundStyle(Color(UIColor.tertiaryLabel))
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
     }
 
     // MARK: - Streak cells

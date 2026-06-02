@@ -144,7 +144,7 @@ struct FriendsView: View {
 
     private var loadingState: some View {
         VStack(spacing: AppTheme.Spacing.md) {
-            ProgressView()
+            SwiftUI.ProgressView()
                 .tint(AppTheme.Colors.successGreen)
             Text("Loading friends...")
                 .font(AppTheme.Font.caption())

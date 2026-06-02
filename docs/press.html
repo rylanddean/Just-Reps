@@ -55,18 +55,57 @@
 
   <div class="press-callout" style="margin-top: -24px;">
     <span class="label">Version</span>
-    <span class="value">1.3</span>
+    <span class="value">1.4</span>
   </div>
 
   <div class="press-callout" style="margin-top: -24px;">
     <span class="label">Requires</span>
-    <span class="value">iOS 17 or later</span>
+    <span class="value">iOS 18 or later (Apple Intelligence features require iOS 26)</span>
   </div>
 
   <div class="press-callout" style="margin-top: -24px;">
     <span class="label">Press contact</span>
     <span class="value">press@justreps.app</span>
   </div>
+
+  <hr>
+
+  <!-- V1.4 press release -->
+  <p class="meta">FOR IMMEDIATE RELEASE — JUNE 2026</p>
+
+  <h2>Just Reps 1.4 — Pulse, an AI daily companion powered by Apple Intelligence</h2>
+
+  <p><strong>June 2026</strong> — Just Reps releases version 1.4, its largest update since launch. The centrepiece is Pulse: a new landing tab that gives users a personal daily check-in, an energy check, and a focused fitness chat — all running entirely on-device using Apple Intelligence.</p>
+
+  <p>The update also consolidates the Streak and History tabs into a single Progress tab, adds a 20-week vibes trend chart alongside the existing activity heatmap, and introduces name personalisation in onboarding and settings.</p>
+
+  <h3>What's new</h3>
+
+  <p><strong>Pulse tab.</strong> Pulse replaces the home screen as the landing view. Every day it generates a short personal observation — three to four sentences — using the user's streak length, recent workout pattern, current weather conditions and temperature, and Apple Health training load trend. The insight names the user by name if one has been set, references actual numbers, and closes with a specific, honest suggestion for how to approach the day. The insight is generated once per day and cached on-device; it never leaves the device.</p>
+
+  <p><strong>Daily vibes check-in.</strong> Below the insight, users rate their energy on a 1–5 scale. Pulse uses the rating immediately: a rating of 1 surfaces a rest day or streak freeze suggestion. Three or more consecutive low-vibe days trigger a recommendation to reduce the daily goal or minimum viable rep count so the streak survives a hard week. On devices without Apple Intelligence, the vibes recommendations fall back to a set of canned responses.</p>
+
+  <p><strong>Vibes trend chart.</strong> The Progress tab now shows a 20-week vibes grid below the activity heatmap, using the same layout, cell size, and week-alignment. Grey squares represent low-energy days; green squares represent high-energy days. A running average is shown in the card header. Days with no rating render as dim placeholders.</p>
+
+  <p><strong>Pulse chat.</strong> Tapping "Ask Pulse" opens a focused chat sheet with six conversation starters covering weekly progress, muscle coverage, goal-setting, form questions, habit science, and routine additions. Pulse answers using the user's personal fitness data as context. There is no free-text input — only the curated starters — keeping the experience focused and on-brand. The chat history clears when the sheet is dismissed.</p>
+
+  <p><strong>Weather and training load in the insight.</strong> Pulse fetches weather via WeatherKit and reads Apple Health training load before generating the daily insight, so the observation can reference conditions directly — "It's 8°C and overcast, a good morning to keep the workout short and stay indoors" — rather than producing generic advice. The Apple Weather attribution is displayed at the base of the insight card in compliance with WeatherKit terms.</p>
+
+  <p><strong>Name personalisation.</strong> Users can enter their name during onboarding (a new second page, optional and skippable) or in Settings → Profile. Pulse uses the name in the daily insight, the vibes question, and the header greeting.</p>
+
+  <p><strong>Progress tab.</strong> The separate Streak and History tabs have been merged into a single Progress tab with a segmented control. The Streak segment retains the stats row, personal bests, heatmap calendar, muscle coverage, sparkline charts, and milestones. History is one tap away. The tab count drops from five to four.</p>
+
+  <h3>What didn't change</h3>
+
+  <p>One-tap logging is unchanged. The Log tab is now strictly a data-entry surface — weather and training load data moved entirely to Pulse. The core loop — open, tap, done — takes the same number of taps it always has. Pulse is the first tab, but it is entirely optional; users who want to log and leave can go straight to Log.</p>
+
+  <h3>On Apple Intelligence</h3>
+
+  <p>The daily insight and Pulse chat require Apple Intelligence and iOS 26. The vibes check-in, trend chart, low-vibe recommendations, and all other features work on all supported devices. Just Reps uses Apple's on-device FoundationModels framework; no data is sent to external servers.</p>
+
+  <h3>Pricing and availability</h3>
+
+  <p>Just Reps 1.4 is a free update for all existing users. The app remains free to download with no subscription and no paywall.</p>
 
   <hr>
 
@@ -180,14 +219,18 @@
   <ul>
     <li>One-tap rep logging — no login, no setup after onboarding</li>
     <li>Two independent streaks: Rep Streak and Goal Streak</li>
-    <li>GitHub-style heatmap calendar, 20-week view</li>
+    <li>Pulse tab — on-device AI daily check-in via Apple Intelligence (iOS 26)</li>
+    <li>Daily vibes check-in (1–5 energy rating) with 20-week trend chart</li>
+    <li>Pulse chat — six curated conversation starters, no free-text input</li>
+    <li>Weather-aware and training-load-aware daily insight, generated on-device</li>
+    <li>GitHub-style activity heatmap and vibes heatmap, both 20-week aligned</li>
     <li>Friends leaderboard via Game Center — streak ranks, no feed</li>
     <li>Opt-in notifications only — never coercive</li>
-    <li>Fully offline core — SwiftData, no account required</li>
+    <li>Fully offline core — SwiftData, no account required, no data leaves the device</li>
     <li>Free — no subscription, no paywall</li>
     <li>Dark-first design, supports light mode</li>
     <li>No confetti, no gamification loops</li>
-    <li>Built with SwiftUI and SwiftData, targeting iOS 17+</li>
+    <li>Built with SwiftUI, SwiftData, and FoundationModels, targeting iOS 18+</li>
   </ul>
 
   <hr>

@@ -78,19 +78,19 @@ struct ContentView: View {
 
     private var mainApp: some View {
         TabView {
+            PulseView(homeViewModel: homeViewModel)
+                .tabItem {
+                    Label("Pulse", systemImage: "waveform")
+                }
+
             HomeView(viewModel: homeViewModel)
                 .tabItem {
-                    Label("Today", systemImage: "house.fill")
+                    Label("Log", systemImage: "pencil")
                 }
 
-            StreakView(homeViewModel: homeViewModel)
+            ProgressView(homeViewModel: homeViewModel)
                 .tabItem {
-                    Label("Streak", systemImage: "flame.fill")
-                }
-
-            HistoryView()
-                .tabItem {
-                    Label("History", systemImage: "clock.fill")
+                    Label("Progress", systemImage: "chart.bar.fill")
                 }
 
             FriendsView()
