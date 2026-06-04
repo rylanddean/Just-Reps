@@ -160,12 +160,14 @@ final class StreakViewModel {
         let active = activeExercises
         var result = active.compactMap { ex -> (ExerciseType, Int)? in
             guard let best = bestMap[ex.rawString] else { return nil }
+            guard ex != .stretching, !ex.isAutoTracked else { return nil }
             return (ex, best)
         }
         let coveredRaws = Set(active.map(\.rawString))
         let extras = bestMap
             .filter { !coveredRaws.contains($0.key) }
             .map { (ExerciseType(rawString: $0.key), $0.value) }
+            .filter { ex, _ in ex != .stretching && !ex.isAutoTracked }
             .sorted { $0.1 > $1.1 }
         result.append(contentsOf: extras)
         return result

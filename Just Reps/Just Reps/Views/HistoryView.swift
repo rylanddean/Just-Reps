@@ -28,7 +28,7 @@ struct HistoryView: View {
                 if allEntries.isEmpty {
                     emptyState
                 } else {
-                    scrollContent
+                    listContent
                 }
             }
             .navigationTitle("History")
@@ -38,20 +38,37 @@ struct HistoryView: View {
         }
     }
 
-    // MARK: - Scroll content
+    // MARK: - List content
 
-    private var scrollContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+    private var listContent: some View {
+        List {
+            Section {
                 totalsBanner
+                    .padding(.vertical, AppTheme.Spacing.sm)
+            }
 
-                ForEach(viewModel.groupedByDay, id: \.date) { group in
-                    daySection(group)
+            ForEach(viewModel.groupedByDay, id: \.date) { group in
+                Section {
+                    ForEach(group.entries) { entry in
+                        entryRow(entry)
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    deleteEntry(entry)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                    }
+                } header: {
+                    Text(dayFormatter.string(from: group.date).uppercased())
+                        .font(AppTheme.Font.caption())
+                        .kerning(1)
+                        .foregroundStyle(.secondary)
+                        .textCase(nil)
                 }
             }
-            .padding(AppTheme.Spacing.md)
-            .padding(.bottom, AppTheme.Spacing.xl)
         }
+        .listStyle(.insetGrouped)
     }
 
     // MARK: - Totals banner
@@ -67,34 +84,6 @@ struct HistoryView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(AppTheme.Spacing.lg)
-        .background(Color(UIColor.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
-    }
-
-    // MARK: - Day section
-
-    private func daySection(_ group: (date: Date, entries: [WorkoutEntry])) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            Text(dayFormatter.string(from: group.date).uppercased())
-                .font(AppTheme.Font.caption())
-                .kerning(1)
-                .foregroundStyle(.secondary)
-                .padding(.leading, AppTheme.Spacing.xs)
-
-            VStack(spacing: 0) {
-                ForEach(Array(group.entries.enumerated()), id: \.element.id) { idx, entry in
-                    entryRow(entry)
-
-                    if idx < group.entries.count - 1 {
-                        Divider()
-                            .padding(.leading, 56)
-                    }
-                }
-            }
-            .background(Color(UIColor.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
-        }
     }
 
     // MARK: - Entry row
@@ -121,19 +110,17 @@ struct HistoryView: View {
                     .font(AppTheme.Font.headline())
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.vertical, AppTheme.Spacing.sm)
-        .contentShape(Rectangle())
-        .contextMenu {
-            Button(role: .destructive) {
-                let timestamp = entry.timestamp
-                modelContext.delete(entry)
-                if (UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard).bool(forKey: "healthKitEnabled") {
-                    Task { await HealthKitManager.shared.deleteWorkout(near: timestamp) }
-                }
-            } label: {
-                Label("Delete entry", systemImage: "trash")
-            }
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 56 }
+    }
+
+    // MARK: - Delete
+
+    private func deleteEntry(_ entry: WorkoutEntry) {
+        let timestamp = entry.timestamp
+        modelContext.delete(entry)
+        if (UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard).bool(forKey: "healthKitEnabled") {
+            Task { await HealthKitManager.shared.deleteWorkout(near: timestamp) }
         }
     }
 

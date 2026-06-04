@@ -13,8 +13,14 @@ struct PulseView: View {
     private let weatherManager = WeatherManager.shared
     private let hkManager = HealthKitManager.shared
 
+    @State private var todayLoggedAtSetup = false
+
     @Query(sort: \WorkoutEntry.timestamp, order: .reverse)
     private var allEntries: [WorkoutEntry]
+
+    private var todayLogged: Bool {
+        streakVM.streakResult.completedDates.contains(StreakEngine.logicalDay(for: .now))
+    }
 
     var body: some View {
         NavigationStack {
@@ -49,11 +55,18 @@ struct PulseView: View {
             async let training: () = hkManager.fetchTrainingLoad()
             _ = await (weather, training)
             streakVM.refresh(with: allEntries)
-            await viewModel.setup(contextSummary: buildContext())
+            let loggedToday = todayLogged
+            todayLoggedAtSetup = loggedToday
+            await viewModel.setup(contextSummary: buildContext(), todayLogged: loggedToday)
             setupComplete = true
         }
         .onChange(of: allEntries) {
             streakVM.refresh(with: allEntries)
+            let nowLogged = todayLogged
+            if nowLogged && !todayLoggedAtSetup {
+                todayLoggedAtSetup = true
+                Task { await viewModel.setup(contextSummary: buildContext(), todayLogged: true) }
+            }
         }
         .onChange(of: viewModel.vibesRating) { _, newRating in
             guard setupComplete, newRating == 1 else { return }
@@ -76,19 +89,20 @@ struct PulseView: View {
 
             let name = userName.trimmingCharacters(in: .whitespaces)
             let streak = streakVM.currentStreak
+            let confirmedStreak = todayLogged ? streak : 0
 
             if !name.isEmpty {
                 Text("\(name).")
                     .font(AppTheme.Font.title())
                     .foregroundStyle(Color(UIColor.label))
-                if streak > 0 {
-                    Text("Day \(streak).")
+                if confirmedStreak > 0 {
+                    Text("Day \(confirmedStreak).")
                         .font(AppTheme.Font.headline())
                         .foregroundStyle(AppTheme.Colors.successGreen)
                 }
             } else {
-                if streak > 0 {
-                    Text("Day \(streak).")
+                if confirmedStreak > 0 {
+                    Text("Day \(confirmedStreak).")
                         .font(AppTheme.Font.title())
                         .foregroundStyle(AppTheme.Colors.successGreen)
                 } else {
@@ -342,24 +356,40 @@ struct PulseView: View {
 
     private func buildContext() -> String {
         let cal = Calendar.current
-        let streak = streakVM.currentStreak
+        let rawStreak = streakVM.currentStreak
+        let streak = todayLogged ? rawStreak : 0
         let longest = streakVM.longestStreak
         let workouts = allEntries.filter { $0.kind == .workout }
-        let totalReps = workouts.reduce(0) { $0 + $1.reps }
+        let repWorkouts = workouts.filter { !$0.exercise.isAutoTracked }
+        let totalReps = repWorkouts.reduce(0) { $0 + $1.reps }
 
-        let last7 = workouts.filter {
+        let last7 = repWorkouts.filter {
             (cal.dateComponents([.day], from: $0.timestamp, to: .now).day ?? 8) <= 7
         }
         let last7Reps = last7.reduce(0) { $0 + $1.reps }
-        let activeDaysLast7 = Set(last7.map { cal.startOfDay(for: $0.timestamp) }).count
+        let activeDaysLast7 = Set(
+            workouts.filter { (cal.dateComponents([.day], from: $0.timestamp, to: .now).day ?? 8) <= 7 }
+                .map { cal.startOfDay(for: $0.timestamp) }
+        ).count
 
         let todayWorkouts = workouts.filter { cal.isDateInToday($0.timestamp) }
-        let repsByExercise = todayWorkouts.reduce(into: [String: Int]()) { acc, entry in
-            acc[entry.exercise.displayName, default: 0] += entry.reps
-        }
-        let todaySummary = repsByExercise
+        let stepFormatter = NumberFormatter()
+        stepFormatter.numberStyle = .decimal
+        let todaySummary = todayWorkouts
+            .reduce(into: [String: (Int, Bool)]()) { acc, entry in
+                let key = entry.exercise.displayName
+                let existing = acc[key] ?? (0, entry.exercise.isAutoTracked)
+                acc[key] = (existing.0 + entry.reps, existing.1)
+            }
             .sorted { $0.key < $1.key }
-            .map { "\($0.value) \($0.key)" }
+            .map { name, pair in
+                let (count, isSteps) = pair
+                if isSteps {
+                    let formatted = stepFormatter.string(from: NSNumber(value: count)) ?? "\(count)"
+                    return "\(formatted) steps (\(name))"
+                }
+                return "\(count) \(name)"
+            }
             .joined(separator: ", ")
 
         let defaults = UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard
@@ -368,10 +398,16 @@ struct PulseView: View {
         let name = userName.trimmingCharacters(in: .whitespaces)
         var parts: [String] = []
         if !name.isEmpty { parts.append("User's name: \(name).") }
+        if todayLogged {
+            parts.append("Streak: \(streak) days.")
+        } else if rawStreak > 0 {
+            parts.append("Streak: \(rawStreak) days. Today not yet logged.")
+        } else {
+            parts.append("Streak: 0 days.")
+        }
         parts += [
-            "Current streak: \(streak) days.",
             "Longest streak: \(longest) days.",
-            "Total reps all time: \(totalReps).",
+            "Total reps all time (excluding steps): \(totalReps).",
             "Last 7 days: \(last7Reps) reps across \(activeDaysLast7) active days.",
         ]
         if !exercises.isEmpty { parts.append("Active exercises: \(exercises).") }

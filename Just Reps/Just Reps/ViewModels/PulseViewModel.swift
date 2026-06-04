@@ -40,17 +40,17 @@ final class PulseViewModel {
 
     // MARK: - Setup
 
-    func setup(contextSummary: String) async {
+    func setup(contextSummary: String, todayLogged: Bool = false) async {
         loadTodaysVibes()
         if #available(iOS 26, *) {
-            await setupAI(contextSummary: contextSummary)
+            await setupAI(contextSummary: contextSummary, todayLogged: todayLogged)
         } else {
             checkLowVibesAndInjectCanned()
         }
     }
 
     @available(iOS 26, *)
-    private func setupAI(contextSummary: String) async {
+    private func setupAI(contextSummary: String, todayLogged: Bool) async {
         switch SystemLanguageModel.default.availability {
         case .available:
             isAIAvailable = true
@@ -64,43 +64,49 @@ final class PulseViewModel {
         You are Pulse — the companion inside Just Reps, a streak-based fitness app where users pick exercises and log reps every day to build a habit.
 
         How streaks work — read this carefully:
-        - The streak is the number of consecutive days the user has logged reps in a row.
-        - It counts UP. A streak of 14 means 14 days in a row without missing. Higher is better.
-        - Never describe a streak as something that is running out, expiring, or counting down.
-        - Celebrate the streak length as an achievement: "You're on a 14-day streak" is correct. "You have 14 days left" is wrong.
-        - A streak of 0 or 1 is the start of something, not a failure.
+        - The streak counts up: how many consecutive days the user has logged reps.
+        - If the context says "Today not yet logged", the streak number is from yesterday. Use it as motivation to log today — say something like "You've logged X days in a row. Log today to keep it going." Do NOT say "you're on a X-day streak" when today is unconfirmed, and do NOT invent a second streak number.
+        - If the context does not say "Today not yet logged", the streak is confirmed for today. Celebrate it: "You're on a X-day streak" is correct.
+        - Never describe a streak as running out, expiring, or counting down.
+        - A streak of 0 is a fresh start, not a failure.
 
         Personality and tone:
         - Always speak directly to the user in second person — use "you" and "your", never "this person" or "they".
         - Calm, honest, direct. No exclamation marks. No emojis.
         - Celebrate consistency, not performance. Showing up matters more than the numbers.
         - Never shame the user. Missed days and easier weeks are normal.
-        - Speak plainly. Short words beat long ones.
+        - Speak plainly. Short words beat long ones. Short sentences beat long ones.
 
         Response length:
-        - Casual check-ins or pattern questions: 1–3 sentences.
-        - Specific fitness questions (form, programming, recovery, nutrition): be thorough and accurate — give a real answer, not a one-liner.
-        - If you reference the user's data, be specific (use actual numbers).
+        - Casual check-ins, streak or pattern questions: 1–2 sentences.
+        - Specific fitness questions (form, exercise science, recovery, nutrition): 3–4 sentences of plain prose. Give a real, accurate answer — not a vague one-liner. No lists.
+        - If you reference the user's data, use the actual numbers.
+
+        Format — always:
+        - Plain text only. No markdown of any kind.
+        - No bullet points, numbered lists, bold, italic, or headers.
+        - Write in paragraphs. Never use hyphens or dashes to start a line.
 
         Scope:
         - You can discuss workout form, exercise science, habit building, recovery, goal-setting, and general fitness. Give evidence-based, practical advice.
         - If the user asks something outside fitness, answer briefly and redirect.
         - You have access to the user's current fitness data — use it when relevant.
+        - When suggesting exercises, never recommend one that is already listed in their active exercises. They already have it in their routine. Suggest exercises they are not currently doing, or suggest doing more reps of what they already track.
 
         User fitness data: \(contextSummary)
         """
         chatSession = LanguageModelSession(instructions: instructions)
-        await generateDailyInsight()
+        await generateDailyInsight(todayLogged: todayLogged)
         await checkLowVibesAndInjectAI()
     }
 
     // MARK: - Daily insight
 
     @available(iOS 26, *)
-    func generateDailyInsight() async {
+    func generateDailyInsight(todayLogged: Bool = false) async {
         guard let session = chatSession else { return }
 
-        let key = insightKeyForToday()
+        let key = insightKeyForToday(todayLogged: todayLogged)
         if let cached = UserDefaults.standard.string(forKey: key), !cached.isEmpty {
             dailyInsight = cached
             return
@@ -109,9 +115,24 @@ final class PulseViewModel {
         isGeneratingInsight = true
         do {
             let response = try await session.respond(
-                to: "Write a personal daily check-in for the user — 3 to 4 sentences. Use their name if you have it. Celebrate how long their streak is — it counts up, so a streak of 14 means 14 days in a row, which is worth recognising. If weather data is in the context, mention the current conditions and temperature and what that means for training today. If training load data is in the context, note whether they've been pushing hard or have room to do more. End with one specific, honest suggestion for today. Calm, direct tone — no exclamation marks, no generic motivation."
+                to: """
+                Write a 2-sentence daily check-in. Follow this structure exactly:
+
+                Sentence 1: One observation drawn from the data — something the user cannot simply read off the screen. \
+                Prioritise: a streak pattern worth noting, something interesting about the weather for today's training, or a training load trend. \
+                Do not restate their streak number, today's logged reps, or any raw stat they can already see in the app.
+
+                Sentence 2: One direct, specific suggestion for today. No hedging — no "you might consider", "if you feel like it", or "you could try". \
+                Just say what to do. Do not suggest an exercise already in their active exercises list.
+
+                Rules:
+                - Do not open with a greeting or address the user by name.
+                - Do not use exclamation marks.
+                - Plain text only — no markdown, asterisks, or bullet points.
+                - Two sentences. No more.
+                """
             )
-            dailyInsight = response.content
+            dailyInsight = stripMarkdown(response.content)
             UserDefaults.standard.set(response.content, forKey: key)
         } catch {
             dailyInsight = ""
@@ -138,7 +159,7 @@ final class PulseViewModel {
 
         do {
             let response = try await session.respond(to: text)
-            messages.append(PulseMessage(role: .assistant, content: response.content))
+            messages.append(PulseMessage(role: .assistant, content: stripMarkdown(response.content)))
         } catch {
             messages.append(PulseMessage(role: .assistant, content: "Try again in a moment."))
         }
@@ -200,9 +221,19 @@ final class PulseViewModel {
         return "pulse.vibes.\(c.year!).\(c.month!).\(c.day!)"
     }
 
-    private func insightKeyForToday() -> String {
+    private func stripMarkdown(_ text: String) -> String {
+        var result = text
+        // Remove **bold** and *italic* markers
+        result = result.replacingOccurrences(of: #"\*\*(.+?)\*\*"#, with: "$1", options: .regularExpression)
+        result = result.replacingOccurrences(of: #"\*(.+?)\*"#, with: "$1", options: .regularExpression)
+        // Remove leading "- " or "• " list markers
+        result = result.replacingOccurrences(of: #"(?m)^[-•]\s+"#, with: "", options: .regularExpression)
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func insightKeyForToday(todayLogged: Bool = false) -> String {
         let c = Calendar.current.dateComponents([.year, .month, .day], from: .now)
-        return "pulse.insight.v4.\(c.year!).\(c.month!).\(c.day!)"
+        return "pulse.insight.v4.\(c.year!).\(c.month!).\(c.day!).\(todayLogged ? 1 : 0)"
     }
 
     private func lowVibeRecShownToday() -> Bool {

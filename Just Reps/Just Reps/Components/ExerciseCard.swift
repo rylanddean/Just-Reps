@@ -38,14 +38,14 @@ struct ExerciseCard: View {
             CardCustomRepEntry(exercise: exercise) { amount in
                 onIncrement(amount)
             }
-            .presentationDetents([.height(260)])
+            .presentationDetents([.height(340)])
             .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showGoalEditor) {
             InlineGoalEditorSheet(exercise: exercise, currentGoal: goal) { newGoal in
                 onGoalChange?(newGoal)
             }
-            .presentationDetents([.height(260)])
+            .presentationDetents([.height(380)])
             .presentationDragIndicator(.visible)
         }
         .onChange(of: isComplete) { _, complete in
@@ -125,6 +125,9 @@ struct ExerciseCard: View {
                     Text("/ \(goal)")
                         .font(AppTheme.Font.caption())
                         .foregroundStyle(.secondary)
+                        .padding(.horizontal, AppTheme.Spacing.sm)
+                        .padding(.vertical, 4)
+                        .background(Color(UIColor.systemFill), in: Capsule())
                 }
                 .buttonStyle(.plain)
             }
@@ -307,7 +310,7 @@ struct ExerciseCard: View {
             }
 
             Button { showCustomEntry = true } label: {
-                Image(systemName: "number")
+                Image(systemName: "ellipsis")
                     .font(.system(size: 13, weight: .semibold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -330,6 +333,14 @@ private struct CardCustomRepEntry: View {
     @State private var input = ""
     @FocusState private var focused: Bool
 
+    private var presets: [Int] {
+        switch exercise.unit {
+        case "sec":      return [10, 15, 30, 45, 60, 90, 120, 180]
+        case "sessions": return [1, 2, 3, 5]
+        default:         return [1, 3, 5, 10, 15, 20, 30, 50]
+        }
+    }
+
     private var parsedAmount: Int? {
         guard let n = Int(input), n > 0 else { return nil }
         return n
@@ -337,47 +348,77 @@ private struct CardCustomRepEntry: View {
 
     var body: some View {
         VStack(spacing: AppTheme.Spacing.lg) {
-            Text("Custom \(exercise.displayName)")
+            Text("Add \(exercise.displayName)")
                 .font(AppTheme.Font.headline())
                 .padding(.top, AppTheme.Spacing.lg)
 
-            HStack(alignment: .lastTextBaseline, spacing: 4) {
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible()), count: 4),
+                spacing: AppTheme.Spacing.sm
+            ) {
+                ForEach(presets, id: \.self) { amount in
+                    Button {
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                        onConfirm(amount)
+                        dismiss()
+                    } label: {
+                        Text("+\(amount)")
+                            .font(.system(size: 14, weight: .semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(Color(UIColor.systemFill))
+                            .foregroundStyle(Color(UIColor.label))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+
+            Divider()
+                .padding(.horizontal, AppTheme.Spacing.md)
+
+            HStack(spacing: AppTheme.Spacing.sm) {
                 TextField("0", text: $input)
-                    .font(.system(size: 56, weight: .heavy, design: .rounded))
+                    .font(.system(size: 28, weight: .heavy, design: .rounded))
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .focused($focused)
-                    .frame(maxWidth: 160)
+                    .frame(width: 80)
+                    .padding(.vertical, AppTheme.Spacing.sm)
+                    .background(Color(UIColor.systemFill), in: RoundedRectangle(cornerRadius: AppTheme.Radius.small))
 
                 Text(exercise.unit)
-                    .font(AppTheme.Font.headline())
+                    .font(AppTheme.Font.caption())
                     .foregroundStyle(.secondary)
-            }
 
-            Button {
-                if let amount = parsedAmount {
-                    onConfirm(amount)
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    dismiss()
+                Spacer()
+
+                Button {
+                    if let amount = parsedAmount {
+                        onConfirm(amount)
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        dismiss()
+                    }
+                } label: {
+                    Text("Log")
+                        .font(AppTheme.Font.headline())
+                        .padding(.horizontal, AppTheme.Spacing.lg)
+                        .frame(height: 44)
+                        .background(parsedAmount != nil
+                                    ? Color(UIColor.label)
+                                    : Color(UIColor.systemFill))
+                        .foregroundStyle(parsedAmount != nil
+                                         ? Color(UIColor.systemBackground)
+                                         : Color(UIColor.secondaryLabel))
+                        .clipShape(Capsule())
                 }
-            } label: {
-                Text("Log \(input.isEmpty ? "" : "+\(input)")")
-                    .font(AppTheme.Font.headline())
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(parsedAmount != nil
-                                ? Color(UIColor.label)
-                                : Color(UIColor.systemFill))
-                    .foregroundStyle(parsedAmount != nil
-                                     ? Color(UIColor.systemBackground)
-                                     : Color(UIColor.secondaryLabel))
-                    .clipShape(Capsule())
+                .disabled(parsedAmount == nil)
+                .buttonStyle(.plain)
             }
-            .disabled(parsedAmount == nil)
             .padding(.horizontal, AppTheme.Spacing.md)
 
             Spacer()
         }
-        .onAppear { focused = true }
     }
 }

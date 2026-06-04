@@ -137,8 +137,13 @@ struct ProgressView: View {
 
     private var personalBestsSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("Personal Bests")
-                .font(AppTheme.Font.headline())
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                Text("Best Reps")
+                    .font(AppTheme.Font.headline())
+                Text("Your best single set, per exercise.")
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(.secondary)
+            }
 
             VStack(spacing: 0) {
                 ForEach(Array(streakVM.personalBests.enumerated()), id: \.element.exercise.id) { index, item in
@@ -557,16 +562,47 @@ struct ProgressView: View {
             if allEntriesDesc.isEmpty {
                 historyEmptyState
             } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+                List {
+                    Section {
                         totalsBanner
-                        ForEach(historyVM.groupedByDay, id: \.date) { group in
-                            daySection(group)
+                            .padding(.vertical, AppTheme.Spacing.sm)
+                    }
+
+                    ForEach(historyVM.groupedByDay, id: \.date) { group in
+                        let nonWalkingEntries = group.entries.filter { !($0.exercise == .walking && $0.kind == .workout) }
+                        let walkingEntry = group.entries.first { $0.exercise == .walking && $0.kind == .workout }
+
+                        if !nonWalkingEntries.isEmpty {
+                            Section {
+                                ForEach(nonWalkingEntries) { entry in
+                                    entryRow(entry)
+                                        .swipeActions(edge: .trailing) {
+                                            Button(role: .destructive) {
+                                                deleteEntry(entry)
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                        }
+                                }
+                            } header: {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(dayFormatter.string(from: group.date).uppercased())
+                                        .font(AppTheme.Font.caption())
+                                        .kerning(1)
+                                        .foregroundStyle(.secondary)
+                                        .textCase(nil)
+                                    if let walking = walkingEntry {
+                                        Text("🚶 \(walking.reps.formatted()) steps")
+                                            .font(AppTheme.Font.caption())
+                                            .foregroundStyle(.tertiary)
+                                            .textCase(nil)
+                                    }
+                                }
+                            }
                         }
                     }
-                    .padding(AppTheme.Spacing.md)
-                    .padding(.bottom, AppTheme.Spacing.xl)
                 }
+                .listStyle(.insetGrouped)
             }
         }
     }
@@ -582,30 +618,6 @@ struct ProgressView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(AppTheme.Spacing.lg)
-        .background(Color(UIColor.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
-    }
-
-    private func daySection(_ group: (date: Date, entries: [WorkoutEntry])) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            Text(dayFormatter.string(from: group.date).uppercased())
-                .font(AppTheme.Font.caption())
-                .kerning(1)
-                .foregroundStyle(.secondary)
-                .padding(.leading, AppTheme.Spacing.xs)
-
-            VStack(spacing: 0) {
-                ForEach(Array(group.entries.enumerated()), id: \.element.id) { idx, entry in
-                    entryRow(entry)
-                    if idx < group.entries.count - 1 {
-                        Divider().padding(.leading, AppTheme.Spacing.md)
-                    }
-                }
-            }
-            .background(Color(UIColor.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
-        }
     }
 
     private func entryRow(_ entry: WorkoutEntry) -> some View {
@@ -626,19 +638,14 @@ struct ProgressView: View {
                     .font(AppTheme.Font.headline())
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.vertical, AppTheme.Spacing.sm)
-        .contentShape(Rectangle())
-        .contextMenu {
-            Button(role: .destructive) {
-                let timestamp = entry.timestamp
-                modelContext.delete(entry)
-                if (UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard).bool(forKey: "healthKitEnabled") {
-                    Task { await HealthKitManager.shared.deleteWorkout(near: timestamp) }
-                }
-            } label: {
-                Label("Delete entry", systemImage: "trash")
-            }
+    }
+
+    private func deleteEntry(_ entry: WorkoutEntry) {
+        let timestamp = entry.timestamp
+        modelContext.delete(entry)
+        if (UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard).bool(forKey: "healthKitEnabled") {
+            Task { await HealthKitManager.shared.deleteWorkout(near: timestamp) }
         }
     }
 

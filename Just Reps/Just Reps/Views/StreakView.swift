@@ -77,8 +77,13 @@ struct StreakView: View {
 
     private var personalBestsSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("Personal Bests")
-                .font(AppTheme.Font.headline())
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                Text("Best Reps")
+                    .font(AppTheme.Font.headline())
+                Text("Your best single set, per exercise.")
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(.secondary)
+            }
 
             VStack(spacing: 0) {
                 ForEach(Array(viewModel.personalBests.enumerated()), id: \.element.exercise.id) { index, item in
