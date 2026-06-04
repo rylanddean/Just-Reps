@@ -2,6 +2,12 @@
   "images" : [
     {
       "filename" : "just_reps_logo.png",
+      "idiom" : "universal",
+      "platform" : "watchos",
+      "size" : "1024x1024"
+    },
+    {
+      "filename" : "just_reps_logo.png",
       "idiom" : "watch-marketing",
       "scale" : "1x",
       "size" : "1024x1024"
