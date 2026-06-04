@@ -75,7 +75,7 @@ struct ExerciseCard: View {
                     Image(systemName: "checkmark")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(AppTheme.Colors.successGreen)
-                    Text("\(current) \(exercise.unit)")
+                    Text("\(exercise.formattedValue(current)) \(exercise.unit)")
                         .font(.system(size: 16, weight: .heavy, design: .rounded))
                         .foregroundStyle(AppTheme.Colors.successGreen)
                         .contentTransition(.numericText())
@@ -116,13 +116,13 @@ struct ExerciseCard: View {
             }
             Spacer()
             HStack(alignment: .lastTextBaseline, spacing: 4) {
-                Text("\(current)")
+                Text(exercise.formattedValue(current))
                     .font(.system(size: 28, weight: .heavy, design: .rounded))
                     .foregroundStyle(isComplete ? AppTheme.Colors.successGreen : Color(UIColor.label))
                     .contentTransition(.numericText())
                     .animation(.spring(duration: 0.3), value: current)
                 Button { showGoalEditor = true } label: {
-                    Text("/ \(goal)")
+                    Text("/ \(exercise.formattedValue(goal))")
                         .font(AppTheme.Font.caption())
                         .foregroundStyle(.secondary)
                 }
@@ -167,7 +167,7 @@ struct ExerciseCard: View {
                                  ? AppTheme.Colors.successGreen
                                  : Color(UIColor.secondaryLabel))
 
-            Text("Suggested: \(rec.suggestedGoal) \(exercise.unit)")
+            Text("Suggested: \(exercise.formattedValue(rec.suggestedGoal)) \(exercise.unit)")
                 .font(AppTheme.Font.caption())
                 .foregroundStyle(.secondary)
 

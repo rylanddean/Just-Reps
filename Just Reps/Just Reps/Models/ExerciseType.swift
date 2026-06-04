@@ -1,6 +1,38 @@
 import Foundation
 import SwiftData
 
+// MARK: - Walking unit preference
+
+enum WalkingUnit: String, CaseIterable {
+    case steps, km, mi
+
+    var label: String {
+        switch self {
+        case .steps: return "Steps"
+        case .km:    return "Kilometers"
+        case .mi:    return "Miles"
+        }
+    }
+
+    var unitLabel: String { rawValue }   // "steps" / "km" / "mi"
+
+    /// Default daily goal stored in internal integer units.
+    var defaultGoal: Int {
+        switch self {
+        case .steps: return 8_000
+        case .km:    return 50   // 5.0 km  (stored × 10)
+        case .mi:    return 30   // 3.0 mi  (stored × 10)
+        }
+    }
+
+    static var current: WalkingUnit {
+        let raw = UserDefaults(suiteName: "group.com.rylanddean.justreps")?.string(forKey: "walkingUnit") ?? "steps"
+        return WalkingUnit(rawValue: raw) ?? .steps
+    }
+}
+
+// MARK: - TrackingType
+
 enum TrackingType: String, CaseIterable, Codable {
     case reps
     case seconds
@@ -59,7 +91,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         switch self {
         case .plank:      return "sec"
         case .stretching: return "sessions"
-        case .walking:    return "steps"
+        case .walking:    return WalkingUnit.current.unitLabel
         case .custom(_, _, let trackingType):
             switch trackingType {
             case .reps:     return "reps"
@@ -96,6 +128,20 @@ enum ExerciseType: Codable, Hashable, Identifiable {
     var isAutoTracked: Bool {
         if case .walking = self { return true }
         return false
+    }
+
+    /// True when the stored integer value should be displayed with one decimal place
+    /// (distance modes store value × 10 to preserve precision in an Int).
+    var usesDecimalDisplay: Bool {
+        if case .walking = self { return WalkingUnit.current != .steps }
+        return false
+    }
+
+    /// Human-readable string for a stored integer value.
+    /// For distance walking, divides by 10 to recover one decimal place.
+    func formattedValue(_ n: Int) -> String {
+        if usesDecimalDisplay { return String(format: "%.1f", Double(n) / 10.0) }
+        return "\(n)"
     }
 
     // Default quick-add increments

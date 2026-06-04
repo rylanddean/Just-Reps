@@ -27,8 +27,9 @@ final class HomeViewModel {
 
     var showCompletionBanner = false
     var showEffortPicker = false
-    /// Mirrors HealthKitManager.todaySteps so @Observable SwiftUI tracking fires on the viewModel.
-    private(set) var walkingStepsToday: Int = 0
+    /// Scaled walking value for today in the user's chosen unit.
+    /// Steps mode: raw step count. Distance mode: metres converted to km or mi × 10 (one decimal precision).
+    private(set) var walkingDisplayValue: Int = 0
     private(set) var pendingEulogy: Int? = nil
     private(set) var freezeTokens: Int = 0
 
@@ -278,8 +279,8 @@ final class HomeViewModel {
     // MARK: - Derived
 
     func totalReps(for exercise: ExerciseType) -> Int {
-        // Walking steps come from HealthKit, stored locally so SwiftUI observes the change.
-        if case .walking = exercise { return walkingStepsToday }
+        // Walking value comes from HealthKit, mirrored here so @Observable fires on the viewModel.
+        if case .walking = exercise { return walkingDisplayValue }
         return todaysEntries
             .filter { $0.kind == .workout && $0.exercise == exercise }
             .reduce(0) { $0 + $1.reps }
@@ -333,19 +334,37 @@ final class HomeViewModel {
         }
     }
 
-    /// Fetches today's step count from HealthKit and upserts a single WorkoutEntry for
-    /// Walking so the streak engine counts the day. Idempotent — safe to call on every appear.
+    /// Fetches today's walking data from HealthKit (steps or distance based on user preference)
+    /// and upserts a single WorkoutEntry so the streak engine counts the day.
+    /// Idempotent — safe to call on every app open.
     func syncWalkingEntry(context: ModelContext) async {
         guard activeExercises.contains(where: { if case .walking = $0 { return true }; return false }) else { return }
-        await HealthKitManager.shared.fetchTodaySteps()
-        let steps = HealthKitManager.shared.todaySteps
-        walkingStepsToday = steps
-        guard steps > 0 else { return }
+
+        let unit = WalkingUnit.current
+        let displayValue: Int
+
+        switch unit {
+        case .steps:
+            await HealthKitManager.shared.fetchTodaySteps()
+            displayValue = HealthKitManager.shared.todaySteps
+        case .km:
+            await HealthKitManager.shared.fetchTodayDistance()
+            // Convert metres → km, store as integer × 10 for one decimal precision
+            displayValue = Int((HealthKitManager.shared.todayDistanceMeters / 1_000.0) * 10)
+        case .mi:
+            await HealthKitManager.shared.fetchTodayDistance()
+            // Convert metres → miles, store as integer × 10 for one decimal precision
+            displayValue = Int((HealthKitManager.shared.todayDistanceMeters / 1_609.344) * 10)
+        }
+
+        walkingDisplayValue = displayValue
+        guard displayValue > 0 else { return }
+
         // Upsert: update existing entry so streak history stays clean (no duplicate rows).
         if let existing = todaysEntries.first(where: { $0.exercise == .walking && $0.kind == .workout }) {
-            existing.reps = steps
+            existing.reps = displayValue
         } else {
-            context.insert(WorkoutEntry(exercise: .walking, reps: steps))
+            context.insert(WorkoutEntry(exercise: .walking, reps: displayValue))
         }
     }
 
@@ -509,7 +528,7 @@ final class HomeViewModel {
         switch exercise {
         case .squats:     return 50
         case .stretching: return 1
-        case .walking:    return 8_000
+        case .walking:    return WalkingUnit.current.defaultGoal
         default:          return 25
         }
     }
