@@ -24,7 +24,11 @@ final class HistoryViewModel {
             .sorted { $0.date > $1.date }
     }
 
-    var totalRepsAllTime: Int { allEntries.reduce(0) { $0 + $1.reps } }
+    var totalRepsAllTime: Int {
+        allEntries
+            .filter { !$0.exercise.isAutoTracked }
+            .reduce(0) { $0 + $1.reps }
+    }
 
     func totalReps(for exercise: ExerciseType) -> Int {
         allEntries

@@ -11,6 +11,8 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
     private(set) var goals: [String: Int] = ["pushups": 25, "squats": 50]
     private(set) var minimumViableReps: [String: Int] = [:]
     private(set) var mvrEffectiveDate: Date? = nil
+    private(set) var walkingStepsToday: Int = 0
+    private(set) var isRefreshing = false
 
     // Bumped whenever any of the above change so ContentView can react with a single onChange.
     private(set) var lastUpdate: Date = .distantPast
@@ -20,6 +22,39 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         WCSession.default.delegate = self
         WCSession.default.activate()
         loadCached()
+    }
+
+    func requestRefresh() {
+        guard WCSession.isSupported() else { return }
+        let payload: [String: Any] = ["request": "refreshContext"]
+
+        guard WCSession.default.activationState == .activated else {
+            activate()
+            return
+        }
+
+        isRefreshing = true
+        if WCSession.default.isReachable {
+            WCSession.default.sendMessage(
+                payload,
+                replyHandler: { context in
+                    DispatchQueue.main.async {
+                        self.apply(context)
+                        self.cache(context)
+                        self.isRefreshing = false
+                    }
+                },
+                errorHandler: { _ in
+                    WCSession.default.transferUserInfo(payload)
+                    DispatchQueue.main.async {
+                        self.isRefreshing = false
+                    }
+                }
+            )
+        } else {
+            WCSession.default.transferUserInfo(payload)
+            isRefreshing = false
+        }
     }
 
     // Send a newly-logged rep entry to the phone.
@@ -59,6 +94,9 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         if let ti = context["mvrEffectiveDate"] as? Double {
             mvrEffectiveDate = Date(timeIntervalSinceReferenceDate: ti)
         }
+        if let steps = context["walkingStepsToday"] as? Int {
+            walkingStepsToday = steps
+        }
         lastUpdate = .now
     }
 
@@ -83,6 +121,9 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         if let ti = context["mvrEffectiveDate"] as? Double {
             ud.set(ti, forKey: "wc_mvrEffectiveDate")
         }
+        if let steps = context["walkingStepsToday"] as? Int {
+            ud.set(steps, forKey: "wc_walkingStepsToday")
+        }
     }
 
     private func loadCached() {
@@ -106,6 +147,9 @@ final class WatchSessionManager: NSObject, WCSessionDelegate {
         }
         let mvrTI = ud.double(forKey: "wc_mvrEffectiveDate")
         if mvrTI > 0 { context["mvrEffectiveDate"] = mvrTI }
+        if let steps = ud.object(forKey: "wc_walkingStepsToday") as? Int {
+            context["walkingStepsToday"] = steps
+        }
         if !context.isEmpty {
             DispatchQueue.main.async { self.apply(context) }
         }

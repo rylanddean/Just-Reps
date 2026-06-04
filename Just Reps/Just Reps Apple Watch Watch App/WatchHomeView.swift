@@ -4,12 +4,30 @@ import WatchKit
 struct WatchHomeView: View {
     var vm: WatchViewModel
     @State private var wasAllGoalsMet = false
+    private let session = WatchSessionManager.shared
 
     var body: some View {
         ScrollView {
             VStack(spacing: 10) {
                 HStack {
+                    Button {
+                        WKInterfaceDevice.current().play(.click)
+                        session.requestRefresh()
+                    } label: {
+                        if session.isRefreshing {
+                            SwiftUI.ProgressView()
+                                .controlSize(.mini)
+                        } else {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 12, weight: .semibold))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Refresh")
+
                     Spacer()
+
                     Text("🔥 \(vm.loggedStreak)")
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundStyle(vm.loggedStreak > 0 ? WatchTheme.successGreen : .secondary)

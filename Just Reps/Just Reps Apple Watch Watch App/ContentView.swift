@@ -22,9 +22,11 @@ struct ContentView: View {
                     exercises: session.exercises,
                     goals: session.goals,
                     minimumViableReps: session.minimumViableReps,
-                    mvrEffectiveDate: session.mvrEffectiveDate
+                    mvrEffectiveDate: session.mvrEffectiveDate,
+                    walkingStepsToday: session.walkingStepsToday
                 )
             }
+            session.requestRefresh()
         }
         .onChange(of: session.lastUpdate) { _, _ in
             vm.applyPhoneContext(
@@ -32,7 +34,8 @@ struct ContentView: View {
                 exercises: session.exercises,
                 goals: session.goals,
                 minimumViableReps: session.minimumViableReps,
-                mvrEffectiveDate: session.mvrEffectiveDate
+                mvrEffectiveDate: session.mvrEffectiveDate,
+                walkingStepsToday: session.walkingStepsToday
             )
         }
     }

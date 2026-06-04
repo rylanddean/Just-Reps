@@ -13,10 +13,18 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
     }
 
     // Push current state to watch. Called whenever iOS entries, exercises, goals, or MVR change.
-    func pushContext(entries: [WorkoutEntry], exercises: [ExerciseType], goals: [String: Int], mvr: [String: Int] = [:], mvrEffectiveDate: Date? = nil) {
+    @discardableResult
+    func pushContext(
+        entries: [WorkoutEntry],
+        exercises: [ExerciseType],
+        goals: [String: Int],
+        mvr: [String: Int] = [:],
+        mvrEffectiveDate: Date? = nil,
+        walkingStepsToday: Int? = nil
+    ) -> [String: Any]? {
         guard WCSession.default.activationState == .activated,
               WCSession.default.isPaired,
-              WCSession.default.isWatchAppInstalled else { return }
+              WCSession.default.isWatchAppInstalled else { return nil }
         let cutoff = Date(timeIntervalSinceNow: -90 * 86400)
         let recent = entries.filter { $0.timestamp >= cutoff }
         var payload: [String: Any] = [
@@ -28,7 +36,11 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
         if let date = mvrEffectiveDate {
             payload["mvrEffectiveDate"] = date.timeIntervalSinceReferenceDate
         }
+        if let walkingStepsToday {
+            payload["walkingStepsToday"] = walkingStepsToday
+        }
         try? WCSession.default.updateApplicationContext(payload)
+        return payload
     }
 
     // MARK: - WCSessionDelegate (iOS-required stubs)
@@ -46,15 +58,42 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
 
     // Watch logged a rep via sendMessage (phone in range)
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        insertEntryFromWatch(message)
+        handleWatchMessage(message)
     }
 
-    // Watch logged a rep via transferUserInfo (queued delivery when out of range)
+    // Watch requested fresh state via sendMessage (phone in range)
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+        handleWatchMessage(message, replyHandler: replyHandler)
+    }
+
+    // Watch logged a rep, or requested refresh, via transferUserInfo (queued delivery when out of range)
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any]) {
-        insertEntryFromWatch(userInfo)
+        handleWatchMessage(userInfo)
     }
 
     // MARK: - Private
+
+    private func handleWatchMessage(_ message: [String: Any], replyHandler: (([String: Any]) -> Void)? = nil) {
+        if message["request"] as? String == "refreshContext" {
+            refreshContextForWatch(replyHandler: replyHandler)
+        } else {
+            insertEntryFromWatch(message)
+        }
+    }
+
+    private func refreshContextForWatch(replyHandler: (([String: Any]) -> Void)? = nil) {
+        DispatchQueue.main.async {
+            Task {
+                await HealthKitManager.shared.fetchTodaySteps()
+                // Write the fresh value to UserDefaults so pushUpdatedContext picks it up
+                // (it reads UserDefaults first and would otherwise use a stale cached value).
+                let ud = UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard
+                ud.set(HealthKitManager.shared.todaySteps, forKey: HomeViewModel.walkingStepsTodayKey)
+                let payload = self.pushUpdatedContext(ctx: sharedModelContainer.mainContext)
+                replyHandler?(payload ?? [:])
+            }
+        }
+    }
 
     private func insertEntryFromWatch(_ dict: [String: Any]) {
         guard
@@ -94,7 +133,8 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
         }
     }
 
-    private func pushUpdatedContext(ctx: ModelContext) {
+    @discardableResult
+    private func pushUpdatedContext(ctx: ModelContext) -> [String: Any]? {
         let entries = (try? ctx.fetch(FetchDescriptor<WorkoutEntry>())) ?? []
         let ud = UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard
         let exercises = (ud.stringArray(forKey: "activeExercises") ?? ["pushups", "squats"])
@@ -103,6 +143,15 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
         let mvr = (ud.dictionary(forKey: "minimumViableReps") as? [String: Int]) ?? [:]
         let mvrEffectiveDateTI = ud.double(forKey: "mvrEffectiveDate")
         let mvrEffectiveDate: Date? = mvrEffectiveDateTI > 0 ? Date(timeIntervalSinceReferenceDate: mvrEffectiveDateTI) : nil
-        pushContext(entries: entries, exercises: exercises, goals: goals, mvr: mvr, mvrEffectiveDate: mvrEffectiveDate)
+        let walkingStepsToday = (ud.object(forKey: HomeViewModel.walkingStepsTodayKey) as? Int)
+            ?? HealthKitManager.shared.todaySteps
+        return pushContext(
+            entries: entries,
+            exercises: exercises,
+            goals: goals,
+            mvr: mvr,
+            mvrEffectiveDate: mvrEffectiveDate,
+            walkingStepsToday: walkingStepsToday
+        )
     }
 }

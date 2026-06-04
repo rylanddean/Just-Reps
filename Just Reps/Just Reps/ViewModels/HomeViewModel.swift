@@ -147,7 +147,14 @@ final class HomeViewModel {
     }
 
     private func syncToWatch() {
-        PhoneSessionManager.shared.pushContext(entries: allEntries, exercises: activeExercises, goals: dailyGoals, mvr: minimumViableReps, mvrEffectiveDate: mvrEffectiveDate)
+        PhoneSessionManager.shared.pushContext(
+            entries: allEntries,
+            exercises: activeExercises,
+            goals: dailyGoals,
+            mvr: minimumViableReps,
+            mvrEffectiveDate: mvrEffectiveDate,
+            walkingStepsToday: walkingStepsToday
+        )
     }
 
     // MARK: - Day state
@@ -340,6 +347,8 @@ final class HomeViewModel {
         await HealthKitManager.shared.fetchTodaySteps()
         let steps = HealthKitManager.shared.todaySteps
         walkingStepsToday = steps
+        Self.sharedDefaults.set(steps, forKey: Self.walkingStepsTodayKey)
+        syncToWatch()
         guard steps > 0 else { return }
         // Upsert: update existing entry so streak history stays clean (no duplicate rows).
         if let existing = todaysEntries.first(where: { $0.exercise == .walking && $0.kind == .workout }) {
@@ -455,6 +464,7 @@ final class HomeViewModel {
     private static let freezeTokensKey = "freezeTokens"
     private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
     private static let eulogyShownForDayKey = "eulogyShownForDay"
+    static let walkingStepsTodayKey = "walkingStepsToday"
     static let currentRepStreakKey = "currentRepStreak"
     static let currentGoalsStreakKey = "currentGoalsStreak"
     static let widgetHeatmapKey = "widgetHeatmap"
