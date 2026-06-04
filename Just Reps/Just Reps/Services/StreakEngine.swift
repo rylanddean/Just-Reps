@@ -164,9 +164,9 @@ struct StreakEngine {
 
     /// Walking is logged in steps, which are orders of magnitude larger than reps
     /// and would otherwise dominate the heatmap's color range. Weight 1000 steps as
-    /// 10 reps (steps ÷ 100) so walking days read in scale with everything else.
+    /// 2 reps (steps ÷ 500) so walking days read in scale with everything else.
     private static func heatmapWeight(for entry: WorkoutEntry) -> Int {
-        entry.exercise == .walking ? entry.reps / 100 : entry.reps
+        entry.exercise == .walking ? entry.reps / 500 : entry.reps
     }
 
     static func restDays(entries: [WorkoutEntry], days: Int = 365) -> Set<DateComponents> {
