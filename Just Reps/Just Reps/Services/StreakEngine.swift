@@ -157,9 +157,16 @@ struct StreakEngine {
         var map: [DateComponents: Int] = [:]
         for entry in entries where entry.timestamp >= cutoff && entry.kind == .workout {
             let key = logicalDay(for: entry.timestamp)
-            map[key, default: 0] += entry.reps
+            map[key, default: 0] += heatmapWeight(for: entry)
         }
         return map
+    }
+
+    /// Walking is logged in steps, which are orders of magnitude larger than reps
+    /// and would otherwise dominate the heatmap's color range. Weight 1000 steps as
+    /// 10 reps (steps ÷ 100) so walking days read in scale with everything else.
+    private static func heatmapWeight(for entry: WorkoutEntry) -> Int {
+        entry.exercise == .walking ? entry.reps / 100 : entry.reps
     }
 
     static func restDays(entries: [WorkoutEntry], days: Int = 365) -> Set<DateComponents> {
