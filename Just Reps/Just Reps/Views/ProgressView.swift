@@ -159,7 +159,7 @@ struct ProgressView: View {
                 .font(AppTheme.Font.body())
             Spacer()
             HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(exercise.formattedValue(reps))
+                Text("\(reps)")
                     .font(AppTheme.Font.title())
                     .foregroundStyle(AppTheme.Colors.successGreen)
                     .contentTransition(.numericText())
@@ -417,7 +417,7 @@ struct ProgressView: View {
                     .fontWeight(.semibold)
                 Spacer()
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text(exercise.formattedValue(totalReps))
+                    Text("\(totalReps)")
                         .font(AppTheme.Font.title())
                         .foregroundStyle(AppTheme.Colors.successGreen)
                         .contentTransition(.numericText())

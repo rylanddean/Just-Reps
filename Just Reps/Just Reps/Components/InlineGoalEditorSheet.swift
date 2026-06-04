@@ -10,12 +10,6 @@ struct InlineGoalEditorSheet: View {
     @FocusState private var focused: Bool
 
     private var parsedGoal: Int? {
-        if exercise.usesDecimalDisplay {
-            // Distance mode: user types "5.2", store as 52 (× 10)
-            guard let d = Double(input), d > 0 else { return nil }
-            let scaled = Int((d * 10).rounded())
-            return scaled != currentGoal ? scaled : nil
-        }
         guard let n = Int(input), n > 0, n != currentGoal else { return nil }
         return n
     }
@@ -27,9 +21,9 @@ struct InlineGoalEditorSheet: View {
                 .padding(.top, AppTheme.Spacing.lg)
 
             HStack(alignment: .lastTextBaseline, spacing: 4) {
-                TextField(exercise.formattedValue(currentGoal), text: $input)
+                TextField("\(currentGoal)", text: $input)
                     .font(.system(size: 56, weight: .heavy, design: .rounded))
-                    .keyboardType(exercise.usesDecimalDisplay ? .decimalPad : .numberPad)
+                    .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .focused($focused)
                     .frame(maxWidth: 160)

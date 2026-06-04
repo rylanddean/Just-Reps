@@ -18,8 +18,6 @@ struct SettingsView: View {
     @AppStorage("endOfDayMinute")             private var endOfDayMinute = 0
     @AppStorage("healthKitEnabled", store: UserDefaults(suiteName: "group.com.rylanddean.justreps"))
     private var healthKitEnabled = false
-    @AppStorage("walkingUnit", store: UserDefaults(suiteName: "group.com.rylanddean.justreps"))
-    private var walkingUnit = "steps"
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
 
     @State private var reminderTime = Date()
@@ -149,13 +147,9 @@ struct SettingsView: View {
                 .tint(AppTheme.Colors.successGreen)
                 .disabled(isActive && viewModel.activeExercises.count == 1)
 
-                if isActive {
-                    if exercise.isAutoTracked {
-                        // Walking: let the user pick steps vs. distance
-                        walkingUnitRow
-                    } else {
-                        mvrRow(for: exercise)
-                    }
+                // MVR doesn't apply to auto-tracked exercises (goal is in steps, not tapped reps)
+                if isActive && !exercise.isAutoTracked {
+                    mvrRow(for: exercise)
                 }
             }
 
@@ -358,26 +352,6 @@ struct SettingsView: View {
     }
 
     // MARK: - Helpers
-
-    private var walkingUnitRow: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-            Text("Measure by")
-                .font(AppTheme.Font.caption())
-                .foregroundStyle(.secondary)
-            Picker("Measure by", selection: $walkingUnit) {
-                ForEach(WalkingUnit.allCases, id: \.rawValue) { unit in
-                    Text(unit.label).tag(unit.rawValue)
-                }
-            }
-            .pickerStyle(.segmented)
-        }
-        .onChange(of: walkingUnit) { _, newUnit in
-            // Reset the walking goal to the default for the new unit so the
-            // old scaled value doesn't appear as a nonsensical number.
-            let newGoal = WalkingUnit(rawValue: newUnit)?.defaultGoal ?? 8_000
-            viewModel.setGoal(newGoal, for: .walking)
-        }
-    }
 
     private func mvrRow(for exercise: ExerciseType) -> some View {
         let mvrBinding = Binding(

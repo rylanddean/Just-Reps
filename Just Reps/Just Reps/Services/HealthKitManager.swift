@@ -26,7 +26,6 @@ final class HealthKitManager {
     private(set) var isAuthorized = false
     private(set) var trainingLoad: TrainingLoadSummary? = nil
     private(set) var todaySteps: Int = 0
-    private(set) var todayDistanceMeters: Double = 0
 
     var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
 
@@ -122,14 +121,13 @@ final class HealthKitManager {
 
     // MARK: - Walking / Step Count
 
-    /// Requests read access to step count and walking distance.
-    /// Called when the user enables Walking in Settings.
+    /// Requests read access to step count. Called when the user enables Walking in Settings.
     /// HealthKit only prompts the user if the type hasn't been decided yet; silent on repeat calls.
     func requestWalkingAuthorization() async {
         guard isAvailable else { return }
         try? await store.requestAuthorization(
             toShare: [],
-            read: [HKQuantityType(.stepCount), HKQuantityType(.distanceWalkingRunning)]
+            read: [HKQuantityType(.stepCount)]
         )
     }
 
@@ -150,25 +148,6 @@ final class HealthKitManager {
             store.execute(query)
         }
         todaySteps = steps
-    }
-
-    /// Fetches today's cumulative walking + running distance (metres) and updates `todayDistanceMeters`.
-    func fetchTodayDistance() async {
-        guard isAvailable else { return }
-        let start = Calendar.current.startOfDay(for: .now)
-        let type = HKQuantityType(.distanceWalkingRunning)
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: .now)
-        let meters = await withCheckedContinuation { continuation in
-            let query = HKStatisticsQuery(
-                quantityType: type,
-                quantitySamplePredicate: predicate,
-                options: .cumulativeSum
-            ) { _, stats, _ in
-                continuation.resume(returning: stats?.sumQuantity()?.doubleValue(for: .meter()) ?? 0)
-            }
-            store.execute(query)
-        }
-        todayDistanceMeters = meters
     }
 
     // MARK: - Delete
