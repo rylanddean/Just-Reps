@@ -24,6 +24,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
     case pullups
     case situps
     case stretching   // counts sessions, not reps
+    case walking      // steps, auto-tracked from Apple Health on iPhone
     case custom(name: String, trackingType: TrackingType = .reps)
 
     var id: String { displayName }
@@ -36,6 +37,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         case .pullups:             return "Pullups"
         case .situps:              return "Situps"
         case .stretching:          return "Stretching"
+        case .walking:             return "Walking"
         case .custom(let name, _): return name
         }
     }
@@ -48,6 +50,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         case .pullups:    return "🏋️"
         case .situps:     return "🔥"
         case .stretching: return "🤸"
+        case .walking:    return "🚶"
         case .custom:     return "⚡️"
         }
     }
@@ -56,6 +59,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         switch self {
         case .plank:      return "sec"
         case .stretching: return "sessions"
+        case .walking:    return "steps"
         case .custom(_, let trackingType):
             switch trackingType {
             case .reps:     return "reps"
@@ -74,10 +78,16 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         }
     }
 
+    var isAutoTracked: Bool {
+        if case .walking = self { return true }
+        return false
+    }
+
     var quickIncrements: [Int] {
         switch self {
         case .plank:      return [10, 30, 60]
         case .stretching: return [1]
+        case .walking:    return []
         case .custom(_, let trackingType):
             switch trackingType {
             case .reps:     return [5, 10, 25]
@@ -98,6 +108,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         case .pullups:    return "pullups"
         case .situps:     return "situps"
         case .stretching: return "stretching"
+        case .walking:    return "walking"
         case .custom(let name, let trackingType):
             guard trackingType != .reps else { return "custom:\(name)" }
             return "custom:\(name)||\(trackingType.rawValue)"
@@ -121,6 +132,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
             case "pullups":    self = .pullups
             case "situps":     self = .situps
             case "stretching": self = .stretching
+            case "walking":    self = .walking
             default:           self = .pushups
             }
         }

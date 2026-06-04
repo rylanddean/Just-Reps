@@ -6,6 +6,7 @@ struct ExerciseCard: View {
     let goal: Int
     var mvr: Int = 0
     let onIncrement: (Int) -> Void
+    var onHealthSync: (() -> Void)? = nil
     var recommendation: GoalRecommendation? = nil
     var onApplyRecommendation: ((Int) -> Void)? = nil
     var onGoalChange: ((Int) -> Void)? = nil
@@ -94,7 +95,9 @@ struct ExerciseCard: View {
                 inlineRecommendation(rec)
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
-            if exercise.isTimerBased {
+            if exercise.isAutoTracked {
+                healthSyncFooter
+            } else if exercise.isTimerBased {
                 timerControls
             } else {
                 incrementButtons
@@ -192,6 +195,33 @@ struct ExerciseCard: View {
                     .foregroundStyle(Color(UIColor.tertiaryLabel))
             }
             .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - Health sync footer (walking / auto-tracked exercises)
+
+    private var healthSyncFooter: some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 12))
+                .foregroundStyle(.pink)
+            Text("Synced from Apple Health")
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(Color(UIColor.secondaryLabel))
+            Spacer()
+            if let sync = onHealthSync {
+                Button {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    sync()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color(UIColor.tertiaryLabel))
+                        .padding(AppTheme.Spacing.sm)
+                        .background(Color(UIColor.tertiarySystemBackground), in: Circle())
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 

@@ -35,7 +35,7 @@ struct SettingsView: View {
         lastBackupTimestamp > 0 ? Date(timeIntervalSinceReferenceDate: lastBackupTimestamp) : nil
     }
 
-    private let builtInExercises: [ExerciseType] = [.pushups, .squats, .pullups, .situps, .plank, .stretching]
+    private let builtInExercises: [ExerciseType] = [.pushups, .squats, .pullups, .situps, .plank, .stretching, .walking]
 
     var body: some View {
         NavigationStack {
@@ -123,7 +123,7 @@ struct SettingsView: View {
     private var exercisesSection: some View {
         Section(
             header: Text("Exercises"),
-            footer: Text("Choose which exercises appear on the home screen.")
+            footer: Text("Choose which exercises appear on the home screen. Walking reads your step count automatically from Apple Health.")
         ) {
             ForEach(builtInExercises) { exercise in
                 let isActive = viewModel.activeExercises.contains(where: { $0.id == exercise.id })
@@ -133,7 +133,11 @@ struct SettingsView: View {
                 )) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(exercise.displayName)
-                        if !exercise.muscleGroups.isEmpty {
+                        if exercise.isAutoTracked {
+                            Label("Requires Apple Health", systemImage: "heart.fill")
+                                .font(AppTheme.Font.caption())
+                                .foregroundStyle(.pink.opacity(0.85))
+                        } else if !exercise.muscleGroups.isEmpty {
                             Text(exercise.muscleGroups.map(\.displayName).joined(separator: " · "))
                                 .font(AppTheme.Font.caption())
                                 .foregroundStyle(.secondary)
@@ -143,7 +147,8 @@ struct SettingsView: View {
                 .tint(AppTheme.Colors.successGreen)
                 .disabled(isActive && viewModel.activeExercises.count == 1)
 
-                if isActive {
+                // MVR doesn't apply to auto-tracked exercises (goal is in steps, not tapped reps)
+                if isActive && !exercise.isAutoTracked {
                     mvrRow(for: exercise)
                 }
             }
@@ -372,7 +377,16 @@ struct SettingsView: View {
     private func toggleExercise(_ exercise: ExerciseType, enabled: Bool) {
         if enabled {
             guard !viewModel.activeExercises.contains(where: { $0.id == exercise.id }) else { return }
-            viewModel.activeExercises.append(exercise)
+            if exercise.isAutoTracked {
+                // Request step count read access before adding — HealthKit shows its own prompt
+                // if needed; silent on repeat calls.
+                Task {
+                    await HealthKitManager.shared.requestWalkingAuthorization()
+                    viewModel.activeExercises.append(exercise)
+                }
+            } else {
+                viewModel.activeExercises.append(exercise)
+            }
         } else {
             viewModel.activeExercises.removeAll { $0.id == exercise.id }
         }

@@ -23,30 +23,33 @@ enum ExerciseType: Codable, Hashable, Identifiable {
     case pullups
     case situps
     case stretching   // counts sessions, not reps
+    case walking      // steps, auto-tracked from Apple Health
     case custom(name: String, muscleGroups: [MuscleGroup] = [], trackingType: TrackingType = .reps)
 
     var id: String { displayName }
 
     var displayName: String {
         switch self {
-        case .pushups: return "Pushups"
-        case .squats:  return "Squats"
-        case .plank:   return "Plank"
+        case .pushups:    return "Pushups"
+        case .squats:     return "Squats"
+        case .plank:      return "Plank"
         case .pullups:    return "Pullups"
         case .situps:     return "Situps"
         case .stretching: return "Stretching"
+        case .walking:    return "Walking"
         case .custom(let name, _, _): return name
         }
     }
 
     var emoji: String {
         switch self {
-        case .pushups: return "💪"
-        case .squats:  return "🦵"
-        case .plank:   return "🧘"
+        case .pushups:    return "💪"
+        case .squats:     return "🦵"
+        case .plank:      return "🧘"
         case .pullups:    return "🏋️"
         case .situps:     return "🔥"
         case .stretching: return "🤸"
+        case .walking:    return "🚶"
         case .custom:     return "⚡️"
         }
     }
@@ -56,6 +59,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         switch self {
         case .plank:      return "sec"
         case .stretching: return "sessions"
+        case .walking:    return "steps"
         case .custom(_, _, let trackingType):
             switch trackingType {
             case .reps:     return "reps"
@@ -74,6 +78,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         case .pullups:    return [.back, .arms]
         case .situps:     return [.core]
         case .stretching: return []
+        case .walking:    return [.legs]
         case .custom(_, let groups, _): return groups
         }
     }
@@ -86,11 +91,19 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         }
     }
 
+    /// True for exercises whose count is pulled from Apple Health automatically
+    /// rather than logged by tapping. These show a "Synced from Health" card UI.
+    var isAutoTracked: Bool {
+        if case .walking = self { return true }
+        return false
+    }
+
     // Default quick-add increments
     var quickIncrements: [Int] {
         switch self {
         case .plank:      return [10, 30, 60]
         case .stretching: return [1]
+        case .walking:    return []   // auto-tracked — not tapped manually
         case .custom(_, _, let trackingType):
             switch trackingType {
             case .reps:     return [5, 10, 25]
@@ -111,6 +124,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
         case .pullups:    return "pullups"
         case .situps:     return "situps"
         case .stretching: return "stretching"
+        case .walking:    return "walking"
         case .custom(let name, let groups, let trackingType):
             var result = "custom:\(name)"
             if !groups.isEmpty || trackingType != .reps {
@@ -142,6 +156,7 @@ enum ExerciseType: Codable, Hashable, Identifiable {
             case "pullups":    self = .pullups
             case "situps":     self = .situps
             case "stretching": self = .stretching
+            case "walking":    self = .walking
             default:           self = .pushups
             }
         }

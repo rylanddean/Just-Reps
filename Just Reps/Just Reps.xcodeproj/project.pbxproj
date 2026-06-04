@@ -746,7 +746,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Just Reps Apple Watch Watch App/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Just Reps Apple Watch";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Just Reps reads your exercise minutes to show your weekly training load.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Just Reps reads your exercise minutes and step count to show your training load and track your daily walks.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Reps you log are saved as workouts to credit your exercise ring.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "Ryland-Dean.Just-Reps";
@@ -784,7 +784,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Just Reps Apple Watch Watch App/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Just Reps Apple Watch";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Just Reps reads your exercise minutes to show your weekly training load.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Just Reps reads your exercise minutes and step count to show your training load and track your daily walks.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Reps you log are saved as workouts to credit your exercise ring.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "Ryland-Dean.Just-Reps";

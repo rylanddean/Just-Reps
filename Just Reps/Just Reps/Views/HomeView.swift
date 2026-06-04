@@ -82,6 +82,10 @@ struct HomeView: View {
             }
             .onChange(of: allEntries) { viewModel.refresh(with: allEntries) }
             .onAppear { viewModel.refresh(with: allEntries) }
+            .task {
+                // Sync walking steps from HealthKit each time the home screen appears.
+                await viewModel.syncWalkingEntry(context: modelContext)
+            }
         }
     }
 
@@ -127,6 +131,9 @@ struct HomeView: View {
                     onIncrement: { amount in
                         viewModel.logReps(amount, for: exercise, context: modelContext)
                     },
+                    onHealthSync: exercise.isAutoTracked ? {
+                        Task { await viewModel.syncWalkingEntry(context: modelContext) }
+                    } : nil,
                     onGoalChange: { newGoal in
                         viewModel.setGoal(newGoal, for: exercise)
                     }

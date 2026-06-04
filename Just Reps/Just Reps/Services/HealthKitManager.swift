@@ -25,6 +25,7 @@ final class HealthKitManager {
     private let store = HKHealthStore()
     private(set) var isAuthorized = false
     private(set) var trainingLoad: TrainingLoadSummary? = nil
+    private(set) var todaySteps: Int = 0
 
     var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
 
@@ -116,6 +117,37 @@ final class HealthKitManager {
         } catch {
             // ring credit is a bonus feature — fail silently
         }
+    }
+
+    // MARK: - Walking / Step Count
+
+    /// Requests read access to step count. Called when the user enables Walking in Settings.
+    /// HealthKit only prompts the user if the type hasn't been decided yet; silent on repeat calls.
+    func requestWalkingAuthorization() async {
+        guard isAvailable else { return }
+        try? await store.requestAuthorization(
+            toShare: [],
+            read: [HKQuantityType(.stepCount)]
+        )
+    }
+
+    /// Fetches today's cumulative step count and updates `todaySteps`.
+    func fetchTodaySteps() async {
+        guard isAvailable else { return }
+        let start = Calendar.current.startOfDay(for: .now)
+        let type = HKQuantityType(.stepCount)
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: .now)
+        let steps = await withCheckedContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: type,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, stats, _ in
+                continuation.resume(returning: Int(stats?.sumQuantity()?.doubleValue(for: .count()) ?? 0))
+            }
+            store.execute(query)
+        }
+        todaySteps = steps
     }
 
     // MARK: - Delete

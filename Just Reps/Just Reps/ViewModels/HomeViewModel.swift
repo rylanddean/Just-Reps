@@ -27,6 +27,8 @@ final class HomeViewModel {
 
     var showCompletionBanner = false
     var showEffortPicker = false
+    /// Mirrors HealthKitManager.todaySteps so @Observable SwiftUI tracking fires on the viewModel.
+    private(set) var walkingStepsToday: Int = 0
     private(set) var pendingEulogy: Int? = nil
     private(set) var freezeTokens: Int = 0
 
@@ -276,7 +278,9 @@ final class HomeViewModel {
     // MARK: - Derived
 
     func totalReps(for exercise: ExerciseType) -> Int {
-        todaysEntries
+        // Walking steps come from HealthKit, stored locally so SwiftUI observes the change.
+        if case .walking = exercise { return walkingStepsToday }
+        return todaysEntries
             .filter { $0.kind == .workout && $0.exercise == exercise }
             .reduce(0) { $0 + $1.reps }
     }
@@ -326,6 +330,22 @@ final class HomeViewModel {
                 reps: reps,
                 effort: effort
             )
+        }
+    }
+
+    /// Fetches today's step count from HealthKit and upserts a single WorkoutEntry for
+    /// Walking so the streak engine counts the day. Idempotent — safe to call on every appear.
+    func syncWalkingEntry(context: ModelContext) async {
+        guard activeExercises.contains(where: { if case .walking = $0 { return true }; return false }) else { return }
+        await HealthKitManager.shared.fetchTodaySteps()
+        let steps = HealthKitManager.shared.todaySteps
+        walkingStepsToday = steps
+        guard steps > 0 else { return }
+        // Upsert: update existing entry so streak history stays clean (no duplicate rows).
+        if let existing = todaysEntries.first(where: { $0.exercise == .walking && $0.kind == .workout }) {
+            existing.reps = steps
+        } else {
+            context.insert(WorkoutEntry(exercise: .walking, reps: steps))
         }
     }
 
@@ -489,6 +509,7 @@ final class HomeViewModel {
         switch exercise {
         case .squats:     return 50
         case .stretching: return 1
+        case .walking:    return 8_000
         default:          return 25
         }
     }
