@@ -93,6 +93,8 @@
 
   <p><strong>Name personalisation.</strong> Users can enter their name during onboarding (a new second page, optional and skippable) or in Settings → Profile. Pulse uses the name in the daily insight, the vibes question, and the header greeting.</p>
 
+  <p><strong>Calendar block.</strong> Just Reps can now reserve a 30-minute slot in the user's calendar each morning. With calendar access granted and the feature enabled in Settings, the app scans the day's existing events and drops a hold titled "Reps" into the first free gap within the user's availability window. Users can define a morning window, an evening window, or both — the app checks morning first and falls back to evening if no gap is found. No alarm is set. The event is a space-holder: it keeps the time open before other commitments can claim it. The block is created silently on every app foreground and via a daily background task scheduled at 6 AM. It skips automatically if a "Reps" event already exists or if the user has already logged that day. No calendar data is stored by Just Reps; EventKit processes everything on-device.</p>
+
   <p><strong>Progress tab.</strong> The separate Streak and History tabs have been merged into a single Progress tab with a segmented control. The Streak segment retains the stats row, personal bests, heatmap calendar, muscle coverage, sparkline charts, and milestones. History is one tap away. The tab count drops from five to four.</p>
 
   <h3>What didn't change</h3>
@@ -225,6 +227,7 @@
     <li>Weather-aware and training-load-aware daily insight, generated on-device</li>
     <li>GitHub-style activity heatmap and vibes heatmap, both 20-week aligned</li>
     <li>Friends leaderboard via Game Center — streak ranks, no feed</li>
+    <li>Calendar block — reserves a daily 30-min "Reps" hold in the user's calendar; on-device, no data stored</li>
     <li>Opt-in notifications only — never coercive</li>
     <li>Fully offline core — SwiftData, no account required, no data leaves the device</li>
     <li>Free — no subscription, no paywall</li>

@@ -5,6 +5,7 @@ import SwiftData
 struct Just_RepsApp: App {
     init() {
         PhoneSessionManager.shared.activate()
+        WorkoutBlockManager.shared.registerBackgroundTask()
     }
 
     var body: some Scene {

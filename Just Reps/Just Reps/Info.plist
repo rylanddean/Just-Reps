@@ -2,8 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.rylanddean.justreps.workoutblock</string>
+	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Just Reps adds a daily "Reps" block to your calendar so there's always a protected slot for your workout.</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>background-fetch</string>
 		<string>remote-notification</string>
 	</array>
 </dict>

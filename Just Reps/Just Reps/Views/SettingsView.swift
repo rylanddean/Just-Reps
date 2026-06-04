@@ -1,3 +1,4 @@
+import EventKit
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
@@ -20,8 +21,27 @@ struct SettingsView: View {
     private var healthKitEnabled = false
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
 
+    // Workout block
+    @AppStorage("workoutBlockEnabled")      private var workoutBlockEnabled = false
+    @AppStorage("workoutBlockCalendarID")   private var workoutBlockCalendarID = ""
+    @AppStorage("workoutBlockAMEnabled")    private var workoutBlockAMEnabled = true
+    @AppStorage("workoutBlockAMStartHour")  private var workoutBlockAMStartHour = 6
+    @AppStorage("workoutBlockAMStartMin")   private var workoutBlockAMStartMin = 0
+    @AppStorage("workoutBlockAMEndHour")    private var workoutBlockAMEndHour = 12
+    @AppStorage("workoutBlockAMEndMin")     private var workoutBlockAMEndMin = 0
+    @AppStorage("workoutBlockPMEnabled")    private var workoutBlockPMEnabled = false
+    @AppStorage("workoutBlockPMStartHour")  private var workoutBlockPMStartHour = 17
+    @AppStorage("workoutBlockPMStartMin")   private var workoutBlockPMStartMin = 0
+    @AppStorage("workoutBlockPMEndHour")    private var workoutBlockPMEndHour = 21
+    @AppStorage("workoutBlockPMEndMin")     private var workoutBlockPMEndMin = 0
+
     @State private var reminderTime = Date()
     @State private var endOfDayTime = Date()
+    @State private var amStartTime  = Date()
+    @State private var amEndTime    = Date()
+    @State private var pmStartTime  = Date()
+    @State private var pmEndTime    = Date()
+    @State private var writableCalendars: [EKCalendar] = []
     @State private var showAddExerciseSheet = false
     @State private var exportDocument = BackupDocument(payload: .placeholder)
     @State private var isExporting = false
@@ -43,10 +63,14 @@ struct SettingsView: View {
                 profileSection
                 exercisesSection
                 notificationsSection
+                workoutBlockSection
                 siriSection
                 healthSection
                 backupSection
                 aboutSection
+                #if DEBUG
+                developerSection
+                #endif
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -60,6 +84,13 @@ struct SettingsView: View {
                 await notifManager.checkAuthorizationStatus()
                 reminderTime = makeDate(hour: notificationHour, minute: notificationMinute)
                 endOfDayTime = makeDate(hour: endOfDayHour, minute: endOfDayMinute)
+                amStartTime  = makeDate(hour: workoutBlockAMStartHour, minute: workoutBlockAMStartMin)
+                amEndTime    = makeDate(hour: workoutBlockAMEndHour,   minute: workoutBlockAMEndMin)
+                pmStartTime  = makeDate(hour: workoutBlockPMStartHour, minute: workoutBlockPMStartMin)
+                pmEndTime    = makeDate(hour: workoutBlockPMEndHour,   minute: workoutBlockPMEndMin)
+                if workoutBlockEnabled {
+                    writableCalendars = WorkoutBlockManager.shared.writableCalendars
+                }
             }
         }
         .sheet(isPresented: $showAddExerciseSheet) {
@@ -147,6 +178,9 @@ struct SettingsView: View {
                 .tint(AppTheme.Colors.successGreen)
                 .disabled(isActive && viewModel.activeExercises.count == 1)
 
+                if isActive {
+                    goalRow(for: exercise)
+                }
                 // MVR doesn't apply to auto-tracked exercises (goal is in steps, not tapped reps)
                 if isActive && !exercise.isAutoTracked {
                     mvrRow(for: exercise)
@@ -174,6 +208,7 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                goalRow(for: exercise)
                 mvrRow(for: exercise)
             }
 
@@ -194,6 +229,39 @@ struct SettingsView: View {
     }
 
     // MARK: - Goals
+
+    private func goalRow(for exercise: ExerciseType) -> some View {
+        let minGoal = exercise.isAutoTracked ? 1000 : max(viewModel.mvr(for: exercise) + 1, 1)
+        let (range, step): (ClosedRange<Int>, Int) = {
+            switch exercise.unit {
+            case "steps":    return (1000...50000, 1000)
+            case "sec":      return (5...600, 5)
+            case "sessions": return (1...20, 1)
+            default:         return (1...500, 5)
+            }
+        }()
+        let clampedMin = max(range.lowerBound, minGoal)
+        let clampedRange = clampedMin...range.upperBound
+        let goalBinding = Binding(
+            get: { viewModel.goal(for: exercise) },
+            set: { viewModel.setGoal(max($0, clampedMin), for: exercise) }
+        )
+        let goalValue = viewModel.goal(for: exercise)
+        return HStack {
+            Text("Daily goal")
+                .font(AppTheme.Font.caption())
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(exercise.unit == "steps"
+                 ? "\(goalValue.formatted()) steps"
+                 : "\(goalValue) \(exercise.unit)")
+                .font(AppTheme.Font.headline())
+                .foregroundStyle(AppTheme.Colors.successGreen)
+                .frame(minWidth: 60, alignment: .trailing)
+            Stepper("", value: goalBinding, in: clampedRange, step: step)
+                .labelsHidden()
+        }
+    }
 
     // MARK: - Notifications
 
@@ -365,7 +433,7 @@ struct SettingsView: View {
                 .font(AppTheme.Font.caption())
                 .foregroundStyle(.secondary)
             Spacer()
-            Text(mvrValue == 0 ? "Off" : "\(mvrValue)")
+            Text(mvrValue == 0 ? "Off" : "\(mvrValue) \(exercise.unit)")
                 .font(AppTheme.Font.headline())
                 .foregroundStyle(mvrValue == 0 ? Color.secondary : AppTheme.Colors.successGreen)
                 .frame(minWidth: 36, alignment: .trailing)
@@ -409,6 +477,126 @@ struct SettingsView: View {
         } else {
             notifManager.cancelReminder()
             notifManager.cancelEndOfDayReminder()
+        }
+    }
+
+    // MARK: - Developer (DEBUG only)
+
+    #if DEBUG
+    @State private var insightCacheCleared = false
+
+    private var developerSection: some View {
+        Section(
+            header: Text("Developer"),
+            footer: Text("Only visible in debug builds.")
+        ) {
+            Button {
+                clearPulseInsightCache()
+                insightCacheCleared = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { insightCacheCleared = false }
+            } label: {
+                HStack {
+                    Text(insightCacheCleared ? "Cache cleared" : "Clear Pulse insight cache")
+                        .foregroundStyle(insightCacheCleared ? .secondary : AppTheme.Colors.streakDanger)
+                    if insightCacheCleared {
+                        Spacer()
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 13, weight: .semibold))
+                    }
+                }
+            }
+        }
+    }
+
+    private func clearPulseInsightCache() {
+        let defaults = UserDefaults.standard
+        let prefix = "pulse.insight.v4."
+        defaults.dictionaryRepresentation().keys
+            .filter { $0.hasPrefix(prefix) }
+            .forEach { defaults.removeObject(forKey: $0) }
+    }
+    #endif
+
+    // MARK: - Workout block
+
+    private var workoutBlockSection: some View {
+        Section(
+            header: Text("Workout block"),
+            footer: Text("Reserves a 30-min gap in your calendar so there's always a slot for your reps.")
+        ) {
+            Toggle("Schedule daily block", isOn: $workoutBlockEnabled)
+                .tint(AppTheme.Colors.successGreen)
+                .onChange(of: workoutBlockEnabled) { _, enabled in
+                    Task { await handleWorkoutBlockToggle(enabled) }
+                }
+
+            if workoutBlockEnabled {
+                if !writableCalendars.isEmpty {
+                    Picker("Calendar", selection: $workoutBlockCalendarID) {
+                        ForEach(writableCalendars, id: \.calendarIdentifier) { cal in
+                            Text(cal.title).tag(cal.calendarIdentifier)
+                        }
+                    }
+                    .tint(AppTheme.Colors.successGreen)
+                }
+
+                Toggle("Morning", isOn: $workoutBlockAMEnabled)
+                    .tint(AppTheme.Colors.successGreen)
+                    .onChange(of: workoutBlockAMEnabled) { _, enabled in
+                        if !enabled && !workoutBlockPMEnabled { workoutBlockPMEnabled = true }
+                    }
+
+                if workoutBlockAMEnabled {
+                    DatePicker("From", selection: $amStartTime, displayedComponents: .hourAndMinute)
+                        .tint(AppTheme.Colors.successGreen)
+                        .onChange(of: amStartTime) { _, t in
+                            let c = Calendar.current.dateComponents([.hour, .minute], from: t)
+                            workoutBlockAMStartHour = c.hour ?? 6
+                            workoutBlockAMStartMin  = c.minute ?? 0
+                        }
+                    DatePicker("To", selection: $amEndTime, displayedComponents: .hourAndMinute)
+                        .tint(AppTheme.Colors.successGreen)
+                        .onChange(of: amEndTime) { _, t in
+                            let c = Calendar.current.dateComponents([.hour, .minute], from: t)
+                            workoutBlockAMEndHour = c.hour ?? 12
+                            workoutBlockAMEndMin  = c.minute ?? 0
+                        }
+                }
+
+                Toggle("Evening", isOn: $workoutBlockPMEnabled)
+                    .tint(AppTheme.Colors.successGreen)
+                    .onChange(of: workoutBlockPMEnabled) { _, enabled in
+                        if !enabled && !workoutBlockAMEnabled { workoutBlockAMEnabled = true }
+                    }
+
+                if workoutBlockPMEnabled {
+                    DatePicker("From", selection: $pmStartTime, displayedComponents: .hourAndMinute)
+                        .tint(AppTheme.Colors.successGreen)
+                        .onChange(of: pmStartTime) { _, t in
+                            let c = Calendar.current.dateComponents([.hour, .minute], from: t)
+                            workoutBlockPMStartHour = c.hour ?? 17
+                            workoutBlockPMStartMin  = c.minute ?? 0
+                        }
+                    DatePicker("To", selection: $pmEndTime, displayedComponents: .hourAndMinute)
+                        .tint(AppTheme.Colors.successGreen)
+                        .onChange(of: pmEndTime) { _, t in
+                            let c = Calendar.current.dateComponents([.hour, .minute], from: t)
+                            workoutBlockPMEndHour = c.hour ?? 21
+                            workoutBlockPMEndMin  = c.minute ?? 0
+                        }
+                }
+            }
+        }
+    }
+
+    private func handleWorkoutBlockToggle(_ enabled: Bool) async {
+        guard enabled else { return }
+        let granted = await WorkoutBlockManager.shared.requestAccess()
+        guard granted else { workoutBlockEnabled = false; return }
+        writableCalendars = WorkoutBlockManager.shared.writableCalendars
+        if workoutBlockCalendarID.isEmpty {
+            workoutBlockCalendarID = WorkoutBlockManager.shared.defaultCalendarID
         }
     }
 

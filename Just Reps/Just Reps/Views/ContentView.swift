@@ -47,6 +47,12 @@ struct ContentView: View {
                 async let load: () = HealthKitManager.shared.fetchTrainingLoad()
                 _ = await (steps, load)
             }
+            let today = StreakEngine.logicalDay(for: .now)
+            let hasLoggedToday = allEntries.contains {
+                $0.kind == .workout && StreakEngine.logicalDay(for: $0.timestamp) == today
+            }
+            WorkoutBlockManager.shared.scheduleBlockIfNeeded(hasLoggedToday: hasLoggedToday)
+            WorkoutBlockManager.shared.scheduleBackgroundTask()
             guard notificationsEnabled, !notificationTimeCustomized else { return }
             NotificationManager.shared.scheduleSmartReminder(entries: allEntries)
         }
