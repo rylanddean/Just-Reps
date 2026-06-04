@@ -82,10 +82,6 @@ struct HomeView: View {
             }
             .onChange(of: allEntries) { viewModel.refresh(with: allEntries) }
             .onAppear { viewModel.refresh(with: allEntries) }
-            .task {
-                // Sync walking steps from HealthKit each time the home screen appears.
-                await viewModel.syncWalkingEntry(context: modelContext)
-            }
         }
     }
 

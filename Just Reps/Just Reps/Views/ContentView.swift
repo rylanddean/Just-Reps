@@ -6,6 +6,7 @@ struct ContentView: View {
     @AppStorage("notificationsEnabled")          private var notificationsEnabled = false
     @AppStorage("notificationTimeCustomized")    private var notificationTimeCustomized = false
     @Environment(\.scenePhase)                   private var scenePhase
+    @Environment(\.modelContext)                 private var modelContext
     @Query                                       private var allEntries: [WorkoutEntry]
     @State private var homeViewModel = HomeViewModel()
     @State private var logoOpacity: Double = 1
@@ -39,9 +40,14 @@ struct ContentView: View {
             }
         }
         .onChange(of: scenePhase) { _, phase in
-            guard phase == .active,
-                  notificationsEnabled,
-                  !notificationTimeCustomized else { return }
+            guard phase == .active else { return }
+            // Sync Apple Health data every time the app becomes active (launch + foreground return).
+            Task {
+                async let steps: () = homeViewModel.syncWalkingEntry(context: modelContext)
+                async let load: () = HealthKitManager.shared.fetchTrainingLoad()
+                _ = await (steps, load)
+            }
+            guard notificationsEnabled, !notificationTimeCustomized else { return }
             NotificationManager.shared.scheduleSmartReminder(entries: allEntries)
         }
         .onReceive(NotificationCenter.default.publisher(for: .streakAtRiskTapped)) { _ in
