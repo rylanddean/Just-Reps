@@ -155,11 +155,8 @@ struct ProgressView: View {
 
     private func personalBestRow(exercise: ExerciseType, reps: Int) -> some View {
         HStack {
-            HStack(spacing: AppTheme.Spacing.xs) {
-                Text(exercise.emoji)
-                Text(exercise.displayName)
-                    .font(AppTheme.Font.body())
-            }
+            Text(exercise.displayName)
+                .font(AppTheme.Font.body())
             Spacer()
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text("\(reps)")
@@ -415,7 +412,6 @@ struct ProgressView: View {
 
         return VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             HStack(alignment: .firstTextBaseline) {
-                Text(exercise.emoji)
                 Text(exercise.displayName)
                     .font(AppTheme.Font.body())
                     .fontWeight(.semibold)
@@ -603,7 +599,7 @@ struct ProgressView: View {
                 ForEach(Array(group.entries.enumerated()), id: \.element.id) { idx, entry in
                     entryRow(entry)
                     if idx < group.entries.count - 1 {
-                        Divider().padding(.leading, 56)
+                        Divider().padding(.leading, AppTheme.Spacing.md)
                     }
                 }
             }
@@ -614,10 +610,6 @@ struct ProgressView: View {
 
     private func entryRow(_ entry: WorkoutEntry) -> some View {
         HStack(spacing: AppTheme.Spacing.sm) {
-            Text(entry.kind == .rest ? "😴" : entry.kind == .freeze ? "❄️" : entry.exercise.emoji)
-                .font(.title3)
-                .frame(width: 36, alignment: .center)
-
             VStack(alignment: .leading, spacing: 2) {
                 Text(entry.kind == .rest ? "Rest day" : entry.kind == .freeze ? "Streak freeze" : entry.exercise.displayName)
                     .font(AppTheme.Font.body())
