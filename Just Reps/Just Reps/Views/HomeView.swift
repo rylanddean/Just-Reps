@@ -24,7 +24,9 @@ struct HomeView: View {
                         restDayCard
                     } else {
                         exerciseCards
-                        if viewModel.canMarkRestDay {
+                        if viewModel.pendingSleepRestSuggestion && viewModel.canMarkRestDay {
+                            sleepRestSuggestionCard
+                        } else if viewModel.canMarkRestDay {
                             restDayButton
                         }
                     }
@@ -81,7 +83,10 @@ struct HomeView: View {
                     .presentationDragIndicator(.visible)
             }
             .onChange(of: allEntries) { viewModel.refresh(with: allEntries) }
-            .onAppear { viewModel.refresh(with: allEntries) }
+            .onAppear {
+                viewModel.refresh(with: allEntries)
+                Task { await viewModel.checkSleepAdvice() }
+            }
         }
     }
 
@@ -139,6 +144,45 @@ struct HomeView: View {
     }
 
     // MARK: - Rest day
+
+    private var sleepRestSuggestionCard: some View {
+        HStack(spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Rough night.")
+                    .font(AppTheme.Font.body())
+                Text("Rest day?")
+                    .font(AppTheme.Font.caption())
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                viewModel.markRestDay(context: modelContext)
+                viewModel.dismissSleepRestSuggestion()
+            } label: {
+                Text("Yes")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color(UIColor.systemBackground))
+                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.vertical, AppTheme.Spacing.sm)
+                    .background(Color(UIColor.label))
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            Button {
+                viewModel.dismissSleepRestSuggestion()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color(UIColor.tertiaryLabel))
+                    .padding(AppTheme.Spacing.sm)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(AppTheme.Spacing.md)
+        .background(Color(UIColor.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card))
+    }
 
     private var restDayCard: some View {
         VStack(spacing: AppTheme.Spacing.sm) {

@@ -30,6 +30,7 @@ final class HomeViewModel {
     /// Mirrors HealthKitManager.todaySteps so @Observable SwiftUI tracking fires on the viewModel.
     private(set) var walkingStepsToday: Int = 0
     private(set) var pendingEulogy: Int? = nil
+    private(set) var pendingSleepRestSuggestion: Bool = false
     private(set) var freezeTokens: Int = 0
 
     // MARK: - Live entries (fed by @Query in the view)
@@ -171,14 +172,14 @@ final class HomeViewModel {
 
     var canMarkRestDay: Bool {
         guard !isRestDay else { return false }
-        guard todaysEntries.filter({ $0.kind == .workout }).isEmpty else { return false }
+        guard todaysEntries.filter({ $0.kind == .workout && $0.exercise != .walking }).isEmpty else { return false }
         let cutoff = Calendar.current.date(byAdding: .day, value: -6, to: .now)!
         return allEntries.filter { $0.kind == .rest && $0.timestamp >= cutoff }.isEmpty
     }
 
     var dayState: DayState {
         if allGoalsMet { return .complete }
-        if !todaysEntries.filter({ $0.kind == .workout }).isEmpty { return .alive }
+        if !todaysEntries.filter({ $0.kind == .workout && $0.exercise != .walking }).isEmpty { return .alive }
         return .fresh
     }
 
@@ -433,9 +434,30 @@ final class HomeViewModel {
 
     // MARK: - Eulogy
 
+    private var mvrQualifiedDays: Set<DateComponents> {
+        let mvrDict = Dictionary(uniqueKeysWithValues:
+            minimumViableReps.compactMap { key, val -> (ExerciseType, Int)? in
+                guard val > 0 else { return nil }
+                return (ExerciseType(rawString: key), val)
+            }
+        )
+        guard !mvrDict.isEmpty else {
+            return StreakEngine.calculate(entries: allEntries).completedDates
+        }
+        let goalsDict = Dictionary(uniqueKeysWithValues: activeExercises.map { ($0, goal(for: $0)) })
+        return StreakEngine.calculate(
+            entries: allEntries,
+            activeExercises: activeExercises,
+            goals: goalsDict,
+            minimumViableReps: mvrDict,
+            effectiveFrom: mvrEffectiveDate
+        ).completedDates
+    }
+
     private func checkEulogy() {
         guard loggedStreak == 0, pendingEulogy == nil else { return }
-        guard let (length, endDay) = StreakEngine.lastCompletedStreak(entries: allEntries),
+        let qualifiedDays = mvrQualifiedDays
+        guard let (length, endDay) = StreakEngine.lastCompletedStreak(qualifiedDays: qualifiedDays),
               length >= 7 else { return }
         let endDayKey = dayKey(endDay)
         let shownForDay = Self.sharedDefaults.string(forKey: Self.eulogyShownForDayKey) ?? ""
@@ -444,9 +466,31 @@ final class HomeViewModel {
     }
 
     func dismissEulogy() {
-        guard let (_, endDay) = StreakEngine.lastCompletedStreak(entries: allEntries) else { return }
+        guard let (_, endDay) = StreakEngine.lastCompletedStreak(qualifiedDays: mvrQualifiedDays) else { return }
         Self.sharedDefaults.set(dayKey(endDay), forKey: Self.eulogyShownForDayKey)
         pendingEulogy = nil
+    }
+
+    // MARK: - Sleep rest suggestion
+
+    func checkSleepAdvice() async {
+        let isEnabled = UserDefaults.standard.object(forKey: "sleepRestSuggestionEnabled") as? Bool ?? true
+        guard isEnabled else { return }
+        let hour = Calendar.current.component(.hour, from: .now)
+        guard hour >= 6, hour < 12 else { return }
+        guard canMarkRestDay else { return }
+        let shouldSuggest = await SleepAdvisorService.shouldSuggestRestDay()
+        guard shouldSuggest else { return }
+        pendingSleepRestSuggestion = true
+    }
+
+    func dismissSleepRestSuggestion() {
+        SleepAdvisorService.dismissForToday()
+        pendingSleepRestSuggestion = false
+    }
+
+    func clearSleepRestSuggestion() {
+        pendingSleepRestSuggestion = false
     }
 
     private func saveFreezeState() {
@@ -487,7 +531,7 @@ final class HomeViewModel {
     }
 
     private static func loadMVR() -> [String: Int] {
-        (sharedDefaults.dictionary(forKey: mvrKey) as? [String: Int]) ?? [:]
+        sharedDefaults.dictionary(forKey: mvrKey)?.compactMapValues { $0 as? Int } ?? [:]
     }
 
     private var mvrEffectiveDate: Date? {
@@ -511,8 +555,7 @@ final class HomeViewModel {
     }
 
     private static func loadGoals() -> [String: Int] {
-        let saved = sharedDefaults.dictionary(forKey: goalsKey) as? [String: Int]
-        return saved ?? ["pushups": 25, "squats": 50]
+        sharedDefaults.dictionary(forKey: goalsKey)?.compactMapValues { $0 as? Int } ?? ["pushups": 25, "squats": 50]
     }
 
     private func defaultGoal(for exercise: ExerciseType) -> Int {

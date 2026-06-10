@@ -210,19 +210,25 @@ struct StreakEngine {
     /// the contiguous block of logged days that ended before the current gap.
     static func lastCompletedStreak(entries: [WorkoutEntry]) -> (length: Int, endDay: DateComponents)? {
         let completedDays = Set(entries.map { logicalDay(for: $0.timestamp) })
-        guard !completedDays.isEmpty else { return nil }
+        return lastCompletedStreak(qualifiedDays: completedDays)
+    }
+
+    /// MVR-aware overload — pass the same qualifiedDays set used to compute loggedStreak
+    /// so the eulogy popup agrees with the streak counter.
+    static func lastCompletedStreak(qualifiedDays: Set<DateComponents>) -> (length: Int, endDay: DateComponents)? {
+        guard !qualifiedDays.isEmpty else { return nil }
 
         var checkDay = previousLogicalDay(before: logicalDay(for: .now))
         var lookback = 0
-        while !completedDays.contains(checkDay) && lookback < 365 {
+        while !qualifiedDays.contains(checkDay) && lookback < 365 {
             checkDay = previousLogicalDay(before: checkDay)
             lookback += 1
         }
-        guard lookback < 365, completedDays.contains(checkDay) else { return nil }
+        guard lookback < 365, qualifiedDays.contains(checkDay) else { return nil }
 
         let endDay = checkDay
         var length = 0
-        while completedDays.contains(checkDay) {
+        while qualifiedDays.contains(checkDay) {
             length += 1
             checkDay = previousLogicalDay(before: checkDay)
         }

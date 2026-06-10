@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage("endOfDayMinute")             private var endOfDayMinute = 0
     @AppStorage("healthKitEnabled", store: UserDefaults(suiteName: "group.com.rylanddean.justreps"))
     private var healthKitEnabled = false
+    @AppStorage("sleepRestSuggestionEnabled") private var sleepRestSuggestionEnabled = true
     @AppStorage("lastBackupTimestamp")  private var lastBackupTimestamp: Double = 0
 
     // Workout block
@@ -371,6 +372,11 @@ struct SettingsView: View {
                     }
                 }
 
+            Toggle("Suggest rest days after poor sleep", isOn: $sleepRestSuggestionEnabled)
+                .tint(AppTheme.Colors.successGreen)
+                .onChange(of: sleepRestSuggestionEnabled) { _, enabled in
+                    if !enabled { viewModel.clearSleepRestSuggestion() }
+                }
         }
     }
 

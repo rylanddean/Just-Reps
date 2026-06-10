@@ -178,6 +178,7 @@ struct ExerciseCard: View {
 
             Button {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                GoalAdvisorService.recordGoalApplied(for: exercise)
                 onApplyRecommendation?(rec.suggestedGoal)
                 withAnimation { recDismissed = true }
             } label: {

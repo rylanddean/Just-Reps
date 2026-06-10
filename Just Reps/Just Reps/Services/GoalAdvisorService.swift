@@ -40,6 +40,7 @@ struct GoalAdvisorService {
 
         for exercise in exercises {
             guard exercise != .stretching else { continue }
+            guard !isOnCooldown(exercise) else { continue }
             let goal = goals[exercise.rawString] ?? defaultGoal(for: exercise)
             var daysWithActivity = 0
             var daysGoalMet = 0
@@ -92,6 +93,17 @@ struct GoalAdvisorService {
         }
 
         return recs
+    }
+
+    static func recordGoalApplied(for exercise: ExerciseType) {
+        let key = "goalAdvisor.lastApplied.\(exercise.rawString)"
+        UserDefaults.standard.set(Date(), forKey: key)
+    }
+
+    private static func isOnCooldown(_ exercise: ExerciseType) -> Bool {
+        let key = "goalAdvisor.lastApplied.\(exercise.rawString)"
+        guard let lastApplied = UserDefaults.standard.object(forKey: key) as? Date else { return false }
+        return Date().timeIntervalSince(lastApplied) < 7 * 86_400
     }
 
     private static func roundToNearest5(_ value: Int) -> Int {

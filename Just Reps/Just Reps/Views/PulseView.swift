@@ -269,6 +269,7 @@ struct PulseView: View {
 
                 Button {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    GoalAdvisorService.recordGoalApplied(for: rec.exercise)
                     homeViewModel.setGoal(rec.suggestedGoal, for: rec.exercise)
                 } label: {
                     Text("Apply")

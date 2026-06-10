@@ -53,7 +53,7 @@ final class StreakViewModel {
 
     var streakResult: StreakEngine.Result {
         let defaults = UserDefaults(suiteName: "group.com.rylanddean.justreps") ?? .standard
-        let mvrRaw = (defaults.dictionary(forKey: "minimumViableReps") as? [String: Int]) ?? [:]
+        let mvrRaw = defaults.dictionary(forKey: "minimumViableReps")?.compactMapValues { $0 as? Int } ?? [:]
         let mvrDict = Dictionary(uniqueKeysWithValues:
             mvrRaw.compactMap { key, val -> (ExerciseType, Int)? in
                 guard val > 0 else { return nil }
@@ -65,7 +65,7 @@ final class StreakViewModel {
         }
         let exercisesRaw = defaults.stringArray(forKey: "activeExercises") ?? []
         let activeExercises = exercisesRaw.isEmpty ? ExerciseType.defaults : exercisesRaw.map { ExerciseType(rawString: $0) }
-        let goalsRaw = (defaults.dictionary(forKey: "dailyGoals") as? [String: Int]) ?? [:]
+        let goalsRaw = defaults.dictionary(forKey: "dailyGoals")?.compactMapValues { $0 as? Int } ?? [:]
         let goalsDict = Dictionary(uniqueKeysWithValues: activeExercises.map { ($0, goalsRaw[$0.rawString] ?? 0) })
         let mvrEffectiveDateTI = defaults.double(forKey: "mvrEffectiveDate")
         let mvrEffectiveDate: Date? = mvrEffectiveDateTI > 0 ? Date(timeIntervalSinceReferenceDate: mvrEffectiveDateTI) : nil
