@@ -78,6 +78,54 @@ struct StreakEngine {
         return Result(current: current, longest: longest, completedDates: qualifiedDays)
     }
 
+    // MARK: - Goal snapshot
+
+    /// A point-in-time record of which exercises were active and what their daily targets were.
+    /// Stored as a chronological timeline so each historical day can be evaluated against the
+    /// goals that were actually in effect on that day rather than the current goals.
+    struct GoalSnapshot: Codable {
+        let effectiveFrom: Date
+        let exercises: [String]   // ExerciseType rawStrings
+        let goals: [String: Int]  // rawString → resolved daily target
+    }
+
+    // MARK: - Goal-day calculation
+
+    /// Returns the set of logical days where every active exercise met its daily goal,
+    /// evaluating each day against the snapshot that was in effect on that day.
+    static func calculateGoalDays(
+        entries: [WorkoutEntry],
+        goalHistory: [GoalSnapshot]
+    ) -> Set<DateComponents> {
+        guard !entries.isEmpty, !goalHistory.isEmpty else { return [] }
+        let sorted = goalHistory.sorted { $0.effectiveFrom < $1.effectiveFrom }
+        var dayMap: [DateComponents: [WorkoutEntry]] = [:]
+        for entry in entries {
+            let day = logicalDay(for: entry.timestamp)
+            dayMap[day, default: []].append(entry)
+        }
+        let calendar = Calendar.current
+        var qualifiedDays = Set<DateComponents>()
+        for (day, dayEntries) in dayMap {
+            guard let dayDate = calendar.date(from: day) else { continue }
+            // Compare against the logical day start (3 AM) so a goal change made mid-day
+            // doesn't retroactively re-evaluate that same day's already-logged reps.
+            let dayStart = calendar.date(bySettingHour: rolloverHour, minute: 0, second: 0, of: dayDate) ?? dayDate
+            let snapshot = sorted.last(where: { $0.effectiveFrom <= dayStart }) ?? sorted[0]
+            let exercises = snapshot.exercises.map { ExerciseType(rawString: $0) }
+            guard !exercises.isEmpty else { continue }
+            let allMet = exercises.allSatisfy { exercise in
+                let target = snapshot.goals[exercise.rawString] ?? 0
+                let reps = dayEntries
+                    .filter { $0.kind == .workout && $0.exercise == exercise }
+                    .reduce(0) { $0 + $1.reps }
+                return reps >= target
+            }
+            if allMet { qualifiedDays.insert(day) }
+        }
+        return qualifiedDays
+    }
+
     // MARK: - Generic streak from any set of completed days
 
     /// Compute current + longest streak from a pre-built set of logical day keys.

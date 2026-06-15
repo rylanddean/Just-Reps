@@ -5,12 +5,15 @@ import WidgetKit
 @Observable
 final class HomeViewModel {
 
+    private typealias GoalSnapshot = StreakEngine.GoalSnapshot
+
     // MARK: - Persistent state (survives app restarts)
 
     var activeExercises: [ExerciseType] {
         didSet {
             saveExercises()
             syncToWatch()
+            appendGoalSnapshot()
         }
     }
 
@@ -18,6 +21,7 @@ final class HomeViewModel {
         didSet {
             saveGoals()
             syncToWatch()
+            appendGoalSnapshot()
         }
     }
 
@@ -39,8 +43,7 @@ final class HomeViewModel {
     private var allEntries: [WorkoutEntry] = []
     private var bannerAlreadyShown = false
     private var pendingLogEntry: (exercise: ExerciseType, amount: Int)?
-    private var completedGoalDays: Set<String> = []
-    private var needsGoalDayMigration = false
+    @ObservationIgnored private var goalHistory: [GoalSnapshot] = []
 
     // MARK: - Init
 
@@ -59,13 +62,12 @@ final class HomeViewModel {
                 forKey: Self.mvrEffectiveDateKey
             )
         }
-        let saved = Self.sharedDefaults.stringArray(forKey: Self.completedGoalDaysKey)
-        if let saved {
-            completedGoalDays = Set(saved)
-            needsGoalDayMigration = false
-        } else {
-            completedGoalDays = []
-            needsGoalDayMigration = true
+        goalHistory = Self.loadGoalHistory()
+        if goalHistory.isEmpty {
+            let exercises = activeExercises.map(\.rawString)
+            let resolvedGoals = Dictionary(uniqueKeysWithValues: activeExercises.map { ($0.rawString, goal(for: $0)) })
+            goalHistory = [GoalSnapshot(effectiveFrom: .distantPast, exercises: exercises, goals: resolvedGoals)]
+            saveGoalHistory()
         }
         freezeTokens = Self.sharedDefaults.integer(forKey: Self.freezeTokensKey)
     }
@@ -77,17 +79,8 @@ final class HomeViewModel {
         let today = StreakEngine.logicalDay(for: .now)
         todaysEntries = entries.filter { StreakEngine.logicalDay(for: $0.timestamp) == today }
 
-        if needsGoalDayMigration && !entries.isEmpty {
-            needsGoalDayMigration = false
-            completedGoalDays = Set(computeHistoricalGoalDays().map { dayKey($0) })
-            saveCompletedGoalDays()
-        }
-
-        let todayKey = dayKey(today)
-        if allGoalsMet && !completedGoalDays.contains(todayKey) {
-            completedGoalDays.insert(todayKey)
-            saveCompletedGoalDays()
-        }
+        let qualifiedGoalDays = StreakEngine.calculateGoalDays(entries: allEntries, goalHistory: goalHistory)
+        Self.sharedDefaults.set(qualifiedGoalDays.map { dayKey($0) }, forKey: Self.completedGoalDaysKey)
 
         awardFreezeTokenIfEarned()
         Self.sharedDefaults.set(loggedStreak, forKey: Self.currentRepStreakKey)
@@ -208,9 +201,10 @@ final class HomeViewModel {
     }
 
     /// Consecutive days where ALL active exercise goals were fully met.
+    /// Each historical day is evaluated against the goals that were in effect on that day.
     var goalsStreak: Int {
-        let days = completedGoalDays.compactMap { dayComponents(from: $0) }
-        return StreakEngine.calculateStreak(from: Set(days)).current
+        let qualifiedDays = StreakEngine.calculateGoalDays(entries: allEntries, goalHistory: goalHistory)
+        return StreakEngine.calculateStreak(from: qualifiedDays).current
     }
 
     /// Logged streak is at risk: has a streak, it's after 8 PM, nothing logged today.
@@ -238,38 +232,32 @@ final class HomeViewModel {
 
     // MARK: - Goals streak helpers
 
-    private func computeHistoricalGoalDays() -> Set<DateComponents> {
-        var dayMap: [DateComponents: [WorkoutEntry]] = [:]
-        for entry in allEntries {
-            let day = StreakEngine.logicalDay(for: entry.timestamp)
-            dayMap[day, default: []].append(entry)
-        }
-        var completed = Set<DateComponents>()
-        for (day, entries) in dayMap {
-            let allMet = activeExercises.allSatisfy { exercise in
-                let reps = entries
-                    .filter { $0.exercise == exercise }
-                    .reduce(0) { $0 + $1.reps }
-                return reps >= goal(for: exercise)
-            }
-            if allMet { completed.insert(day) }
-        }
-        return completed
+    private func appendGoalSnapshot() {
+        let exercises = activeExercises.map(\.rawString)
+        let resolvedGoals = Dictionary(uniqueKeysWithValues: activeExercises.map { ($0.rawString, goal(for: $0)) })
+        if let last = goalHistory.last, last.exercises == exercises, last.goals == resolvedGoals { return }
+        // Take effect at the start of the next logical day so a goal change made mid-day
+        // doesn't retroactively re-evaluate today's already-logged reps.
+        goalHistory.append(GoalSnapshot(effectiveFrom: StreakEngine.logicalDayBounds(for: .now).end,
+                                        exercises: exercises, goals: resolvedGoals))
+        saveGoalHistory()
+    }
+
+    private func saveGoalHistory() {
+        guard let data = try? JSONEncoder().encode(goalHistory) else { return }
+        Self.sharedDefaults.set(data, forKey: Self.goalHistoryKey)
+    }
+
+    private static func loadGoalHistory() -> [GoalSnapshot] {
+        guard let data = sharedDefaults.data(forKey: goalHistoryKey),
+              let history = try? JSONDecoder().decode([GoalSnapshot].self, from: data)
+        else { return [] }
+        return history
     }
 
     private func dayKey(_ dc: DateComponents) -> String {
         guard let y = dc.year, let m = dc.month, let d = dc.day else { return "" }
         return String(format: "%04d-%02d-%02d", y, m, d)
-    }
-
-    private func dayComponents(from key: String) -> DateComponents? {
-        let parts = key.split(separator: "-").compactMap { Int($0) }
-        guard parts.count == 3 else { return nil }
-        return DateComponents(year: parts[0], month: parts[1], day: parts[2])
-    }
-
-    private func saveCompletedGoalDays() {
-        Self.sharedDefaults.set(Array(completedGoalDays), forKey: Self.completedGoalDaysKey)
     }
 
     private static func buildWidgetHeatmap(entries: [WorkoutEntry]) -> [String: Bool] {
@@ -505,6 +493,7 @@ final class HomeViewModel {
     private static let mvrKey = "minimumViableReps"
     private static let mvrEffectiveDateKey = "mvrEffectiveDate"
     private static let completedGoalDaysKey = "completedGoalDays"
+    private static let goalHistoryKey = "goalHistory"
     private static let freezeTokensKey = "freezeTokens"
     private static let lastFreezeAwardDayKey = "lastFreezeAwardDay"
     private static let eulogyShownForDayKey = "eulogyShownForDay"
